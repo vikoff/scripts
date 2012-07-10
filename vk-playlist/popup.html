@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Hello World!</title>
+	<script src="scripts/popup.js"></script>
+	<style>
+		body {
+			font-family: "tahoma", "arial", "verdana", sans-serif, "Lucida Sans";
+			font-size: 11px;
+		}
+		h1 {
+			position: relative;
+			background: #E9EDF1;
+			border: 1px solid #D9E0E7;
+			color: #607387;
+			font-weight: bold;
+			font-size: 12px;
+			line-height: 140%;
+			padding: 7px 10px;
+			margin-bottom: 1em;
+		}
+		a {
+			color: #2B587A;
+			text-decoration: none;
+		}
+		a: hover {
+			text-decoration: underline;
+		}
+		h1 .options {
+			float: right;
+			font-weight: normal;
+			font-size: 11px;
+			line-height: 140%;
+		}
+		.audio {
+			border-bottom: dashed 1px #CCC;
+			margin: 5px;
+			padding: 5px 10px;
+			overflow: hidden;
+		}
+		a.play {
+			display: block;
+			float: left;
+			background: url("icons/playpause.gif") 0px 0px no-repeat transparent;
+			cursor: pointer;
+			height: 16px;
+			width: 20px;
+			margin-right: 5px;
+		}
+		.play.playing {
+			background-position: 0px -16px;
+		}
+		.artist {
+			float: left;
+			color: #2B587A;
+			cursor: pointer;
+			font-weight: bold;
+		}
+		.title {
+			float: left;
+		}
+		.duration {
+			float: right;
+			color: #777777;
+		}
+	</style>
+</head>
+<body>
+	<h1>
+		VK Playlist
+		<div class="options">
+			<a href="#" onclick="Playlist.clearAll(); return false;">очистить все</a>
+		</div>
+
+	</h1>
+	<div id="output" style="margin-top: 1em; white-space: pre-wrap;"></div>
+</body>
+</html>

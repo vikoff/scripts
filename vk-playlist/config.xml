@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://www.example.org/helloworld">
+	<name>Vkontakte playlist</name>
+	<description>Make temporary vkontakte.ru (vk.com) playlists</description>
+	<author href="http://vik-off.net/" email="yuijnovikov@gmail.com">Yuriy Novikov</author>
+	<icon src="icons/hello.png"/>
+</widget>

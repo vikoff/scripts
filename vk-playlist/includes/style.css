@@ -1,0 +1,14 @@
+
+.vk-simple-playlist{
+	position: absolute;
+	overflow: hidden;
+	height: 16px;
+	line-height: 16px;
+	padding: 0 5px;
+	margin-top: 0;
+	margin-left: -18px;
+	background-color: #597DA3;
+	color: #FFFFFF;
+	border-radius: 2px;
+	cursor: pointer;
+}
