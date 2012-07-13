@@ -11,6 +11,15 @@ function createNode(tag, attrs, text){
 		node.appendChild(document.createTextNode(text));
 	return node;
 }
+function decodeStr(str) {
+	str = str.replace(/\&amp;/g, '&');
+	str = str.replace(/\&gt;/g, '>');
+	str = str.replace(/\&lt;/g, '<');
+	str = str.replace(/\&quot;/g, '"');
+	str = str.replace(/\&\#39;/g, "'");
+	str = str.replace(/\&\#33;/g, "!");
+	return str;
+}
 
 var Request = {
 
@@ -36,65 +45,143 @@ var Request = {
 
 	callback: function(callbackId, data) {
 		this.callbacks[callbackId](data);
+			delete this.callbacks[callbackId];
 	}
 };
 
 var Playlist = {
 
-	items: [],
+	itemIds: [],
+	itemsInfo: {},
 	cur: -1,
+	globalId: null,
+	globalPaused: true,
+	volume: 0,
+	numTabs: 0,
 
 	load: function(playlist) {
- 		Playlist.items = playlist.items;
+
+ 		Playlist.itemIds = playlist.itemIds;
+ 		Playlist.itemsInfo = playlist.itemsInfo;
  		Playlist.cur = playlist.cur;
+ 		Playlist.globalId = playlist.globalId;
+ 		Playlist.globalPaused = playlist.globalPaused;
+ 		Playlist.volume = playlist.volume;
+ 		Playlist.numTabs = playlist.numTabs;
  		Playlist.render();
 	},
 
 	render: function() {
 
-		var box = document.getElementById('output');
+		document.getElementById('btn-play').className = this.globalPaused ? '' : 'playing';
+
+		var box = document.getElementById('elements');
 		box.innerHTML = '';
 
-		if (this.items.length) {
-			this.items.forEach(function(item, key) {
-				var isCur = key == Playlist.cur;
-				var rowHtml = createNode('div', {className: 'audio'});
-				var click = function(){ isCur ? Playlist.stop() : Playlist.play(key); return false };
-				rowHtml.appendChild(createNode('a', {className: 'play ' + (isCur ? 'playing' : ''), onclick: click, href: '#'}));
-				rowHtml.appendChild(createNode('div', {className: 'artist'}, item.info[5]));
-				rowHtml.appendChild(createNode('div', {className: 'title'}, ' – ' + item.info[6]));
-				rowHtml.appendChild(createNode('div', {className: 'duration'}, item.info[4]));
+		this.updateVolume(this.volume);
+		document.getElementById('num-tabs').innerHTML = this.numTabs;
+
+		if (this.itemIds.length) {
+			this.itemIds.forEach(function(id, key) {
+
+				var itemInfo = Playlist.itemsInfo[id];
+				var playing = !Playlist.globalPaused && id == Playlist.globalId;
+				var rowHtml = createNode('li', {className: 'audio', id: key + '-item'});
+				var delCallback = function(){ Playlist.del(id); return false; };
+				var playCallback = function(){ playing ? Playlist.stop() : Playlist.play(id); return false };
+				var delBox = createNode('div', {className: 'delete-box'});
+				delBox.appendChild(createNode('a', {className: 'delete ', onclick: delCallback, href: '#'}))
+				
+				rowHtml.appendChild(delBox);
+				rowHtml.appendChild(createNode('div', {className: 'duration'}, decodeStr(itemInfo[4])));
+				rowHtml.appendChild(createNode('div', {className: 'move '}));
+				rowHtml.appendChild(createNode('a', {className: 'play ' + (playing ? 'playing' : ''), onclick: playCallback, href: '#'}));
+				rowHtml.appendChild(createNode('span', {className: 'artist'}, decodeStr(itemInfo[5])));
+				rowHtml.appendChild(createNode('span', {className: 'title'}, ' – ' + decodeStr(itemInfo[6])));
+
 				box.appendChild(rowHtml);
 			});
+			$(box).sortable({axis: 'y', handle: '.move', update: function(event, ui){
+				var order = $(box).sortable("toArray");
+				for (var i in order) order[i] = parseInt(order[i], 10);
+				opera.extension.bgProcess.Playlist.setOrder(order);
+			}});
 		} else {
-			box.appendChild(createNode('div', {className: 'empty-set'}, 'Плейлист пуст.'))
+			box.appendChild(createNode('li', {className: 'empty-set'}, 'Плейлист пуст.'))
 		}
 	},
 
-	play: function(index) {
-		opera.extension.bgProcess.Playlist.play(index);
-		Playlist.load(opera.extension.bgProcess.Playlist.getData());
+	play: function(id) {
+		opera.extension.bgProcess.Playlist.play(id);
 	},
 
 	stop: function() {
 		opera.extension.bgProcess.Playlist.stop();
+	},
+
+	playNext: function() {
+		opera.extension.bgProcess.Playlist.playNext();
+	},
+
+	playPrev: function() {
+		opera.extension.bgProcess.Playlist.playPrev();
+	},
+
+	del: function(id) {
+		opera.extension.bgProcess.Playlist.del(id);
 		Playlist.load(opera.extension.bgProcess.Playlist.getData());
 	},
 
 	clearAll: function() {
-		if (!Playlist.items.length)
+		if (!Playlist.itemIds.length)
 			return;
-		// if (!confirm('Уверены?'))
-			// return;
-		Request.send('clear-all', null, function(response) {
+		if (!confirm('Уверены?'))
+			return;
+		Request.send('popup-clear-all', null, function(response) {
 			if (response == 'ok') {
-				Playlist.items = [];
+				Playlist.itemIds = [];
 				Playlist.cur = -1;
 				Playlist.render();
 			} else {
 				alert('clearing error. ' + response);
 			}
 		});
+	},
+
+	playToggle: function() {
+
+		if (this.globalPaused) {
+			if (this.globalId)
+				this.play(this.globalId);
+		} else {
+			this.stop();
+		}
+	},
+
+	setVolume: function(vol) {
+		this.volume = vol;
+		opera.extension.bgProcess.Playlist.setVolume(vol, true);
+	},
+
+	updateVolume: function(vol) {
+		this.volume = vol;
+		document.getElementById('volume').value = vol;
+	},
+
+	setNumTabs: function(num) {
+		this.numTabs = num;
+		document.getElementById('num-tabs').innerHTML = num;
+	},
+
+	repeatToggle: function(link) {
+		
+		var title = opera.extension.bgProcess.Playlist.repeatToggle();
+		document.getElementById('repeat-btn').innerHTML = title;
+	},
+
+	updateRepeat: function(repeat) {
+		
+		document.getElementById('repeat-btn').innerHTML = repeat;
 	}
 }
 
@@ -118,9 +205,20 @@ window.addEventListener('load', function() {
 	 		case 'popup-push-playlist':
 	 			Playlist.load(message.data);
 	 			break;
+	 		case 'popup-num-tabs':
+	 			Playlist.setNumTabs(message.data);
+	 			break;
+	 		case 'popup-set-volume':
+	 			Playlist.updateVolume(message.data);
+	 			break;
+	 		case 'popup-update-repeat':
+	 			Playlist.updateRepeat(message.data);
+	 			break;
 	 	}
 	};
 
+	$('#progress-bar').slider();
+	
  	Request.send('popup-load-playlist', null, Playlist.load);
 
 });

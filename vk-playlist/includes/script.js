@@ -21,31 +21,6 @@
 
 	}
 
-	function modifyVkScripts() {
-
-		var pl = window.VikOffPlaylist;
-
-		if (!window.audioPlayer) {
-			console.error('audio player not found');
-			return;
-		}
-
-		window.audioPlayer.onPlayFinish_origin = window.audioPlayer.onPlayFinish;
-
-		window.audioPlayer.onPlayFinish = function() {
-
-			pl.getNext(function(id) {
-				if (id) {
-					console.log('VikOffPlaylist play next');
-					pl.play(id);
-				} else {
-					console.log('origin play next');
-					window.audioPlayer.onPlayFinish_origin();
-				}
-			});
-		}
-	}
-
 	function onmessage(event) {
 
 		try { 
@@ -63,11 +38,29 @@
 	 	}
 
 	 	switch (message.topic) {
-	 		case 'loadedCss':
-	 			break;
 	 		case 'vp-play':
-	 			alert('play!');
-	 			window.VikOffPlaylist.play(message.data);
+	 			Playlist.play(message.data);
+	 			break;
+	 		case 'vp-play-next':
+	 			Playlist.playNext(message.data);
+	 			break;
+	 		case 'vp-play-prev':
+	 			Playlist.playPrev(message.data);
+	 			break;
+	 		case 'vp-del':
+	 			Playlist.delExternal(message.data);
+	 			break;
+	 		case 'vp-clear-all':
+	 			Playlist.clearAll();
+	 			break;
+	 		case 'vp-stop':
+	 			Playlist.stop();
+	 			break;
+	 		case 'vp-set-volume':
+	 			Playlist.setVolume(message.data);
+	 			break;
+	 		case 'vp-load-audio-info':
+	 			Playlist.loadAudioInfo(message.data.id, message.data.info);
 	 			break;
 	 		case 'debug':
 				console.debug('vikoffPlaylist debug: ');
@@ -99,14 +92,72 @@
 		},
 
 		callback: function(callbackId, data) {
-			this.callbacks[callbackId](data);
+			try {
+				this.callbacks[callbackId](data);
+				delete this.callbacks[callbackId];
+			} catch (e) {
+				throw new Error('Callback id=' + callbackId + ' not found.');
+				console.debug(data);
+			}
 		}
 	}
 
-	window.VikOffPlaylist = {
+	var Playlist = {
 
-		items: [],
-		cur: -1,
+		itemIds: [],
+		paused: true,
+
+		init: function(itemIds) {
+
+			this.itemIds = itemIds;
+			
+			Playlist.searchAudio();
+			setInterval(function(){ Playlist.searchAudio(); }, 2500);
+		},
+
+		modifyVkScripts: function() {
+
+			with (window) {
+
+				if (!audioPlayer) {
+					console.error('audio player not found');
+					return;
+				}
+				// operate
+				audioPlayer.operate_origin = audioPlayer.operate;
+				audioPlayer.operate = function() {
+					audioPlayer.operate_origin.apply(this, arguments);
+					var isPaused = audioPlayer.player ? audioPlayer.player.paused() : true;
+					Playlist.setIsPaused(audioPlayer.id, isPaused);
+				};
+
+				// onPlayFinish
+				audioPlayer.onPlayFinish_origin = audioPlayer.onPlayFinish;
+				audioPlayer.onPlayFinish = function() {
+
+					Playlist.getNext(function(id) {
+						console.log('next id: ' + id);
+						if (id) { Playlist.play(id); }
+						else { audioPlayer.onPlayFinish_origin.apply(this, arguments); }
+					});
+				}
+
+				// volClick
+				audioPlayer.volClick_origin = audioPlayer.volClick;
+				audioPlayer.volClick = function(){
+					audioPlayer.volClick_origin.apply(this, arguments);
+					if (audioPlayer.player)
+						Playlist.updateVolume(Math.round(audioPlayer.player.getVolume() * 100));
+				}
+
+				// toggleRepeat
+				audioPlayer.toggleRepeat_origin = audioPlayer.toggleRepeat;
+				audioPlayer.toggleRepeat = function() {
+					audioPlayer.toggleRepeat_origin.apply(this, arguments);
+					Playlist.updateRepeat(audioPlayer.repeat ? 'one' : 'no');
+				}
+			}
+		},
 
 		searchAudio: function() {
 
@@ -114,36 +165,57 @@
 			var boxes = document.getElementsByClassName('audio');
 			for (var i = 0, len = boxes.length; i < len; i++) {
 
-				if (hasClass(boxes[i], 'vikoff-playlist')) continue;
-				else addClass(boxes[i], 'vikoff-playlist');
+				if (hasClass(boxes[i], 'vikoff-playlist-box')) continue;
+				else addClass(boxes[i], 'vikoff-playlist-box');
 
-				knownDiv = boxes[i].getElementsByClassName('play_new')[0] || null;
-				if (knownDiv) { (function(box, id){
+				knownDiv = boxes[i].getElementsByClassName('play_new')[0];
+				if (!knownDiv) continue;
 
-					var matches = /^play(.+)$/.exec(id);
-					if (!matches) {
-						console.error('unknown audio id format: ' + id);
-						alert('unknown audio id format: ' + id);
-						return;
-					}
-					var clearId = matches[1];
+				(function(rawId, durationBox, infoBox){
 
-					var playBtn = box.children[0];
-					var extBtn = document.createElement('div');
-					extBtn.className = 'vk-simple-playlist';
-					extBtn.innerHTML = 'p';
-					extBtn.onclick = function(){
-						window.VikOffPlaylist.add(clearId);
-					};
+					var clearId = Playlist.getClearId(rawId);
+
+					var btnBox = document.createElement('div');
+					btnBox.className = 'vikoff-playlist-item-box';
 					
-					if (box.children.length)
-						box.insertBefore(extBtn, box.children[0]);
-					else
-						box.appendChild(extBtn);
+					var btn = document.createElement('a');
+					btn.className = 'vik-off-' + clearId + ' vikoff-playlist-item' + (Playlist.has(clearId) ? ' vikoff-added' : '');
+					btn.onclick = function() {
+						if (hasClass(this, 'vikoff-added')) {
+							removeClass(this, 'vikoff-added');
+							Playlist.del(clearId);
+						} else {
+							addClass(this, 'vikoff-added');
+							Playlist.add(clearId);
+						}
+					};
 
-					// console.log('vik-off playlist added id: ' + id);
+					btnBox.appendChild(btn);
+					infoBox.insertBefore(btnBox, infoBox.firstChild);
 
-				})(knownDiv.parentNode.parentNode, knownDiv.id); }
+					return; // DEBUG
+
+					var btn = document.createElement('a');
+					btn.className = 'vik-off-' + clearId + ' vikoff-playlist-item' + (Playlist.has(clearId) ? ' vikoff-added' : '');
+					btn.onclick = function() {
+						if (hasClass(this, 'vikoff-added')) {
+							removeClass(this, 'vikoff-added');
+							Playlist.del(clearId);
+						} else {
+							addClass(this, 'vikoff-added');
+							Playlist.add(clearId);
+						}
+					};
+
+					var dur = document.createElement('span');
+					dur.className = 'vikoff-duration';
+					dur.innerHTML = durationBox.innerHTML;
+
+					durationBox.innerHTML = "";
+					durationBox.appendChild(dur);
+					durationBox.appendChild(btn);
+
+				})(knownDiv.id, boxes[i].getElementsByClassName('duration')[0], boxes[i].getElementsByClassName('info')[0]);
 			}
 
 		},
@@ -153,16 +225,35 @@
 			Request.send('vp-add', {
 				id: audioId,
 				info: this.getAudioInfo(audioId),
-			}, function(response) { 
-				if (response == 'ok') {
-					console.info('audio ' + audioId + ' added');
-				} else {
-					console.error(response);
-					alert('audio add error: ' + response);
-				}
-			})
+			});
 
-			// this.log(item);
+		},
+
+		del: function(id) {
+
+			Request.send('vp-del', id);
+			var index = this.itemIds.indexOf(id);
+			if (index > -1)
+				this.itemIds.splice(index, 1);
+		},
+
+		delExternal: function(id) {
+
+			Array.prototype.slice.call(document.getElementsByClassName('vik-off-' + id), 0).forEach(function(elm){
+				removeClass(elm, 'vikoff-added');
+			});
+		},
+
+		clearAll: function() {
+
+			Array.prototype.slice.call(document.getElementsByClassName('vikoff-added'), 0).forEach(function(elm){
+				removeClass(elm, 'vikoff-added');
+			});
+		},
+
+		has: function(id) {
+
+			return this.itemIds.indexOf(id) > -1;
 		},
 
 		getAudioInfo: function(audioId) {
@@ -171,7 +262,7 @@
 
 			if (window.audioPlaylist && window.audioPlaylist[audioId]) {
 				audioInfo = window.audioPlaylist[audioId];
-			} else if (window.audioPlayer && window.audioPlayer.songInfos[audioId]) {
+			} else if (window.audioPlayer.songInfos[audioId]) {
 				audioInfo = window.audioPlayer.songInfos[audioId];
 			} else {
 				var art, title, nfo = window.geByClass1('info', window.ge('audio'+audioId));
@@ -195,9 +286,20 @@
 				var uid = data[0];
 				var aid = data[1];
 				audioInfo = {0: uid, 1:aid, 2:url, 3:duration, 4:dur, 5: art, 6:title};
+				if (window.audioPlaylist)
+					window.audioPlaylist[audioId] = audioInfo;
+				else
+					window.audioPlayer.songInfos[audioId] = audioInfo;
 			}
 
 			return audioInfo;
+		},
+
+		loadAudioInfo: function(audioId, audioInfo) {
+			if (window.audioPlaylist)
+				window.audioPlaylist[audioId] = audioInfo;
+			else
+				window.audioPlayer.songInfos[audioId] = audioInfo;
 		},
 
 		getNext: function(callback) {
@@ -207,12 +309,65 @@
 
 		play: function(id) {
 
-			if (id === window.audioPlayer.id) {
-				this.log(id +' already playing');
-			} else {
-				this.log('play next audio ' + id);
+			if (id !== window.audioPlayer.id || this.paused) {
 				window.audioPlayer.operate(id);
 			}
+		},
+
+		stop: function(){
+			window.audioPlayer.pauseTrack();
+			Playlist.setIsPaused(window.audioPlayer.id, true);
+		},
+
+		playNext: function(id) {
+
+			if (id) this.play(id);
+			else window.audioPlayer.nextTrack();
+		},
+
+		playPrev: function(id) {
+			
+			if (id) this.play(id);
+			else window.audioPlayer.prevTrack();
+		},
+
+		setIsPaused: function(curId, paused) {
+			
+			this.paused = paused;
+			Request.send('vp-set-is-paused', {curId: curId, paused: this.paused});
+		},
+
+		setVolume: function(vol) {
+
+			// css
+			var cssVal = Math.round(vol * 0.33) + 'px';
+			if (window.ge('gp_vol_slider'))
+				window.ge('gp_vol_slider').style.left = cssVal;
+			if (window.audioPlayer.id && window.ge('audio_vol_slider' + window.audioPlayer.id))
+				window.ge('audio_vol_slider' + window.audioPlayer.id).style.left = cssVal;
+
+			// player
+			if (window.audioPlayer.player)
+				window.audioPlayer.player.setVolume(vol / 100);
+		},
+
+		updateVolume: function(vol) {
+			Request.send('vp-update-vol', vol)
+		},
+
+		updateRepeat: function(repeat) {
+			Request.send('vp-update-repeat', repeat)
+		},
+
+		getClearId: function(rawId) {
+
+			var matches = /^play(.+)$/.exec(rawId);
+			if (!matches) {
+				console.error('unknown audio id format: ' + rawId);
+				alert('unknown audio id format: ' + rawId);
+				return;
+			}
+			return matches[1];
 		},
 
 		log: function(msg){
@@ -222,22 +377,27 @@
 
 	window.addEventListener('load', function() {
 
-		Request.send('loadCss', null, function(css){
+		Request.send('vp-load-css', null, function(css) {
 			var style = document.createElement('style');
 			style.setAttribute('type', 'text/css');
 			style.appendChild(document.createTextNode(css));
 			document.getElementsByTagName('head')[0].appendChild(style);
 		});
 
+		var volume = window.getCookie('audio_vol');
+		if (!volume && window.audioPlayer.player)
+			volume = Math.round(window.audioPlayer.player.getVolume() * 100);
+		
+		Request.send('vp-init', {volume: volume}, function(data){
+ 			Playlist.init(data.itemIds);
+		});
+
 		opera.extension.addEventListener('message', onmessage);
 
-		window.VikOffPlaylist.searchAudio();
-		setInterval(function(){ window.VikOffPlaylist.searchAudio(); }, 3000);
-
 		if (window.audioPlayer)
-			modifyVkScripts();
+			Playlist.modifyVkScripts();
 		else if (window.stManager)
-			window.stManager.add(['new_player.js', 'new_player.css'], modifyVkScripts);
+			window.stManager.add(['new_player.js', 'new_player.css'], Playlist.modifyVkScripts);
 
 	});
 

@@ -3,41 +3,129 @@
 <head>
 	<meta charset="utf-8">
 	<title>Hello World!</title>
+	<script src="scripts/jquery-1.7.2.min.js"></script>
+	<script src="scripts/jquery-ui-1.8.21.custom.min.js"></script>
+	<script src="scripts/debug.js"></script>
 	<script src="scripts/popup.js"></script>
 	<style>
 		body {
 			font-family: "tahoma", "arial", "verdana", sans-serif, "Lucida Sans";
 			font-size: 11px;
 		}
-		h1 {
-			position: relative;
-			background: #E9EDF1;
-			border: 1px solid #D9E0E7;
-			color: #607387;
-			font-weight: bold;
-			font-size: 12px;
-			line-height: 140%;
-			padding: 7px 10px;
-			margin-bottom: 1em;
-		}
 		a {
 			color: #2B587A;
 			text-decoration: none;
 		}
-		a: hover {
+		a:hover {
 			text-decoration: underline;
 		}
-		h1 .options {
-			float: right;
+		ul, li {
+			display: block;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		.options {
+			margin-bottom: 5px;
 			font-weight: normal;
 			font-size: 11px;
-			line-height: 140%;
+			overflow: hidden;
+
+		}
+		.options .left {
+			float: left;
+		}
+		.options .right {
+			float: right;
+		}
+		#header {
+			position: relative;
+			background: #E9EDF1;
+			border: 1px solid #D9E0E7;
+			margin-bottom: 5px;
+			overflow: hidden;
+			padding: 0 10px;
+		}
+		.logo {
+			float: left;
+			color: #607387;
+			font-weight: bold;
+			font-size: 14px;
+			line-height: 33px;
+		}
+		.player-buttons {
+			float: right;
+			margin: 0px 2px;
+		}
+		.btn-prev {
+			display: block;
+			float: left;
+			width: 24px;
+			height: 24px;
+			margin: 4px 6px;
+			background: url("icons/button-prev24.png") 0px 0px no-repeat transparent;
+		}
+		.btn-next {
+			display: block;
+			float: left;
+			width: 24px;
+			height: 24px;
+			margin: 4px 6px;
+			background: url("icons/button-next24.png") 0px 0px no-repeat transparent;
+		}
+		#btn-play {
+			display: block;
+			float: left;
+			width: 32px;
+			height: 32px;
+			background: url("icons/button-play32.png") 0px 0px no-repeat transparent;
+		}
+		#btn-play.playing {
+			background: url("icons/button-pause32.png") 0px 0px no-repeat transparent;
+		}
+		#volume-bar{
+			float: right;
+			width: 120px;
+			text-align: center;
+			margin: 8px 8px 0px;
+		}
+		#volume-bar input{
+			width: 100%;
+		}
+		#progress-bar{
+			margin: 10px 0 7px;
+		}
+		.repeat-box{
+			float: left;
+			margin-bottom: 5px;
+		}
+		.duration-box{
+			float: right;
+			margin-bottom: 5px;
 		}
 		.audio {
 			border-bottom: dashed 1px #CCC;
-			margin: 5px;
-			padding: 5px 10px;
+			border-top: dashed 1px #CCC;
+			margin-top: -1px;
+			padding: 10px 0px;
 			overflow: hidden;
+			background-color: #FFF;
+		}
+		.move {
+			display: block;
+			float: left;
+			height: 16px;
+			line-height: 14px;
+			padding: 0 5px;
+			background-color: #FFF;
+			color: #597DA3;
+			border-radius: 2px;
+			cursor: move;
+			font-weight: bold;
+			font-size: 14px;
+			content: "↕";
+			/*content: "⇳";*/
+			/*content: "⬍";*/
 		}
 		a.play {
 			display: block;
@@ -46,34 +134,79 @@
 			cursor: pointer;
 			height: 16px;
 			width: 20px;
-			margin-right: 5px;
+			margin-right: 3px;
 		}
 		.play.playing {
 			background-position: 0px -16px;
 		}
 		.artist {
-			float: left;
 			color: #2B587A;
-			cursor: pointer;
 			font-weight: bold;
 		}
 		.title {
-			float: left;
 		}
 		.duration {
 			float: right;
 			color: #777777;
 		}
+		.delete-box {
+			float: right;
+			width: 15px;
+			height: 10px;
+			position: relative;
+		}
+		.delete {
+			display: block;
+			position: absolute;
+			background-color: #CCCED4;
+			border-radius: 2px;
+			color: #FFFFFF;
+			font-size: 11px;
+			line-height: 11px;
+			padding: 1px 3px;
+			text-align: center;
+			text-decoration: none;
+			width: 6px;
+			right: 0px;
+			top: 0px;
+			content: "-";
+		}
+		.delete:hover{
+			width: 42px;
+			top: -4px;
+			padding: 5px 3px;
+			content: "playlist -";
+		}
 	</style>
+	<link rel="stylesheet" type="text/css" href="css/cupertino/jquery-ui-1.8.21.custom.css">
 </head>
 <body>
-	<h1>
-		VK Playlist
-		<div class="options">
+	<div id="header">
+		<div class="logo">Vikoff Playlist</div>
+		<div class="player-buttons">
+			<a href="#" class="btn-prev" onclick=" Playlist.playPrev(); return false;"></a>
+			<a href="#" id="btn-play" onclick=" Playlist.playToggle(); return false;"></a>
+			<a href="#" class="btn-next" onclick=" Playlist.playNext(); return false;"></a>
+			<div style="clear: both;"></div>
+		</div>
+		<div id="volume-bar">
+			<!--div>Volume</div-->
+			<input id="volume" type="range" step="5" onchange="Playlist.setVolume(this.value);">
+		</div>
+		<div style="clear: both;"></div>
+		<div id="progress-bar"></div>
+		<div class="repeat-box">повторять <a href="#" id="repeat-btn" onclick="Playlist.repeatToggle(); return false;">нет</a></div>
+		<div class="duration-box"></div>
+	</div>
+
+	<div class="options">
+		<div class="left">
+			открытых vk вкладок: <span id="num-tabs">0</span>
+		</div>
+		<div class="right">
 			<a href="#" onclick="Playlist.clearAll(); return false;">очистить все</a>
 		</div>
-
-	</h1>
-	<div id="output" style="margin-top: 1em; white-space: pre-wrap;"></div>
+	</div>
+	<ul id="elements" style="margin-top: 1em;"></ul>
 </body>
 </html>
