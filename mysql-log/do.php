@@ -60,13 +60,11 @@ if (empty($mysqlLogFile))
 if (empty($mysqlLogEnable))
 	exit("ERROR: no 'general_log' key found in mysql config file\n");
 
-echo "CURRENT STATE: ".($mysqlLogEnable['enabled'] ? 'enabled' : 'disabled')
-	.", log file: {$mysqlLogFile['path']} (line {$mysqlLogFile['line']}".($mysqlLogFile['commented'] ? ', directive commented' : '').")
-";
+echo "\nCURRENT STATE: ".($mysqlLogEnable['enabled'] ? 'enabled' : 'disabled')
+	.", log file: {$mysqlLogFile['path']} ".($mysqlLogFile['commented'] ? ', (directive commented)' : '')."\n\n";
 
 if ($argc < 2) {
-	echo " USAGE:
-	use flags 'enable', 'disable', 'clear', 'cat', 'watch'
+	echo "USAGE: use flags 'enable', 'disable', 'clear', 'cat', 'watch'
 	FOR EXAMPLE: do.php enable             # to enable logging
 	             do.php enable cat         # to enable logging and then cat log to screen
 	             do.php enable clear watch # to enable logging, clear log and show it in watch
@@ -127,5 +125,4 @@ elseif ($options['watch']) {
 	echo $command."\n";
 	passthru($command);
 }
-
 
