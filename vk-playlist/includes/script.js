@@ -22,7 +22,6 @@
 	}
 
 	function onmessage(event) {
-
 		try { 
 			var message = typeof event.data == 'string' ? JSON.parse(event.data) : event.data;
 		} catch (e) {
@@ -30,7 +29,7 @@
 			return;
 		}
 
-	 	// var_dump(event, 'a');
+	 	// console.log(event, 'a');
 
 	 	if (message.callback) {
 	 		Request.callback(message.callback, message.data);
@@ -156,6 +155,8 @@
 					audioPlayer.toggleRepeat_origin.apply(this, arguments);
 					Playlist.updateRepeat(audioPlayer.repeat ? 'one' : 'no');
 				}
+				audioPlayer.toggleRepeat.bind = audioPlayer.toggleRepeat_origin.bind;
+				audioPlayer.toggleRepeat.pbind = audioPlayer.toggleRepeat_origin.pbind;
 			}
 		},
 
@@ -180,7 +181,9 @@
 					
 					var btn = document.createElement('a');
 					btn.className = 'vik-off-' + clearId + ' vikoff-playlist-item' + (Playlist.has(clearId) ? ' vikoff-added' : '');
-					btn.onclick = function() {
+					btn.onclick = function(e) {
+						e = e || window.event;
+						e.stopPropagation ? e.stopPropagation() : (e.cancelBubble=true);
 						if (hasClass(this, 'vikoff-added')) {
 							removeClass(this, 'vikoff-added');
 							Playlist.del(clearId);
@@ -397,7 +400,7 @@
 		if (window.audioPlayer)
 			Playlist.modifyVkScripts();
 		else if (window.stManager)
-			window.stManager.add(['new_player.js', 'new_player.css'], Playlist.modifyVkScripts);
+			stManager.add(['audioplayer.js', 'audioplayer.css'], Playlist.modifyVkScripts);
 
 	});
 
