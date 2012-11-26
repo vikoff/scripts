@@ -141,12 +141,16 @@
 					});
 				}
 
+				audioPlayer.nextTrack_origin = audioPlayer.nextTrack;
+				audioPlayer.nextTrack = function(){ alert('next'); };
+				audioPlayer.nextTrack.bind = audioPlayer.nextTrack_origin.bind;
+				audioPlayer.nextTrack.pbind = audioPlayer.nextTrack_origin.pbind;
+
 				// volClick
 				audioPlayer.volClick_origin = audioPlayer.volClick;
 				audioPlayer.volClick = function(){
 					audioPlayer.volClick_origin.apply(this, arguments);
-					if (audioPlayer.player)
-						Playlist.updateVolume(Math.round(audioPlayer.player.getVolume() * 100));
+					Playlist.updateVolume(getCookie('audio_vol'));
 				}
 
 				// toggleRepeat
@@ -342,16 +346,15 @@
 
 		setVolume: function(vol) {
 
-			// css
-			var cssVal = Math.round(vol * 0.33) + 'px';
-			if (window.ge('gp_vol_slider'))
-				window.ge('gp_vol_slider').style.left = cssVal;
-			if (window.audioPlayer.id && window.ge('audio_vol_slider' + window.audioPlayer.id))
-				window.ge('audio_vol_slider' + window.audioPlayer.id).style.left = cssVal;
+			with (window) {
+				// css
+				if (ge('ac_vol_line'))
+					ge('ac_vol_line').style.width = Math.round(vol) + '%';
 
-			// player
-			if (window.audioPlayer.player)
-				window.audioPlayer.player.setVolume(vol / 100);
+				// player
+				if (window.audioPlayer.player)
+					window.audioPlayer.player.setVolume(vol / 100);
+			}
 		},
 
 		updateVolume: function(vol) {
