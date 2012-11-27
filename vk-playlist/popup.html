@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Hello World!</title>
+	<title>vk playlist popup</title>
 	<script src="scripts/jquery-1.7.2.min.js"></script>
 	<script src="scripts/jquery-ui-1.8.21.custom.min.js"></script>
 	<script src="scripts/debug.js"></script>
@@ -97,6 +97,12 @@
 		}
 		.repeat-box{
 			float: left;
+			margin-bottom: 5px;
+		}
+		.set-ordering{
+			display: block;
+			float: right;
+			margin-top: -4px;
 			margin-bottom: 5px;
 		}
 		.duration-box{
@@ -196,6 +202,10 @@
 		<div style="clear: both;"></div>
 		<div id="progress-bar"></div>
 		<div class="repeat-box">повторять <a href="#" id="repeat-btn" onclick="Playlist.repeatToggle(); return false;">нет</a></div>
+		<label class="set-ordering">
+			<input id="list-involved-btn" type="checkbox" onchange="Playlist.setListInvolved(this.checked, true);" />
+			участвовать в очереди
+		</label>
 		<div class="duration-box"></div>
 	</div>
 

@@ -20,6 +20,9 @@ function decodeStr(str) {
 	str = str.replace(/\&\#33;/g, "!");
 	return str;
 }
+function ge(id) {
+	return document.getElementById(id);
+}
 
 var Request = {
 
@@ -58,6 +61,7 @@ var Playlist = {
 	globalPaused: true,
 	volume: 0,
 	numTabs: 0,
+	listInvolved: true,
 
 	load: function(playlist) {
 
@@ -68,6 +72,8 @@ var Playlist = {
  		Playlist.globalPaused = playlist.globalPaused;
  		Playlist.volume = playlist.volume;
  		Playlist.numTabs = playlist.numTabs;
+ 		Playlist.listInvolved = playlist.listInvolved;
+
  		Playlist.render();
 	},
 
@@ -79,6 +85,7 @@ var Playlist = {
 		box.innerHTML = '';
 
 		this.updateVolume(this.volume);
+		this.setListInvolved(this.listInvolved);
 		document.getElementById('num-tabs').innerHTML = this.numTabs;
 
 		if (this.itemIds.length) {
@@ -120,11 +127,15 @@ var Playlist = {
 	},
 
 	playNext: function() {
-		opera.extension.bgProcess.Playlist.playNext();
+		var bg = opera.extension.bgProcess
+		var id = bg.Playlist.getNext();
+		bg.Request.sendTab('vp-play-next', id);
 	},
 
 	playPrev: function() {
-		opera.extension.bgProcess.Playlist.playPrev();
+		var bg = opera.extension.bgProcess
+		var id = bg.Playlist.getPrev();
+		bg.Request.sendTab('vp-play-prev', id);
 	},
 
 	del: function(id) {
@@ -166,6 +177,19 @@ var Playlist = {
 	updateVolume: function(vol) {
 		this.volume = vol;
 		document.getElementById('volume').value = vol;
+	},
+
+	/**
+	 * Задать вовлеченность плейлиста в общий порядок вопроизведения
+	 * @param {bool} val      участвовать или нет
+	 * @param {bool} fromHtml изменения пришли из html попапа, или из background-процесса
+	 */
+	setListInvolved: function(val, fromHtml) {
+		this.listInvolved = val ? true : false;
+		if (fromHtml)
+			opera.extension.bgProcess.Playlist.listInvolved = this.listInvolved;
+		else
+			ge('list-involved-btn').checked = this.listInvolved;
 	},
 
 	setNumTabs: function(num) {

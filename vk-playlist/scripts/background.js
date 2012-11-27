@@ -1,7 +1,6 @@
 
 /**
  * @TODO
- * - next/prev buttons
  * - main icon
  * - extension icon
  */
@@ -215,6 +214,7 @@ var Playlist = {
 	volume: 0,
 	repeat: 'no', // no|one|all
 	repeatTitles: {'no': 'нет', 'one': 'трек', 'all': 'все'},
+	listInvolved: true, // участвовать в списке воспроизводимых аудиозаписей
 	
 	init: function(volume) {
 
@@ -240,44 +240,6 @@ var Playlist = {
 
 		this.cur = -1;
 		Request.sendTab('vp-stop');
-	},
-
-	playNext: function() {
-		
-		var id = null;
-		if (this.cur > -1 && this.itemIds.length) {
-			this.cur++;
-			if (this.itemIds[this.cur]) {
-				id = this.itemIds[this.cur];
-			} else {
-				if (this.repeat == 'all') {
-					this.cur = 0;
-					id = this.itemIds[this.cur];
-				} else {
-					this.cur = -1;
-				}
-			}
-		}
-		Request.sendTab('vp-play-next', id);
-	},
-
-	playPrev: function() {
-		
-		var id = null;
-		if (this.cur > -1 && this.itemIds.length) {
-			this.cur--;
-			if (this.itemIds[this.cur]) {
-				id = this.itemIds[this.cur];
-			} else {
-				if (this.repeat == 'all') {
-					this.cur = this.itemIds.length - 1;
-					id = this.itemIds[this.cur];
-				} else {
-					this.cur = -1;
-				}
-			}
-		}
-		Request.sendTab('vp-play-prev', id);
 	},
 
 
@@ -308,10 +270,22 @@ var Playlist = {
 		return 'ok';
 	},
 
-	getNext: function() {
-
+	getNext: function(onPlayFinish) {
 		var id = null;
 
+		if (this.repeat == 'one' && onPlayFinish)
+			return this.itemIds[this.cur];
+
+		if (!this.listInvolved)
+			return null;
+
+		this.cur++;
+		if (this.cur >= this.itemIds.length) {
+			if (this.repeat == 'all')
+				this.cur = 0;
+			else
+				return null;
+		}
 		if (this.cur > -1 && this.repeat != 'one')
 			this.cur++;
 
@@ -324,7 +298,24 @@ var Playlist = {
 			this.cur = -1;
 		}
 
-		Request.sendPopup('popup-push-playlist', this.getData());
+		return id;
+	},
+
+	getPrev: function() {
+		var id = null;
+		if (this.cur > -1 && this.itemIds.length) {
+			this.cur--;
+			if (this.itemIds[this.cur]) {
+				id = this.itemIds[this.cur];
+			} else {
+				if (this.repeat == 'all') {
+					this.cur = this.itemIds.length - 1;
+					id = this.itemIds[this.cur];
+				} else {
+					this.cur = -1;
+				}
+			}
+		}
 
 		return id;
 	},
@@ -338,7 +329,8 @@ var Playlist = {
 			globalId: this.globalId,
 			globalPaused: this.globalPaused,
 			volume: this.volume,
-			numTabs: Request.tabSources.length
+			numTabs: Request.tabSources.length,
+			listInvolved: this.listInvolved
 		};
 	},
 
@@ -414,13 +406,12 @@ window.addEventListener('load', function() {
 				event.source.postMessage({callback: message.callback, data: {itemIds: Playlist.getItemIds()}});
 				break;
 			case 'vp-add':
-
 				Playlist.add(message.data.id, message.data.info);
 				if (Request.curTabSource && Request.curTabSource !== event.source) {
 					Request.sendTab('vp-load-audio-info', message.data);
-					console.error('add to another tab');
+					console.log('add to another tab');
 				} else {
-					console.error('add to same tab');
+					console.log('add to same tab');
 				}
 				break;
 			case 'vp-del':
@@ -434,7 +425,14 @@ window.addEventListener('load', function() {
 				Playlist.updateRepeat(message.data);
 				break;
 			case 'vp-get-next':
-				event.source.postMessage({callback: message.callback, data: Playlist.getNext()});
+				var id = Playlist.getNext(message.data.onPlayFinish);
+				Request.sendPopup('popup-push-playlist', Playlist.getData());
+				event.source.postMessage({callback: message.callback, data: id});
+				break;
+			case 'vp-get-prev':
+				var id = Playlist.getPrev();
+				Request.sendPopup('popup-push-playlist', Playlist.getData());
+				event.source.postMessage({callback: message.callback, data: id});
 				break;
 			case 'vp-set-is-paused':
 				Request.addTabSource(event.source, true);

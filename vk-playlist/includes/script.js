@@ -133,18 +133,35 @@
 				// onPlayFinish
 				audioPlayer.onPlayFinish_origin = audioPlayer.onPlayFinish;
 				audioPlayer.onPlayFinish = function() {
-
-					Playlist.getNext(function(id) {
+					Playlist.getNext(true, function(id) {
 						console.log('next id: ' + id);
 						if (id) { Playlist.play(id); }
 						else { audioPlayer.onPlayFinish_origin.apply(this, arguments); }
 					});
 				}
 
+				// nextTrack
 				audioPlayer.nextTrack_origin = audioPlayer.nextTrack;
-				audioPlayer.nextTrack = function(){ alert('next'); };
+				audioPlayer.nextTrack = function(){
+					Playlist.getNext(false, function(id) {
+						console.log('next id: ' + id);
+						if (id) { Playlist.play(id); }
+						else { audioPlayer.nextTrack_origin.apply(this, arguments); }
+					});
+				};
 				audioPlayer.nextTrack.bind = audioPlayer.nextTrack_origin.bind;
 				audioPlayer.nextTrack.pbind = audioPlayer.nextTrack_origin.pbind;
+
+				// prevTrack
+				audioPlayer.prevTrack_origin = audioPlayer.prevTrack;
+				audioPlayer.prevTrack = function(){
+					Playlist.getPrev(function(id) {
+						if (id) { Playlist.play(id); }
+						else { audioPlayer.prevTrack_origin.apply(this, arguments); }
+					});
+				};
+				audioPlayer.prevTrack.bind = audioPlayer.prevTrack_origin.bind;
+				audioPlayer.prevTrack.pbind = audioPlayer.prevTrack_origin.pbind;
 
 				// volClick
 				audioPlayer.volClick_origin = audioPlayer.volClick;
@@ -309,9 +326,14 @@
 				window.audioPlayer.songInfos[audioId] = audioInfo;
 		},
 
-		getNext: function(callback) {
+		getNext: function(onPlayFinish, callback) {
+			alert(onPlayFinish);
+			Request.send('vp-get-next', {onPlayFinish: onPlayFinish}, function(next){ callback(next); });
+		},
 
-			Request.send('vp-get-next', null, function(next){ callback(next); });
+		getPrev: function(callback) {
+
+			Request.send('vp-get-prev', null, function(prev){ callback(prev); });
 		},
 
 		play: function(id) {
@@ -329,13 +351,13 @@
 		playNext: function(id) {
 
 			if (id) this.play(id);
-			else window.audioPlayer.nextTrack();
+			else window.audioPlayer.nextTrack_origin();
 		},
 
 		playPrev: function(id) {
 			
 			if (id) this.play(id);
-			else window.audioPlayer.prevTrack();
+			else window.audioPlayer.prevTrack_origin();
 		},
 
 		setIsPaused: function(curId, paused) {
