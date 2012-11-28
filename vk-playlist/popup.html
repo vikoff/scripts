@@ -271,7 +271,7 @@
 <body>
 
 <div class="context-menu">
-	<a href="#" data-opt="debug">Отладка</a>
+	<a href="#" rel="debug">Отладка</a>
 </div>
 
 <div id="header">
@@ -324,7 +324,7 @@
 	<div>
 		<input type="text" style="width: 374px;"
 			placeholder="run your code"
-			onkeypress="if (event.keyCode==13){runCode(this.value); this.value='';}" />
+			onkeydown="Debugger.inpKeyPress(this, event);" />
 	</div>
 </div>
 

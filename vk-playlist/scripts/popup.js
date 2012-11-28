@@ -36,18 +36,43 @@ function toggleContextMenu(btn){
 }
 
 function _log(msg){
-	$('.debug-body').prepend('<div>' + msg + '</div>');
+	var box = $('.debug-body');
+	box.append('<div>' + msg + '</div>');
+	var h = box[0].offsetHeight;
+	alert(h);
+	box.scrollTop(h);
 }
 
 function runCode(code) {
-	var msg = 'run code: <pre style="color: #555; display: inline;">' + code + '</pre><br />';
-	try {
-		var result = eval(code);
-		msg += 'result: <pre style="color: #555; display: inline;">' + result + '</pre>';
-	} catch (e) {
-		msg += 'error: <pre style="color: #555; display: inline;">' + e + '</pre>';
+}
+var Debugger = {
+	history: [],
+	
+	inpKeyPress: function(inp, e) {
+		if (e.keyCode == 13) { // enter
+			this.run(inp.value);
+			inp.value='';
+		} else if (e.keyCode == 38) { // arrow up
+			_log(e.keyCode);
+		} else if (e.keyCode == 40) { // arrow down
+			e.stopPropagation();
+			e.preventDefault();
+			_log('down');
+		}
+		
+	},
+	
+	run: function(code) {
+		this.history.push(code);
+		var msg = 'run code: <pre style="color: #555; display: inline;">' + code + '</pre><br />';
+		try {
+			var result = eval(code);
+			msg += 'result: <pre style="color: #555; display: inline;">' + result + '</pre>';
+		} catch (e) {
+			msg += 'error: <pre style="color: #555; display: inline;">' + e + '</pre>';
+		}
+		_log(msg);
 	}
-	_log(msg);
 }
 
 var Request = {
@@ -359,7 +384,7 @@ window.addEventListener('load', function() {
 		e.preventDefault();
 		$('.context-menu').hide();
 		
-		var act = $(this).data('act');
+		var act = $(this).attr('rel');
 		switch (act) {
 			case 'debug': $('#debug').toggle(); break;
 		}
