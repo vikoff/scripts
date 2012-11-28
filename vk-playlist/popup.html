@@ -83,30 +83,44 @@
 		#btn-play.playing {
 			background: url("icons/button-pause32.png") 0px 0px no-repeat transparent;
 		}
-		#volume-bar{
+		#volume-bar {
 			float: right;
 			width: 120px;
 			text-align: center;
 			margin: 8px 8px 0px;
 		}
-		#volume-bar input{
+		#volume-bar input {
 			width: 100%;
 		}
-		#progress-bar{
-			margin: 10px 0 7px;
+		#song-name {
+			text-align: center;
+			margin-top: 7px;
+		}
+		#progress-bar {
+			margin: 7px 0 7px;
 		}
 		.repeat-box{
 			float: left;
 			margin-bottom: 5px;
 		}
-		.set-ordering{
+		#duration-box{
+			float: right;
+			margin-bottom: 5px;
+			margin-left: 8px;
+		}
+		.elements-box{
+			margin-top: 10px;
+			padding-right: 5px;
+			overflow: auto;
+			height: 255px;
+		}
+		#elements{
+			overflow: hidden;
+		}
+		.involve-btn{
 			display: block;
 			float: right;
 			margin-top: -4px;
-			margin-bottom: 5px;
-		}
-		.duration-box{
-			float: right;
 			margin-bottom: 5px;
 		}
 		.audio {
@@ -183,40 +197,136 @@
 			padding: 5px 3px;
 			content: "playlist -";
 		}
+		.ui-slider .ui-slider-handle{
+			cursor: col-resize !important;
+		}
+		.menu-btn{
+			display: block;
+			float: right;
+			margin-left: 3px;
+			cursor: pointer;
+		}
+		.menu-btn:hover{
+			color: #4E9BD5;
+		}
+		.context-menu{
+			display: none;
+			background-color: #FFF;
+			border: solid 1px #DDD;
+			position: absolute;
+			right: 5px;
+			margin-top: 15px;
+			z-index: 1;
+		}
+		.context-menu a{
+			text-align: left;
+			display: block;
+			padding: 5px;
+			color: black;
+		}
+		.context-menu a:hover{
+			background-color: #D8E3FF;
+			text-decoration: none;
+		}
+		#debug{
+			display: none;
+			margin-top: 10px;
+			position: absolute;
+			width: 380px;
+			bottom: 0px;
+			background-color: #FFF;
+			z-index: 1;
+		}
+		.debug-title{
+			padding: 3px 10px;
+			background-color: #EEE;
+			border: solid 1px #DDD;
+			border-bottom: solid 1px #AAA;
+			position: relative;
+			font-weight: bold;
+		}
+		.debug-opts{
+			position: absolute;
+			font-size: 12px;
+			top: 0px;
+			right: 1px;
+			font-weight: normal;
+		}
+		.debug-opts a{
+			padding: 1px 2px;
+		}
+		.debug-body{
+			border: solid 1px #DDD;
+			border-top: none;
+			padding: 2px 4px;
+			white-space: pre-wrap;
+			overflow: auto;
+			max-height: 200px;
+		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="css/cupertino/jquery-ui-1.8.21.custom.css">
+	<script type="text/javascript">
+	</script>
 </head>
 <body>
-	<div id="header">
-		<div class="logo">Vikoff Playlist</div>
-		<div class="player-buttons">
-			<a href="#" class="btn-prev" onclick=" Playlist.playPrev(); return false;"></a>
-			<a href="#" id="btn-play" onclick=" Playlist.playToggle(); return false;"></a>
-			<a href="#" class="btn-next" onclick=" Playlist.playNext(); return false;"></a>
-			<div style="clear: both;"></div>
-		</div>
-		<div id="volume-bar">
-			<!--div>Volume</div-->
-			<input id="volume" type="range" step="5" onchange="Playlist.setVolume(this.value);">
-		</div>
-		<div style="clear: both;"></div>
-		<div id="progress-bar"></div>
-		<div class="repeat-box">повторять <a href="#" id="repeat-btn" onclick="Playlist.repeatToggle(); return false;">нет</a></div>
-		<label class="set-ordering">
-			<input id="list-involved-btn" type="checkbox" onchange="Playlist.setListInvolved(this.checked, true);" />
-			участвовать в очереди
-		</label>
-		<div class="duration-box"></div>
-	</div>
 
-	<div class="options">
-		<div class="left">
-			открытых vk вкладок: <span id="num-tabs">0</span>
-		</div>
-		<div class="right">
-			<a href="#" onclick="Playlist.clearAll(); return false;">очистить все</a>
-		</div>
+<div class="context-menu">
+	<a href="#" data-opt="debug">Отладка</a>
+</div>
+
+<div id="header">
+	<div class="logo">Vikoff Playlist</div>
+	<div class="player-buttons">
+		<a href="#" class="btn-prev" onclick=" Playlist.playPrev(); return false;"></a>
+		<a href="#" id="btn-play" onclick=" Playlist.playToggle(); return false;"></a>
+		<a href="#" class="btn-next" onclick=" Playlist.playNext(); return false;"></a>
+		<div style="clear: both;"></div>
 	</div>
-	<ul id="elements" style="margin-top: 1em;"></ul>
+	<div id="volume-bar">
+		<!--div>Volume</div-->
+		<input id="volume" type="range" step="10" onchange="Playlist.setVolume(this.value);">
+	</div>
+	<div style="clear: both;"></div>
+	<div id="song-name"></div>
+	<div id="progress-bar"></div>
+	<div class="repeat-box">повторять <a href="#" id="repeat-btn" onclick="Playlist.repeatToggle(); return false;">нет</a></div>
+	
+	<div onclick="toggleContextMenu(this);" class="menu-btn">▼</div>
+	
+	<div id="duration-box">-</div>
+	<label class="involve-btn">
+		<input id="list-involved-btn" type="checkbox" onchange="Playlist.setListInvolved(this.checked, true);" />
+		участвовать в очереди
+	</label>
+</div>
+
+<div class="options">
+	<div class="left">
+		открытых vk вкладок: <span id="num-tabs">0</span>
+	</div>
+	<div class="right">
+		<a href="#" onclick="Playlist.clearAll(); return false;">очистить все</a>
+	</div>
+</div>
+<div class="elements-box">
+	<ul id="elements"></ul>
+</div>
+
+<div id="debug">
+	<div class="debug-title">
+		<div class="debug-opts">
+			<a href="#" onclick="$('.debug-body').empty(); return false;">clear</a>
+			<a href="#" onclick="$('#debug').hide(); return false;" style="font-weight: bold;">x</a>
+		</div>
+		debug panel
+	</div>
+	<div class="debug-body"></div>
+	<div>
+		<input type="text" style="width: 374px;"
+			placeholder="run your code"
+			onkeypress="if (event.keyCode==13){runCode(this.value); this.value='';}" />
+	</div>
+</div>
+
 </body>
 </html>

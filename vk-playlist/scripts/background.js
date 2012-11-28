@@ -211,7 +211,9 @@ var Playlist = {
 	cur: -1,
 	globalId: null,
 	globalPaused: true,
+	globalInfo: null,
 	volume: 0,
+	playingTime: 0,
 	repeat: 'no', // no|one|all
 	repeatTitles: {'no': 'нет', 'one': 'трек', 'all': 'все'},
 	listInvolved: true, // участвовать в списке воспроизводимых аудиозаписей
@@ -225,7 +227,10 @@ var Playlist = {
 
 		this.itemIds.push(id);
 		this.itemsInfo[id] = info;
-
+		
+		if (this.itemIds.length == 1)
+			this.listInvolved = true;
+			
 		updateButtonBadge();
 		Request.sendPopup('popup-push-playlist', this.getData());
 	},
@@ -271,7 +276,6 @@ var Playlist = {
 	},
 
 	getNext: function(onPlayFinish) {
-		var id = null;
 
 		if (this.repeat == 'one' && onPlayFinish)
 			return this.itemIds[this.cur];
@@ -280,25 +284,18 @@ var Playlist = {
 			return null;
 
 		this.cur++;
+		
+		// если проигран последний трек
 		if (this.cur >= this.itemIds.length) {
-			if (this.repeat == 'all')
+			if (this.repeat == 'all' && this.itemIds.length) {
 				this.cur = 0;
-			else
-				return null;
+			} else {
+				this.listInvolved = false;
+				this.cur = -1;
+			}
 		}
-		if (this.cur > -1 && this.repeat != 'one')
-			this.cur++;
-
-		if (this.itemIds[this.cur]) {
-			id = this.itemIds[this.cur];
-		} else if (this.repeat == 'all' && this.itemIds.length) {
-			this.cur = 0;
-			id = this.itemIds[this.cur];
-		} else {
-			this.cur = -1;
-		}
-
-		return id;
+		
+		return this.itemIds[this.cur];
 	},
 
 	getPrev: function() {
@@ -328,7 +325,9 @@ var Playlist = {
 			cur: this.cur,
 			globalId: this.globalId,
 			globalPaused: this.globalPaused,
+			globalInfo: this.globalInfo,
 			volume: this.volume,
+			playingTime: this.playingTime,
 			numTabs: Request.tabSources.length,
 			listInvolved: this.listInvolved
 		};
@@ -339,10 +338,11 @@ var Playlist = {
 		return this.itemIds;
 	},
 
-	setIsPaused: function(curId, paused) {
+	setIsPaused: function(curId, paused, info) {
 
 		this.globalId = curId;
 		this.globalPaused = paused;
+		this.globalInfo = info;
 		this.cur = this.itemIds.indexOf(curId);
 
 		updateButtonPlayStatus();
@@ -379,14 +379,25 @@ var Playlist = {
 		var switches = {'no': 'one', 'one': 'all', 'all': 'no'};
 		
 		this.repeat = switches[this.repeat];
+		Request.sendTab('vp-set-repeat', this.repeat);
 		return this.repeatTitles[this.repeat];
 	},
 
 	updateRepeat: function(repeat) {
-
 		this.repeat = repeat;
 		Request.sendPopup('popup-update-repeat', this.repeatTitles[this.repeat]);
+	},
+
+	setPlayTime: function(time) {
+		this.playingTime = time;
+		Request.sendTab('vp-set-time', this.playingTime);
+	},
+
+	updatePlayTime: function(time) {
+		this.playingTime = time;
+		Request.sendPopup('popup-update-time', this.playingTime);
 	}
+
 }
 
 window.addEventListener('load', function() {
@@ -421,6 +432,10 @@ window.addEventListener('load', function() {
 				Request.addTabSource(event.source, true);
 				Playlist.setVolume(message.data);
 				break;
+			case 'vp-update-time':
+				Request.addTabSource(event.source, true);
+				Playlist.updatePlayTime(message.data);
+				break;
 			case 'vp-update-repeat':
 				Playlist.updateRepeat(message.data);
 				break;
@@ -436,7 +451,7 @@ window.addEventListener('load', function() {
 				break;
 			case 'vp-set-is-paused':
 				Request.addTabSource(event.source, true);
-				Playlist.setIsPaused(message.data.curId, message.data.paused);
+				Playlist.setIsPaused(message.data.curId, message.data.paused, message.data.info);
 				break;
 			case 'popup-load-playlist':
 				Request.setPopupSource(event.source, event.origin);

@@ -29,7 +29,6 @@
 			return;
 		}
 
-	 	// console.log(event, 'a');
 
 	 	if (message.callback) {
 	 		Request.callback(message.callback, message.data);
@@ -57,6 +56,12 @@
 	 			break;
 	 		case 'vp-set-volume':
 	 			Playlist.setVolume(message.data);
+	 			break;
+	 		case 'vp-set-time':
+	 			Playlist.setPlayTime(message.data);
+	 			break;
+	 		case 'vp-set-repeat':
+	 			Playlist.setRepeat(message.data);
 	 			break;
 	 		case 'vp-load-audio-info':
 	 			Playlist.loadAudioInfo(message.data.id, message.data.info);
@@ -178,6 +183,17 @@
 				}
 				audioPlayer.toggleRepeat.bind = audioPlayer.toggleRepeat_origin.bind;
 				audioPlayer.toggleRepeat.pbind = audioPlayer.toggleRepeat_origin.pbind;
+
+				// onPlayProgress
+				audioPlayer.onPlayProgress_origin = audioPlayer.onPlayProgress;
+				audioPlayer.onPlayProgress = function(pos, len) {
+					// console.log(pos, len)
+					audioPlayer.onPlayProgress_origin.apply(this, arguments);
+					var time = Math.round(pos);
+					Request.send('vp-update-time', time);
+				}
+
+
 			}
 		},
 
@@ -327,7 +343,6 @@
 		},
 
 		getNext: function(onPlayFinish, callback) {
-			alert(onPlayFinish);
 			Request.send('vp-get-next', {onPlayFinish: onPlayFinish}, function(next){ callback(next); });
 		},
 
@@ -363,7 +378,11 @@
 		setIsPaused: function(curId, paused) {
 			
 			this.paused = paused;
-			Request.send('vp-set-is-paused', {curId: curId, paused: this.paused});
+			Request.send('vp-set-is-paused', {
+				curId: curId,
+				paused: this.paused,
+				info: curId ? this.getAudioInfo(curId) : null
+			});
 		},
 
 		setVolume: function(vol) {
@@ -383,8 +402,34 @@
 			Request.send('vp-update-vol', vol)
 		},
 
+		setRepeat: function(repeat) {
+
+			var vkRepeat = repeat == 'one';
+			if (!!window.audioPlayer.repeat != vkRepeat)
+				window.audioPlayer.toggleRepeat_origin();
+		},
+
 		updateRepeat: function(repeat) {
 			Request.send('vp-update-repeat', repeat)
+		},
+
+		setPlayTime: function(time) {
+
+			// console.error(time);
+			// return;
+
+			if (window.audioPlayer.player && !Playlist.paused) {
+				console.log(time);
+				try { window.audioPlayer.player.playAudio(time); }
+				catch(e) { console.error(e.message); }
+			} else {
+				window.audioPlayer.time = time;
+			}
+		},
+
+		updatePlayTime: function(time) {
+
+			Request.send('vp-update-time', time);
 		},
 
 		getClearId: function(rawId) {
