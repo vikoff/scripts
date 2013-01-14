@@ -77,6 +77,10 @@ function secondsLeft($workSeconds, $curSeconds) {
 		: $workSeconds - $curSeconds;
 }
 
+function printLn($str) {
+	printf("\r  %-80s\r", $str);
+}
+
 function _test() {
 	$cpu1 = getCpuInfo();
 	$procTime1 = getProcessInfo($pid, true);
@@ -110,7 +114,7 @@ if (PHP_SAPI == 'cli') {
 			$isWorkCaught = false;
 
 		if ($workSeconds !== null) {
-			echo "$secondsLeft (cur: $curSeconds, work: $workSeconds)\n";
+			printLn("$secondsLeft (cur: $curSeconds, work: $workSeconds)");
 		}
 
 		if ($checkCpuTime)
@@ -122,12 +126,11 @@ if (PHP_SAPI == 'cli') {
 			$procTime2 = getProcessInfo($pid, true);
 			$delta = $procTime2 - $procTime1;
 			if ($workSeconds === null) {
-				echo date('Y-m-d H:i:s')." proc time delta: $delta\n";
+				printLn("checking".str_repeat('.', ($curSeconds % 3) + 1));
 			}
 			if ($delta > $config['work_delta']) {
-				$workSeconds = $curSeconds;
+				$workSeconds = $curSeconds; // DEBUG
 				$isWorkCaught = TRUE;
-				echo "working time: $workSeconds sec\n";
 			}
 		}
 

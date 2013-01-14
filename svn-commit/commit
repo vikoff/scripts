@@ -1,7 +1,11 @@
 #!/bin/bash
 
+path=$(pwd)
+
+echo -e "\ncurrent path: $path\n"
+
 # CHECK FOR DEBUG
-debugCheck=$(cd /var/www/urlshortener/ && svn diff | grep -i DEBUG)
+debugCheck=$(cd $path && svn diff | grep -i DEBUG)
 if [ $? -eq 0 ]
 then
 	read -p "WARNING!!! Some DEBUG strings found in svn diff. Continue? (y/N): " yn
@@ -13,16 +17,16 @@ then
 fi
 
 # SVN ADD
-num=$(cd /var/www/urlshortener/ && svn status | grep ^[!?] | wc -l)
+num=$(cd $path && svn status | grep ^[!?] | wc -l)
 if [ $num -gt 0 ]
 then
 	echo "you have $num svn untracked files"
-	cd /var/www/urlshortener/ && svn status
+	cd $path && svn status
 	read -p "add this changes to svn? (Y/n): " yn
 	yn=$(echo $yn | tr "[:upper:]" "[:lower:]")
 	if [ "$yn" != "n" ]
 	then
-		cd /var/www/urlshortener/ && svn add --force .
+		cd $path && svn add --force .
 	fi
 fi
 
@@ -31,7 +35,7 @@ read -p "exec SVN update? (Y/n): " yn
 yn=$(echo $yn | tr "[:upper:]" "[:lower:]")
 if [ "$yn" != "n" ]
 then
-	cd /var/www/urlshortener/ && svn update
+	cd $path && svn update
 	if [ $? -eq 0 ]
 	then
 		echo -e "SVN UPDATED!\n"
@@ -43,22 +47,30 @@ then
 fi
 
 # JS/CSS BUILDING
-echo -e "\nJS/CSS BUILDING START!"
-cd /var/www/urlshortener/public/js/ && sh ./js steal/buildjs http://urlshortener.local -to prod
-# echo 'js stub'
+read -p "build JS & CSS? (Y/n): " yn
+yn=$(echo $yn | tr "[:upper:]" "[:lower:]")
+if [ "$yn" != "n" ]; then
+	echo -e "\nJS/CSS BUILDING START!"
+	cd ${path}/public/js/ && php build-production.php http://urlshortener.local
+	# cd ${path}/public/js/ && sh ./js steal/buildjs http://urlshortener.local -to prod
 
-if [ $? -eq 0 ]
-then
-	echo -e "JS BUILDING COMPLETE!\n"
-else
-	echo "!!! ERROR !!!"
-	echo "js building failed with exitcode $?"
-	exit 1
+	if [ $? -eq 0 ]
+	then
+		echo -e "JS BUILDING COMPLETE!\n"
+	else
+		echo "!!! ERROR !!!"
+		echo "js building failed with exitcode $?"
+		exit 1
+	fi
 fi
 
 # SVN COMMIT
+echo -e "\nSVN status"
+cd $path && svn status
+echo ""
+
 read -p "SVN commit message: " svnCommitMsg;
-cd /var/www/urlshortener/ && svn commit -m "$svnCommitMsg"
+cd $path && svn commit -m "$svnCommitMsg"
 echo -e "SVN COMMITTED!\n"
 
 read -p "REDMINE? "

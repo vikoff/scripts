@@ -38,8 +38,7 @@ function toggleContextMenu(btn){
 function _log(msg){
 	var box = $('.debug-body');
 	box.append('<div>' + msg + '</div>');
-	var h = box[0].offsetHeight;
-	alert(h);
+	var h = box[0].scrollHeight;
 	box.scrollTop(h);
 }
 
@@ -47,23 +46,33 @@ function runCode(code) {
 }
 var Debugger = {
 	history: [],
+	histOffset: -1,
 	
 	inpKeyPress: function(inp, e) {
+		var resetHistOffset = true;
 		if (e.keyCode == 13) { // enter
 			this.run(inp.value);
 			inp.value='';
 		} else if (e.keyCode == 38) { // arrow up
-			_log(e.keyCode);
+			e.stopPropagation();
+			e.preventDefault();
+			this.prevCommand(inp);
+			resetHistOffset = false;
 		} else if (e.keyCode == 40) { // arrow down
 			e.stopPropagation();
 			e.preventDefault();
-			_log('down');
+			this.nextCommand(inp);
+			resetHistOffset = false;
 		}
-		
+		if (resetHistOffset) {
+			this.histOffset = -1;
+			alert('reset hist offset');
+		}
 	},
 	
 	run: function(code) {
-		this.history.push(code);
+		if (code.length)
+			this.history.unshift(code);
 		var msg = 'run code: <pre style="color: #555; display: inline;">' + code + '</pre><br />';
 		try {
 			var result = eval(code);
@@ -72,6 +81,16 @@ var Debugger = {
 			msg += 'error: <pre style="color: #555; display: inline;">' + e + '</pre>';
 		}
 		_log(msg);
+	},
+	
+	prevCommand: function(inp) {
+		var code = this.history[++this.histOffset] || '';
+		inp.value = code;
+	},
+	
+	nextCommand: function(inp) {
+		var code = this.history[--this.histOffset] || '';
+		inp.value = code;
 	}
 }
 
