@@ -9,7 +9,7 @@ class VikPDO {
 
 	public function create($dsn, $user = '', $pass = '')
 	{
-		self::$_instance = new self($dsn, $user, $pass)
+		self::$_instance = new self($dsn, $user, $pass);
 	}
 
 	public function get()
