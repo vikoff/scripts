@@ -7,12 +7,13 @@ class VikPDO {
 	private $_pdo = null;
 
 
-	public function create($dsn, $user = '', $pass = '')
+	public static function create($dsn, $user = '', $pass = '')
 	{
 		self::$_instance = new self($dsn, $user, $pass);
+		return self::$_instance;
 	}
 
-	public function get()
+	public static function get()
 	{
 		return self::$_instance;
 	}
@@ -27,20 +28,19 @@ class VikPDO {
 	 * @param $sql
 	 * @param array $bind
 	 * @return PDOStatement
-	 * @throws Twitter_Api_Proxy_Exception_Db
 	 */
 	public function query($sql, $bind = array())
 	{
 		/** @var $stmt PDOStatement */
-		$stmt = $this->_db->prepare($sql);
+		$stmt = $this->_pdo->prepare($sql);
 		if (!$stmt) {
-			throw new Twitter_Api_Proxy_Exception_Db('database error');
+			throw new Exception('database error');
 		}
 		$success = $stmt->execute($bind);
 		if (!$success) {
 			$errorInfo = $stmt->errorInfo();
 			$erroStr = $errorInfo[2]."<br /><br />$sql";
-			throw new Twitter_Api_Proxy_Exception_Db($erroStr);
+			throw new Exception($erroStr);
 		}
 
 		return $stmt;
@@ -52,17 +52,16 @@ class VikPDO {
 	 * @param $where
 	 * @param array|mixed $whereBind
 	 * @return int количество затронутых строк
-	 * @throws Twitter_Api_Proxy_Exception_Db
 	 */
 	public function update($table, $fieldsValues, $where, $whereBind = array())
 	{
 		$update_arr = array();
 		$bind_arr = array();
 		foreach($fieldsValues as $field => $value) {
-			if ($value === self::DB_NOW) {
-				$update_arr[] = $field.' = NOW()';
+			if ($value instanceof VikPDO_Stmt) {
+				$update_arr[] = '`'.$field.'` = '.$value;
 			} else {
-				$update_arr[] = $field.' = ?';
+				$update_arr[] = '`'.$field.'` = ?';
 				$bind_arr[] = $value;
 			}
 		}
@@ -71,7 +70,7 @@ class VikPDO {
 			$bind_arr = array_merge($bind_arr, (array)$whereBind);
 
 		$sql = 'UPDATE '.$table.' SET '.implode(', ',$update_arr).' WHERE '.$where;
-		$result = $this->_dbQuery($sql, $bind_arr);
+		$result = $this->query($sql, $bind_arr);
 
 		return $result->rowCount();
 	}
@@ -80,23 +79,22 @@ class VikPDO {
 	 * @param $table
 	 * @param $fieldsValues
 	 * @return int количество затронутых строк
-	 * @throws Twitter_Api_Proxy_Exception_Db
 	 */
 	public function insert($table, $fieldsValues)
 	{
 		$fields_arr = array();
 		$bind_arr = array();
 		foreach($fieldsValues as $field => $value) {
-			if ($value === self::DB_NOW) {
-				$fields_arr[] = $field.' = NOW()';
+			if ($value instanceof VikPDO_Stmt) {
+				$fields_arr[] = '`'.$field.'` = '.$value;
 			} else {
-				$fields_arr[] = $field.' = ?';
+				$fields_arr[] = '`'.$field.'` = ?';
 				$bind_arr[] = $value;
 			}
 		}
 
 		$sql = 'INSERT INTO '.$table.' SET '.implode(', ',$fields_arr);
-		$result = $this->_dbQuery($sql, $bind_arr);
+		$result = $this->query($sql, $bind_arr);
 
 		return $result->rowCount();
 	}
@@ -135,4 +133,24 @@ class VikPDO {
 		return $data;
 	}
 
+}
+
+class VikPDO_Stmt {
+	
+	private $_statement = '';
+	
+	public static function create($statement) {
+		
+		return new self($statement);
+	}
+	
+	public function __construct($statement) {
+		
+		$this->_statement = $statement;
+	}
+	
+	public function __toString() {
+		
+		return $this->_statement;
+	}
 }
