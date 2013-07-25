@@ -103,7 +103,7 @@ class DataFill
 }
 
 $dataFill = new DataFill($pdo, 'links_share_stat', array(
-	'link_id' => 250754,
+	'link_id' => 250704,
 	'user_id' => function($self) {
 		static $ids = array();
 		if (!$ids) {

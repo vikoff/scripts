@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>Bookmarklets</title>
+    <meta content="">
+    <style>
+	.pre{
+		white-space: pre-wrap;
+		font-family: monospace;
+		background-color: #EEE;
+		padding: 10px;
+		border: solid 1px #DDD;
+		border-radius: 9px;
+	}
+    </style>
+  </head>
+  <body>
+  	
+  	<h1>Clear Xdebug Output</h1>
+  	<p>
+		<div class="desc"></div>
+		<div class="pre">javascript: var t=document.getElementsByClassName('xdebug-error')[0];if(t){Array.prototype.slice.call(t.children[0].children,0).forEach(function(tr){var td=tr.children[3],c;if(td){ for(var i=0,l=td.children.length;i< l;i++){c=td.children[i];if(c){td.removeChild(c);}}}})}; void(0);</div>
+		<a href="javascript: var t=document.getElementsByClassName('xdebug-error')[0];if(t){Array.prototype.slice.call(t.children[0].children,0).forEach(function(tr){var td=tr.children[3],c;if(td){ for(var i=0,l=td.children.length;i< l;i++){c=td.children[i];if(c){td.removeChild(c);}}}})}; void(0);">clear xdebug output</a>
+	</p>
+
+  </body>
+</html>
