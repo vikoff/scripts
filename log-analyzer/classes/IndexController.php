@@ -50,8 +50,8 @@ class IndexController extends Controller
 		echo "AVAILABLE COMMANDS\n"
 			."$appCall parse-sql 'path/to/sql-log-file'\n"
 			."$appCall x-trace/parse 'path/to/trace-file' ['json-options']\n"
-			."    'json-options' may contain such keys: 'db_table', 'application', 'request_url', 'app_base_path', 'comments'\n"
-			."    EXAMPLE: php index.php x-trace/parse trace.xt '{\"db_table\":\"xdebug_trace1\", \"application\":\"homework\","
+			."    'json-options' may contain such keys: 'application', 'request_url', 'app_base_path', 'comments'\n"
+			."    EXAMPLE: php index.php x-trace/parse trace.xt '{\"application\":\"homework\","
 			." \"request_url\":\"/teacher/home\", \"app_base_path\":\"/var/www/homework/\", \"comments\":\"test run\"}'\n"
 		;
 	}

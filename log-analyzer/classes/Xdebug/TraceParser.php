@@ -6,20 +6,24 @@
 
 class Xdebug_TraceParser
 {
-	protected $_dbTable;
 	protected $_options;
-	protected $_sessId = 1;
+	protected $_sessId;
 	protected $_sessData = array();
 	protected $_lineNumber = 0;
 	protected $_numInserts = 0;
 	protected $_prevRowData = array();
+
+	/**
+	 * nested calls counter for each function
+	 * @var array ('call_index' => 'num_nested_calls')
+	 */
+	protected $_nestedCalls = array();
 
 	protected $_levels = array();
 	protected $_curLevel = 1;
 
 	public function __construct($options = array())
 	{
-		$this->_dbTable = !empty($options['db_table']) ? $options['db_table'] : 'xdebug_trace';
 		$this->_options = $options;
 	}
 
@@ -32,7 +36,6 @@ class Xdebug_TraceParser
 			throw new Exception("file '$file' is not readable");
 
 		$this->_createSession();
-		$this->_checkDbTable();
 
 		$db = db::get();
 		$db->beginTransaction();
@@ -65,7 +68,7 @@ class Xdebug_TraceParser
 	{
 		$keys = array('application', 'request_url', 'app_base_path', 'comments');
 		$data = array(
-			'db_table' => $this->_dbTable,
+			'db_table' => 'xdebug_trace',
 		);
 		foreach ($keys as $key)
 			if (!empty($this->_options[$key]))
@@ -80,7 +83,7 @@ class Xdebug_TraceParser
 	{
 		$db = db::get();
 		list($maxMem, $maxTime, $numCalls) = array_values($db->fetchRow(
-			"SELECT MAX(memory_end), MAX(time_end), COUNT(1) FROM $this->_dbTable WHERE sess_id=?", $sessId));
+			"SELECT MAX(memory_end), MAX(time_end), COUNT(1) FROM xdebug_trace WHERE sess_id=?", $sessId));
 		$db->update('xdebug_trace_sessions', array(
 			'total_memory' => $maxMem,
 			'total_time' => $maxTime,
@@ -115,6 +118,7 @@ class Xdebug_TraceParser
 
 		$keyValues = array_combine($fields, $parts + array_fill(0, $numFields, ''));
 		if ($keyValues['part'] == '0') {
+			// если остались данные с прошлой итерации, сохраним их
 			if ($this->_prevRowData) {
 				$this->_saveData($this->_prevRowData);
 				$this->_prevRowData = array();
@@ -122,14 +126,21 @@ class Xdebug_TraceParser
 			$keyValues['time_start'] = $keyValues['time'];
 			$keyValues['memory_start'] = $keyValues['memory'];
 			unset($keyValues['part'], $keyValues['time'], $keyValues['memory']);
+			// не сохраняем данные сразу, а записываем в переменную,
+			// т.к. на следующей итерации может быть finish этой же функции
 			$this->_prevRowData = $keyValues;
+			// начинаем счетчик вложенных вызовов для данной функции
+			$this->_nestedCalls[ $keyValues['call_index'] ] = 0;
 		} elseif ($keyValues['part'] == '1') {
 			// если предыдущая start строка была об этой же фунции, сохраним все start и finish данные вместе
 			if ($this->_prevRowData && $this->_prevRowData['call_index'] == $keyValues['call_index']) {
 				$this->_prevRowData['time_end'] = $keyValues['time'];
 				$this->_prevRowData['memory_end'] = $keyValues['memory'];
+				$this->_prevRowData['num_nested_calls'] = $this->_nestedCalls[ $keyValues['call_index'] ];
 				$this->_saveData($this->_prevRowData);
 				$this->_prevRowData = array();
+				// закрываем счетчик вложенных вызовов для данной функции
+				unset($this->_nestedCalls[ $keyValues['call_index'] ]);
 			}
 			// иначе сохраним данные предыдущей и текущей строк отдельно
 			else {
@@ -137,7 +148,7 @@ class Xdebug_TraceParser
 					$this->_saveData($this->_prevRowData);
 					$this->_prevRowData = array();
 				}
-				$this->_saveLeavingStackData($keyValues['level'], $keyValues['call_index'], $keyValues['time'], $keyValues['memory']);
+				$this->_saveFuncFinishData($keyValues['call_index'], $keyValues['time'], $keyValues['memory']);
 			}
 		}
 	}
@@ -154,38 +165,35 @@ class Xdebug_TraceParser
 			$db->beginTransaction();
 		}
 
-		$id = $db->insert($this->_dbTable, $data);
+		$id = $db->insert('xdebug_trace', $data);
 		$this->_numInserts++;
 
-		// сохраним num_nested_calls у предыдущей фунции данного уровня
-		if (!empty($this->_levels[ $data['level'] ]))
-			$this->_saveNestedCalls($this->_levels[ $data['level'] ]);
+		// инкремент счетчиков вложенных вызовов для всех функций
+		foreach ($this->_nestedCalls as $callIndex => $numCalls)
+			if ($callIndex != $data['call_index'])
+				$this->_nestedCalls[$callIndex]++;
 
 		// установим функцию как текущую на данном уровне
-		$this->_levels[ $data['level'] ] = array('id' => $id, 'num_nested_calls' => 0);
+		$this->_levels[ $data['level'] ] = array('id' => $id);
 
 		ksort($this->_levels);
 		foreach ($this->_levels as $level => $levelData) {
-			if ($level < $data['level']) {
-				$this->_levels[$level]['num_nested_calls']++;
-			} elseif ($level > $data['level']) {
-				$this->_saveNestedCalls($this->_levels[$level]);
+			if ($level > $data['level']) {
 				unset($this->_levels[$level]);
 			}
 		}
 	}
 
-	protected function _saveLeavingStackData($level, $callIndex, $timeEnd, $memoryEnd)
+	protected function _saveFuncFinishData($callIndex, $timeEnd, $memoryEnd)
 	{
-		db::get()->update($this->_dbTable, array(
+		db::get()->update('xdebug_trace', array(
 			'time_end' => $timeEnd,
 			'memory_end' => $memoryEnd,
-		), 'sess_id=? AND level=? AND call_index=?', array($this->_sessId, $level, $callIndex));
-	}
+			'num_nested_calls' => $this->_nestedCalls[$callIndex],
+		), 'sess_id=? AND call_index=?', array($this->_sessId, $callIndex));
 
-	protected function _saveNestedCalls($data)
-	{
-		db::get()->update($this->_dbTable, array('num_nested_calls' => $data['num_nested_calls']), 'id=?', $data['id']);
+		// закрываем счетчик вложенных вызовов для данной функции
+		unset($this->_nestedCalls[$callIndex]);
 	}
 
 	protected function _saveUnfinishedRows()
@@ -194,42 +202,23 @@ class Xdebug_TraceParser
 			return;
 
 		$db = db::get();
-		$searchIds = array();
-		$idNumCalls = array();
-		foreach ($this->_levels as $level) {
-			$searchIds[] = $level['id'];
-			$idNumCalls[ $level['id'] ] = $level['num_nested_calls'];
-		}
-
-		$ids = $db->fetchCol(
-			"SELECT * FROM $this->_dbTable WHERE sess_id=? AND id IN(".implode(',', $searchIds).") AND time_end IS NULL",
-			$this->_sessId);
-
+		$ids = $db->fetchPairs("SELECT id, call_index FROM xdebug_trace WHERE sess_id=? AND time_end IS NULL", $this->_sessId);
 		if (!$ids)
 			return;
 
 		list($time, $memory) = array_values($db->fetchRow(
-			"SELECT MAX(time_end), MAX(memory_end) FROM $this->_dbTable WHERE sess_id=?",
+			"SELECT MAX(time_end), MAX(memory_end) FROM xdebug_trace WHERE sess_id=?",
 			$this->_sessId));
 
 		echo "\nsave ".count($ids)." unfinished calls\n";
 
-		foreach ($ids as $id) {
-			$db->update($this->_dbTable, array(
+		foreach ($ids as $id => $callIndex) {
+			$db->update('xdebug_trace', array(
 				'time_end' => $time,
 				'memory_end' => $memory,
-				'num_nested_calls' => $idNumCalls[$id],
+				'num_nested_calls' => $this->_nestedCalls[$callIndex],
 			), 'id=?', $id);
 		}
 	}
 
-	protected function _checkDbTable()
-	{
-		$db = db::get();
-		if (in_array($this->_dbTable, $db->showTables())) {
-		// иначе созданим таблицу
-		} else {
-			throw new Exception('db table creation not implemented');
-		}
-	}
 }

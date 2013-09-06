@@ -53,6 +53,14 @@
 	</div>
 
 	<div class="form-group">
+		<label for="f-generate_command" class="col-lg-2 control-label">Not parse, only generate command</label>
+		<div class="col-lg-5">
+			<?= Form::checkbox(array('class' => 'form-control', 'id' => 'f-generate_command', 'value' => 1,
+									  'name' => 'generate_command', 'checked' => $this->generate_command)); ?>
+		</div>
+	</div>
+
+	<div class="form-group">
 		<div class="col-lg-offset-2 col-lg-5">
 			<button type="submit" class="btn btn-default">Parse</button>
 		</div>

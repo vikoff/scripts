@@ -73,9 +73,14 @@ class XTraceController extends Controller
 		$command = 'php '.FS_ROOT.'index.php x-trace/parse '
 			.escapeshellarg($dstFile).' '.escapeshellarg(json_encode($options));
 
-		exec("$command > /dev/null 2>&1 &");
-		Messenger::get()->addSuccess("Parse process started with command<br><pre>$command</pre>");
-		redirect('x-trace');
+		if (!empty($_POST['generate_command'])) {
+			Messenger::get()->addInfo("Command to process trace:<br><pre>$command</pre>");
+			redirect('x-trace');
+		} else {
+			exec("$command > /dev/null 2>&1 &");
+			Messenger::get()->addSuccess("Parse process started with command<br><pre>$command</pre>");
+			redirect('x-trace');
+		}
 		return TRUE;
 	}
 
