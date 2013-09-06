@@ -31,7 +31,10 @@ $config = array(
 		'database' => 'log_analyzer',
 		'encoding' => 'utf8',
 		'fileLog' => FALSE,
-	)
+	),
+
+	// отображать или нет детальные данные об исключениях
+	'show_exceptions' => true,
 );
 
 return $config;

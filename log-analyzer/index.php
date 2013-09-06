@@ -21,8 +21,9 @@ chdir(FS_ROOT);
 
 function __autoload($name) {
 
-	$filename = FS_ROOT.'classes/'.$name.'.php';
-	require($filename);
+	$filename = FS_ROOT.'classes/'.str_replace('_', '/', $name).'.php';
+	if (file_exists($filename))
+		require($filename);
 }
 
 require_once('func.php');

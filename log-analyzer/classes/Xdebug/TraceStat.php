@@ -4,7 +4,7 @@
  * Date: 06.09.13 12:53
  */
 
-class StatXdebugTrace
+class Xdebug_TraceStat
 {
 	public static function load()
 	{
@@ -29,12 +29,7 @@ class StatXdebugTrace
 	public function getFirstLevelCalls($sessId)
 	{
 		$db = db::get();
-		$sessData = $db->fetchRow("SELECT * FROM xdebug_trace_sessions WHERE id=?", $sessId);
-
-		if (!$sessData)
-			throw new Exception("Session $sessId not found");
-
-		$sessData = $this->_prepareSessData($sessData);
+		$sessData = $this->getSessData($sessId);
 		$calls = $db->fetchAll("SELECT * FROM xdebug_trace WHERE sess_id=? AND level=1 ORDER BY call_index", $sessId);
 
 		return array(
@@ -43,7 +38,7 @@ class StatXdebugTrace
 		);
 	}
 
-	public function getFuncChildren($sessId, $funcId)
+	public function getSessData($sessId)
 	{
 		$db = db::get();
 		$sessData = $db->fetchRow("SELECT * FROM xdebug_trace_sessions WHERE id=?", $sessId);
@@ -52,6 +47,13 @@ class StatXdebugTrace
 			throw new Exception("Session $sessId not found");
 
 		$sessData = $this->_prepareSessData($sessData);
+		return $sessData;
+	}
+
+	public function getFuncChildren($sessId, $funcId)
+	{
+		$db = db::get();
+		$sessData = $this->getSessData($sessId);
 		$calls = $db->fetchAll("
 			SELECT * FROM xdebug_trace WHERE sess_id=? AND parent_func_id=? ORDER BY call_index
 		", array($sessId, $funcId));

@@ -4,7 +4,7 @@
  * Date: 05.09.13 20:47
  */
 
-class ParserXdebugTrace
+class Xdebug_TraceParser
 {
 	protected $_dbTable;
 	protected $_options;
@@ -48,10 +48,16 @@ class ParserXdebugTrace
 		}
 
 		$db->commit();
+		$this->_saveUnfinishedRows();
 		$this->updateSessionData($this->_sessId);
 
+		if (!empty($this->_options['remove_after'])) {
+			$unlinked = unlink($file);
+			echo "\n".($unlinked ? "file $file removed" : "unable to remove file $file" )."\n";
+		}
+
 		$duration = sprintf('%.4f', microtime(1) - $startTime);
-		echo "\n\nCURRENT SESSION INDEX: $this->_sessId\n"
+		echo "\nCURRENT SESSION INDEX: $this->_sessId\n"
 			."$this->_numInserts row inserted in $duration sec ($this->_lineNumber rows parsed)\n\n";
 	}
 
@@ -109,12 +115,30 @@ class ParserXdebugTrace
 
 		$keyValues = array_combine($fields, $parts + array_fill(0, $numFields, ''));
 		if ($keyValues['part'] == '0') {
+			if ($this->_prevRowData) {
+				$this->_saveData($this->_prevRowData);
+				$this->_prevRowData = array();
+			}
 			$keyValues['time_start'] = $keyValues['time'];
 			$keyValues['memory_start'] = $keyValues['memory'];
 			unset($keyValues['part'], $keyValues['time'], $keyValues['memory']);
-			$this->_saveData($keyValues);
+			$this->_prevRowData = $keyValues;
 		} elseif ($keyValues['part'] == '1') {
-			$this->_saveLeavingStackData($keyValues['level'], $keyValues['call_index'], $keyValues['time'], $keyValues['memory']);
+			// если предыдущая start строка была об этой же фунции, сохраним все start и finish данные вместе
+			if ($this->_prevRowData && $this->_prevRowData['call_index'] == $keyValues['call_index']) {
+				$this->_prevRowData['time_end'] = $keyValues['time'];
+				$this->_prevRowData['memory_end'] = $keyValues['memory'];
+				$this->_saveData($this->_prevRowData);
+				$this->_prevRowData = array();
+			}
+			// иначе сохраним данные предыдущей и текущей строк отдельно
+			else {
+				if ($this->_prevRowData) {
+					$this->_saveData($this->_prevRowData);
+					$this->_prevRowData = array();
+				}
+				$this->_saveLeavingStackData($keyValues['level'], $keyValues['call_index'], $keyValues['time'], $keyValues['memory']);
+			}
 		}
 	}
 
@@ -137,7 +161,7 @@ class ParserXdebugTrace
 		if (!empty($this->_levels[ $data['level'] ]))
 			$this->_saveNestedCalls($this->_levels[ $data['level'] ]);
 
-		// установим функцию текущей на данном уровне
+		// установим функцию как текущую на данном уровне
 		$this->_levels[ $data['level'] ] = array('id' => $id, 'num_nested_calls' => 0);
 
 		ksort($this->_levels);
@@ -162,6 +186,41 @@ class ParserXdebugTrace
 	protected function _saveNestedCalls($data)
 	{
 		db::get()->update($this->_dbTable, array('num_nested_calls' => $data['num_nested_calls']), 'id=?', $data['id']);
+	}
+
+	protected function _saveUnfinishedRows()
+	{
+		if (!$this->_levels)
+			return;
+
+		$db = db::get();
+		$searchIds = array();
+		$idNumCalls = array();
+		foreach ($this->_levels as $level) {
+			$searchIds[] = $level['id'];
+			$idNumCalls[ $level['id'] ] = $level['num_nested_calls'];
+		}
+
+		$ids = $db->fetchCol(
+			"SELECT * FROM $this->_dbTable WHERE sess_id=? AND id IN(".implode(',', $searchIds).") AND time_end IS NULL",
+			$this->_sessId);
+
+		if (!$ids)
+			return;
+
+		list($time, $memory) = array_values($db->fetchRow(
+			"SELECT MAX(time_end), MAX(memory_end) FROM $this->_dbTable WHERE sess_id=?",
+			$this->_sessId));
+
+		echo "\nsave ".count($ids)." unfinished calls\n";
+
+		foreach ($ids as $id) {
+			$db->update($this->_dbTable, array(
+				'time_end' => $time,
+				'memory_end' => $memory,
+				'num_nested_calls' => $idNumCalls[$id],
+			), 'id=?', $id);
+		}
 	}
 
 	protected function _checkDbTable()

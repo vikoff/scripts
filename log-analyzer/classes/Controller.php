@@ -1,14 +1,14 @@
-<?
+<?php
 
-class Controller {
-	
+abstract class Controller
+{
 	/** выполнение действия */
-	public function action($methodIdentifier, $redirect){
-				
+	public function action($methodIdentifier, $redirect)
+	{
 		$method = $this->getActionMethodName($methodIdentifier);
 			
 		if(!method_exists($this, $method)){
-			$this->display_404();
+			$this->display_404("Method '$methodIdentifier' not found in controller.");
 			exit;
 		}
 		
@@ -20,8 +20,8 @@ class Controller {
 	}
 	
 	/** выполнение отображения */
-	public function display($methodIdentifier, $params){
-				
+	public function display($methodIdentifier, $params)
+	{
 		$method = $this->getDisplayMethodName($methodIdentifier);
 			
 		if(!method_exists($this, $method))
@@ -32,20 +32,9 @@ class Controller {
 	}
 	
 	/** выполнение ajax */
-	public function ajax($methodIdentifier, $params){
-				
+	public function ajax($methodIdentifier, $params)
+	{
 		$method = $this->getAjaxMethodName($methodIdentifier);
-			
-		if(!method_exists($this, $method))
-			return FALSE;
-		
-		$this->$method($params);
-		return TRUE;
-	}
-	
-	/** выполнение command line (cli) */
-	public function cli($methodIdentifier, $params){
-		$method = $this->getCliMethodName($methodIdentifier);
 			
 		if(!method_exists($this, $method))
 			return FALSE;
@@ -54,26 +43,18 @@ class Controller {
 		return TRUE;
 	}
 	
-	/**
-	 * получить имя класса контроллера по идентификатору
-	 * @param string $controllerIdentifier - идентификатор контроллера
-	 * @return string|null - имя класса  контроллера или null, если контроллер не найден
-	 */
-	public function getControllerClassName($controllerIdentifier){
+	/** выполнение command line (cli) */
+	public function cli($methodIdentifier, $params)
+	{
+		$method = $this->getCliMethodName($methodIdentifier);
 			
-		// если идентификатор контроллера не передан, вернем null
-		if(empty($controllerIdentifier))
-			return null;
-		
-		// если идентификатор контроллера содержит недопустимые символы, вернем null
-		if(!preg_match('/^[\w\-]+$/', $controllerIdentifier))
-			return null;
-			
-		// преобразует строку вида 'any-class-name' в 'AnyClassNameController'
-		$controller = str_replace(' ', '', ucwords(str_replace('-', ' ', strtolower($controllerIdentifier)))).'Controller';
-		return class_exists($controller) ? $controller : null;
+		if(!method_exists($this, $method))
+			return FALSE;
+
+		call_user_func_array(array($this, $method), $params);
+		return TRUE;
 	}
-	
+
 	/** получить имя метода действия по идентификатору */
 	public function getActionMethodName($method){
 	
@@ -83,10 +64,10 @@ class Controller {
 	}
 	
 	/** получить имя метода отображения по идентификатору */
-	public  function getDisplayMethodName($method){
-	
+	public  function getDisplayMethodName($method)
+	{
 		// преобразует строку вида 'any-Method-name' в 'any_method_name'
-		$method = 'display_'.(strlen($method) ? strtolower(str_replace('-', '_', $method)) : 'default');
+		$method = 'display_'.($method ? strtolower(str_replace('-', '_', $method)) : 'index');
 		return $method;
 	}
 	
@@ -111,20 +92,20 @@ class Controller {
 	////// DISPLAY //////
 	/////////////////////
 	
-	public function display_404($method = ''){
+	public function display_404($error = ''){
 		
 		if(AJAX_MODE){
-			echo 'Страница не найдена ('.$method.')';
+			echo 'Страница не найдена ('.$error.')';
 		}else{
 			Layout::get()
-				->setContent('<h1 style="text-align: center;">Страница не найдена</h1> ('.$method.')')
+				->setContent('<h1 style="text-align: center;">Страница не найдена</h1> <p>'.$error.'</p>')
 				->render();
 		}
 		exit;
 	}
 
-	public function display_error($error){
-
+	public function display_error($error, Exception $e = null)
+	{
 		if(AJAX_MODE){
 			echo 'Ошибка выполнения: '.$error;
 		}else{
@@ -136,5 +117,3 @@ class Controller {
 	}
 
 }
-
-?>

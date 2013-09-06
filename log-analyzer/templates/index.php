@@ -5,6 +5,6 @@
 	<div style="letter-spacing: 5px;">Log analyzer</div>
 	<ul style="display: inline-block; text-align: left;">
 		<li><a href="<?= href('sql'); ?>">Sql logs</a></li>
-		<li><a href="<?= href('xdebug-trace'); ?>">Xdebug trace</a></li>
+		<li><a href="<?= href('x-trace'); ?>">Xdebug trace</a></li>
 	</ul>
 </div>

@@ -94,30 +94,6 @@ function generateLevelColors()
 		padding: 0 20px;
 	}
 
-	/*.level-1 { background: #FAFAFA; }*/
-	/*.level-2 { background: #FAFFF8; }*/
-	/*.level-3 { background: #FAFFFF; }*/
-	/*.level-4 { background: #FFF8FA; }*/
-	/*.level-5 { background: #FFFAF8; }*/
-	/*.level-6 { background: #FFFAFF; }*/
-	/*.level-7 { background: #FAFAFF; }*/
-	/*.level-8 { background: #FAFFFA; }*/
-	/*.level-9 { background: #FFF8F8; }*/
-	/*.level-10 { background: #FFF8FF; }*/
-	/*.level-11 { background: #FFFAFA; }*/
-
-
-	/*.level-1{ background: #FAFAFA; }*/
-	/*.level-2{ background: #FFF8EB; }*/
-	/*.level-3{ background: #EBFFED; }*/
-	/*.level-4{ background: #EBF6FF; }*/
-	/*.level-5{ background: #EBEBFF; }*/
-	/*.level-6{ background: #FFEBEB; }*/
-	/*.level-7{ background: #F9FFEB; }*/
-	/*.level-8{ background: #EBFFF8; }*/
-	/*.level-9{ background: #EBF6FF; }*/
-	/*.level-10{ background: #FAEBFF; }*/
-
 	.max-calls > .func-name{
 		font-weight: bold;
 	}
@@ -133,11 +109,14 @@ function generateLevelColors()
 </style>
 
 <h1>View Xdebug Trace</h1>
+
 <ol class="breadcrumb">
 	<li><a href="<?= href('/'); ?>">Home</a></li>
-	<li><a href="<?= href('xdebug-trace'); ?>">Xdebug Traces</a></li>
+	<li><a href="<?= href('x-trace'); ?>">Xdebug Traces</a></li>
 	<li class="active">Trace [<?= $this->sessData['application']; ?>]</li>
 </ol>
+
+<?= Messenger::get()->getAll(); ?>
 
 <table class="table table-bordered">
 	<tr>
