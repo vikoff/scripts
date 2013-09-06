@@ -26,8 +26,8 @@ class Controller {
 			
 		if(!method_exists($this, $method))
 			return FALSE;
-		
-		$this->$method($params);
+
+		call_user_func_array(array($this, $method), $params);
 		return TRUE;
 	}
 	
@@ -49,8 +49,8 @@ class Controller {
 			
 		if(!method_exists($this, $method))
 			return FALSE;
-		
-		$this->$method($params);
+
+		call_user_func_array(array($this, $method), $params);
 		return TRUE;
 	}
 	
@@ -122,7 +122,19 @@ class Controller {
 		}
 		exit;
 	}
-	
+
+	public function display_error($error){
+
+		if(AJAX_MODE){
+			echo 'Ошибка выполнения: '.$error;
+		}else{
+			Layout::get()
+				->setContent('<h1>Ошибка выполнения</h1> <p>'.$error.'</p>')
+				->render();
+		}
+		exit;
+	}
+
 }
 
 ?>

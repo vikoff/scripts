@@ -268,6 +268,12 @@ class Layout{
 		else
 			return $this->_renderWithLayout($boolReturn);
 	}
+
+	public function renderJson($json)
+	{
+		header('Content-type: application/json; charset=utf-8');
+		echo json_encode($json);
+	}
 	
 	/**
 	 * вывести/вернуть контент без макета

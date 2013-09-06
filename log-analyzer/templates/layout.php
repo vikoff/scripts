@@ -3,8 +3,14 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title><?= $this->_getHtmlTitle(); ?></title>
-	<base href="<?= $this->_getHtmlBaseHref(); ?>" />
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+
+	<link rel="icon" href="favicon.ico" type=""/>
+	<link rel="stylesheet" href="css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="css/bootstrap-theme.min.css"/>
+	<link rel="stylesheet" href="css/styles.css"/>
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 	
 		function href(href){
@@ -25,8 +31,8 @@
 	</script>
 </head>
 <body>
-
-	<?= $this->_getHtmlContent(); ?>
-	
+	<div class="container">
+		<?= $this->_getHtmlContent(); ?>
+	</div>
 </body>
 </html>

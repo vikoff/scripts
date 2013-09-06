@@ -40,6 +40,61 @@ CREATE TABLE `sql_log` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
+ * xdebug_trace_sessions
+ * таблица зависит от:
+ * от таблицы зависят: xdebug_trace
+ */
+DROP TABLE IF EXISTS `xdebug_trace_sessions`;
+CREATE TABLE `xdebug_trace_sessions` (
+	`id`            INT UNSIGNED AUTO_INCREMENT,
+	`db_table`      TEXT,
+	`application`   TEXT,
+	`request_url`   TEXT,
+	`app_base_path` TEXT,
+	`total_memory`  INT,
+	`total_time`    FLOAT,
+	`total_calls`   INT,
+	`comments`      TEXT,
+	`created_at`    TIMESTAMP DEFAULT NOW(),
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*
+ * xdebug_trace
+ * таблица зависит от: xdebug_trace_sessions
+ * от таблицы зависят:
+ */
+DROP TABLE IF EXISTS `xdebug_trace`;
+CREATE TABLE `xdebug_trace` (
+	`id`               INT UNSIGNED AUTO_INCREMENT,
+	`sess_id`          INT UNSIGNED NOT NULL,
+	`level`            SMALLINT NOT NULL,
+	`call_index`       INT NOT NULL,
+	`time_start`       FLOAT,
+	`time_end`         FLOAT,
+	`memory_start`     INT COMMENT 'memory on entering function',
+	`memory_end`       INT COMMENT 'memory on leaving function',
+	`func_name`        TEXT,
+	`user_defined`     TINYINT(1) NOT NULL,
+	`included_file`    TEXT,
+	`call_file`        TEXT,
+	`call_line`        INT,
+	`num_args`         SMALLINT,
+	`args`             TEXT,
+	`parent_func_id`   INT,
+	`num_nested_calls` INT,
+	`comments`         TEXT,
+	`created_at`       TIMESTAMP DEFAULT NOW(),
+	PRIMARY KEY (`id`),
+	KEY `fk_xdebug_trace_1` (`sess_id`),
+	CONSTRAINT `fk_xdebug_trace_1`
+		FOREIGN KEY (`sess_id`)
+		REFERENCES `xdebug_trace_sessions` (`id`)
+		ON DELETE CASCADE
+		ON UPDATE NO ACTION
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*
  * ____
  * таблица зависит от:
  * от таблицы зависят:

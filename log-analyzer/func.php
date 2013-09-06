@@ -15,9 +15,14 @@ function getVar(&$varname, $defaultVal = '', $type = ''){
 	return $varname;
 }
 
-function href($href){
-	$href = str_replace('?', '&', $href);
-	return 'index.php'.(!empty($href) ? '?r='.$href : '');
+function href($href)
+{
+	if (empty($href) || $href == '/') {
+		return 'index.php';
+	} else {
+		$href = str_replace('?', '&', $href);
+		return 'index.php?r='.$href;
+	}
 }
 
 /** RELOAD */

@@ -21,13 +21,13 @@ chdir(FS_ROOT);
 
 function __autoload($name) {
 
-	$filename = FS_ROOT.'classes/'.$name.'.class.php';
+	$filename = FS_ROOT.'classes/'.$name.'.php';
 	require($filename);
 }
 
 require_once('func.php');
 
-require_once('classes/Db.class.php');
+require_once('classes/Db.php');
 require_once('classes/DbAdapters/PdoAbstract.php');
 require_once('classes/DbAdapters/PdoMysql.php');
 
