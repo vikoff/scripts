@@ -188,10 +188,11 @@ class FrontController
 
 		// вторая попытка - передан controller/action
 		$controller = $this->requestAction;
-		$action = array_shift($this->requestParams);
+		$params = $this->requestParams;
+		$action = array_shift($params);
 		$controllerInstance = $this->_getController($controller, TRUE);
 		if ($controllerInstance)
-			return $controllerInstance->display($action, $this->requestParams);
+			return $controllerInstance->display($action, $params);
 
 		return FALSE;
 	}
@@ -199,17 +200,30 @@ class FrontController
 	/** проверка необходимости выполнения ajax */
 	protected function _checkAjax()
 	{
-		return $this->getDefaultController()->ajax($this->requestAction, $this->requestParams);
+		// первая попытка - дефолтный контроллер и передано лишь имя экшена
+		$defaultCall = $this->getDefaultController()->ajax($this->requestAction, $this->requestParams);
+		if ($defaultCall)
+			return TRUE;
+
+		$controller = $this->requestAction;
+		$params = $this->requestParams;
+		$action = array_shift($params);
+		$controllerInstance = $this->_getController($controller, TRUE);
+		if ($controllerInstance)
+			return $controllerInstance->ajax($action, $params);
+
+		return FALSE;
 	}
 
 	/** проверка необходимости выполнения cli */
 	protected function _checkCli()
 	{
+		// если запрос вида controller/action
 		if (strpos($this->requestAction, '/')) {
 			list($controller, $action) = explode('/', $this->requestAction, 2);
 			return $this->_getController($controller)->cli($action, $this->requestParams);
 		}
-		// если action вида 'action'
+		// если запрос вида 'action'
 		else{
 			return $this->getDefaultController()->cli($this->requestAction, $this->requestParams);
 		}

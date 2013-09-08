@@ -67,7 +67,9 @@ class Xdebug_TraceStat
 		$db = db::get();
 		$funcData = $db->fetchRow("SELECT * FROM xdebug_trace WHERE id=?", $callId);
 		if (!$funcData)
-			throw new Exception('function call not found');
+			throw new Exception('function not found');
+		$sessData = $this->getSessData($funcData['sess_id']);
+		$preparedFuncData = $this->_prepareFuncData($funcData, $sessData);
 
 		return $funcData;
 	}
@@ -87,7 +89,7 @@ class Xdebug_TraceStat
 		$maxMemory = 0;
 		$maxTime = 0;
 		foreach ($calls as & $call) {
-			$call = $this->_prepareCallData($call, $sessData);
+			$call = $this->_prepareFuncData($call, $sessData);
 			$maxNestedCalls = max($maxNestedCalls, $call['num_nested_calls']);
 			$maxMemory = max($maxMemory, $call['mem_diff']);
 			$maxTime = max($maxTime, $call['time_diff']);
@@ -102,23 +104,23 @@ class Xdebug_TraceStat
 		return $calls;
 	}
 
-	protected function _prepareCallData($row, $sessData)
+	protected function _prepareFuncData($row, $sessData)
 	{
 		$output = array();
 		$keys = array('id', 'level', 'call_index', 'func_name', 'call_file', 'call_line', 'parent_func_id', 'num_nested_calls');
 		foreach ($keys as $key)
 			$output[$key] = $row[$key];
 
-		$argsLen = strlen($row['args']);
-
 		if (!empty($row['included_file'])) {
 			$output['args_str'] = "'".str_replace($sessData['app_base_path'], '', $row['included_file'])."'";
 		} elseif (!$row['num_args']) {
 			$output['args_str'] = '';
-		} elseif ($argsLen < 150) {
-			$output['args_str'] = implode(', ', explode("\t", $row['args'], $row['num_args']));
 		} else {
-			$output['args_str'] = '...';
+			$args = explode("\t", $row['args'], $row['num_args']);
+			foreach ($args as & $arg) {
+				$arg = $this->_prepareCallArg($arg);
+			} unset ($arg);
+			$output['args_str'] = implode(', ', $args);
 		}
 
 		$output['time_diff'] = sprintf('%.3f', $row['time_end'] - $row['time_start']);
@@ -129,6 +131,21 @@ class Xdebug_TraceStat
 		$output['max_calls'] = false;
 
 		return $output;
+	}
+
+	protected function _prepareCallArg($arg)
+	{
+		$len = strlen($arg);
+		if ($len < 150)
+			return $arg;
+
+		if (preg_match('/^(class [\w\\\\]+)/', $arg, $matches))
+			return $matches[1].' {...}';
+
+		if (preg_match('/^array /', $arg))
+			return 'array (...)';
+
+		return '...';
 	}
 
 	public static function formatMemory($bytesize, $toArray = FALSE)

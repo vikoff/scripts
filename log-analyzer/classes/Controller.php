@@ -109,8 +109,11 @@ abstract class Controller
 		if(AJAX_MODE){
 			echo 'Ошибка выполнения: '.$error;
 		}else{
+			$content = '<h1>Ошибка выполнения</h1>
+				<p>'.$error.'</p>'
+				.(Config::get('show_exceptions') ? '<p>'.print_r($e, 1).'</p>' : '');
 			Layout::get()
-				->setContent('<h1>Ошибка выполнения</h1> <p>'.$error.'</p>')
+				->setContent($content)
 				->render();
 		}
 		exit;

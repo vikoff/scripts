@@ -23,27 +23,6 @@ class IndexController extends Controller
 			->render();
 	}
 
-	public function ajax_xdebug_trace_get_children()
-	{
-		$sessId = getVar($_GET['sess'], 0, 'int');
-		$id = getVar($_GET['id'], 0, 'int');
-		if (!$sessId || !$id) {
-			Layout::get()->renderJson(array('success' => 0, 'error' => 'Invalid input data'));
-			return;
-		}
-
-		$calls = Xdebug_TraceStat::load()->getFuncChildren($sessId, $id);
-		Layout::get()->renderJson(array('success' => 1, 'data' => $calls));
-	}
-
-	public function display_xdebug_trace_func_details($funcId = null)
-	{
-		$funcId = (int)$funcId;
-		$funcData = Xdebug_TraceStat::load()->getFuncDetails($funcId);
-
-		echo '<pre>'; print_r($funcData); echo '</pre>';
-	}
-
 	public function cli_index()
 	{
 		$appCall = "php index.php";

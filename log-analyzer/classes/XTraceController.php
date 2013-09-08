@@ -48,6 +48,27 @@ class XTraceController extends Controller
 			->render();
 	}
 
+	public function display_func_details($funcId = null)
+	{
+		$funcId = (int)$funcId;
+		$funcData = Xdebug_TraceStat::load()->getFuncDetails($funcId);
+
+		echo '<pre>'; print_r($funcData); echo '</pre>';
+	}
+
+	public function display_get_children()
+	{
+		$sessId = getVar($_GET['sess'], 0, 'int');
+		$id = getVar($_GET['id'], 0, 'int');
+		if (!$sessId || !$id) {
+			Layout::get()->renderJson(array('success' => 0, 'error' => 'Invalid input data'));
+			return;
+		}
+
+		$calls = Xdebug_TraceStat::load()->getFuncChildren($sessId, $id);
+		Layout::get()->renderJson(array('success' => 1, 'data' => $calls));
+	}
+
 	public function action_parse_new()
 	{
 		if (empty($_FILES['file']['tmp_name'])) {

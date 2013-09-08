@@ -18,7 +18,7 @@ function generateLevelColors()
 		if (strlen($baseFixLen) > 3)
 			break;
 		$color = '#'.strtr($baseFixLen, $colorsHex);
-		$bg = $index % 2 ? '#F8F8F8' : '#FEFEFE';
+		$bg = $index % 2 ? '#F5F5F5' : '#FEFEFE';
 		echo ".level-$index { border-left: solid 4px $color; border-right: solid 2px $color; background: $bg; }\n";
 //		echo $i.' '.$baseFixLen.' <div class="block" style="background: '.$color.'">'.$color.'</div><br><br>';
 		$index++;
@@ -79,7 +79,9 @@ function generateLevelColors()
 		/*background: rgba(0,0,255,0.1);*/
 		padding: 0 1px;
 	}
-	.file{}
+	.file{
+		cursor: pointer;
+	}
 	.nested-num{
 		color: <?= $textColor; ?>;
 	}
@@ -104,6 +106,16 @@ function generateLevelColors()
 		color: #8D7D2E;
 	}
 
+	#page-menu{
+		display: none;
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		padding: 5px 10px;
+		background: #FFF;
+		border: solid 1px #EEE;
+	}
+
 <?php $num = generateLevelColors(); ?>
 
 </style>
@@ -117,6 +129,10 @@ function generateLevelColors()
 </ol>
 
 <?= Messenger::get()->getAll(); ?>
+
+<div id="page-menu">
+
+</div>
 
 <table class="table table-bordered">
 	<tr>
@@ -185,7 +201,7 @@ function drawFunc(box, callData)
 	if (callData['max_calls']) classes.push('max-calls');
 
 	var funcName = callData['func_name'] + '(' + callData['args_str'] + ')';
-	var funcUrl = href('xdebug-trace-func-details/'+callData['id']);
+	var funcUrl = href('x-trace/func-details/'+callData['id']);
 
 	var html = ''
 		+ '<div class="call-item" data-id="' + callData['id'] + '">'
@@ -193,7 +209,7 @@ function drawFunc(box, callData)
 		+         '<div class="func-name"><a href="' + funcUrl + '" class="func-details">' + funcName + '</a></div>'
 		+         '<div class="func-info">'
 		+             '<span class="level" title="level ' + level + '">->' + level + '</span> '
-		+             '<span class="file">' + file + ':' + callData['call_line'] + '</span> '
+		+             '<span class="file" onclick="selectText(this);">' + file + ':' + callData['call_line'] + '</span> '
 		+             '<span class="sep">|</span> '
 		+             '<span class="mem">mem: ' + callData['mem_diff_str'] + '</span> '
 		+             '<span class="sep">|</span> '
@@ -215,6 +231,18 @@ function drawFunc(box, callData)
 		+ '</div>';
 
 	box.append(html);
+}
+
+function selectText(elm) {
+	if (document.selection) {
+		var range = document.body.createTextRange();
+		range.moveToElementText(elm);
+		range.select();
+	} else if (window.getSelection) {
+		var range = document.createRange();
+		range.selectNode(elm);
+		window.getSelection().addRange(range);
+	}
 }
 
 var sessIndex = <?= json_encode($this->sessId); ?>;
@@ -242,7 +270,7 @@ $(function(){
 		$this.data('showed', true);
 		$this.text('hide nested calls');
 		var id = box.data('id');
-		$.get('?r=xdebug-trace-get-children', {sess: sessIndex, id: id}, function(response){
+		$.get('?r=x-trace/get-children', {sess: sessIndex, id: id}, function(response){
 			if (response.success) {
 				drawLevel(box.find('.nested-calls'), response.data);
 			} else {
