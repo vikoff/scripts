@@ -64,6 +64,58 @@ class Xdebug_TraceParser
 			."$this->_numInserts row inserted in $duration sec ($this->_lineNumber rows parsed)\n\n";
 	}
 
+	public function updateSessionData($sessId)
+	{
+		$db = db::get();
+		list($maxMem, $maxTime, $numCalls) = array_values($db->fetchRow(
+			"SELECT MAX(memory_end), MAX(time_end), COUNT(1) FROM xdebug_trace WHERE sess_id=?", $sessId));
+		$db->update('xdebug_trace_sessions', array(
+			'total_memory' => $maxMem,
+			'total_time' => $maxTime,
+			'total_calls' => $numCalls,
+		), 'id=?', $sessId);
+	}
+
+	public static function integrityCheck()
+	{
+		$iteration = 1;
+		$db = db::get();
+		$sql = "SELECT id, parent_func_id FROM xdebug_trace WHERE all_parent_ids IS NULL LIMIT 1000";
+
+		while ($ids = $db->fetchPairs($sql)) {
+			foreach ($ids as $funcId => $parentId) {
+				$parentsDesc = array();
+				if ($parentId)
+					$parentsDesc[] = $parentId;
+				while ($parentId) {
+					$parents = $db->fetchRow("
+						SELECT t1.parent_func_id parent1, t2.parent_func_id parent2, t3.parent_func_id parent3
+						FROM xdebug_trace t1
+						LEFT JOIN xdebug_trace t2 ON t2.id=t1.parent_func_id
+						LEFT JOIN xdebug_trace t3 ON t3.id=t2.parent_func_id
+						WHERE t1.id=?
+					", $parentId);
+					for ($i = 1; $i <= 3; $i++) {
+						if ($parents && (int)$parents['parent'.$i])
+							$parentsDesc[] = $parents['parent'.$i];
+					}
+					$parentId = $parents ? (int)$parents['parent3'] : 0;
+				}
+
+				echo count($parentsDesc).'|';
+				$parentsDesc = array_reverse($parentsDesc);
+				$db->update('xdebug_trace', array(
+					'all_parent_ids' => $parentsDesc ? implode(',', $parentsDesc) : ''
+				), 'id=?', $funcId);
+
+				if ($iteration % 10 == 0) echo ".";
+				if ($iteration % 1000 == 0) echo " $iteration\n";
+				$iteration++;
+			}
+		}
+		echo "\ncomplete\n";
+	}
+
 	protected function _createSession()
 	{
 		$keys = array('application', 'request_url', 'app_base_path', 'comments');
@@ -77,18 +129,6 @@ class Xdebug_TraceParser
 		$db = db::get();
 		$this->_sessId = $db->insert('xdebug_trace_sessions', $data);
 		$this->_sessData = $db->fetchRow("SELECT * FROM xdebug_trace_sessions WHERE id=?", $this->_sessId);
-	}
-
-	public function updateSessionData($sessId)
-	{
-		$db = db::get();
-		list($maxMem, $maxTime, $numCalls) = array_values($db->fetchRow(
-			"SELECT MAX(memory_end), MAX(time_end), COUNT(1) FROM xdebug_trace WHERE sess_id=?", $sessId));
-		$db->update('xdebug_trace_sessions', array(
-			'total_memory' => $maxMem,
-			'total_time' => $maxTime,
-			'total_calls' => $numCalls,
-		), 'id=?', $sessId);
 	}
 
 	protected function _processLine($line)
@@ -165,23 +205,29 @@ class Xdebug_TraceParser
 			$db->beginTransaction();
 		}
 
-		$id = $db->insert('xdebug_trace', $data);
-		$this->_numInserts++;
-
 		// инкремент счетчиков вложенных вызовов для всех функций
 		foreach ($this->_nestedCalls as $callIndex => $numCalls)
 			if ($callIndex != $data['call_index'])
 				$this->_nestedCalls[$callIndex]++;
 
-		// установим функцию как текущую на данном уровне
-		$this->_levels[ $data['level'] ] = array('id' => $id);
-
+		// сбор списка родительских функций, удаление стека глубже текущего уровня
 		ksort($this->_levels);
+		$allParentIds = array();
 		foreach ($this->_levels as $level => $levelData) {
-			if ($level > $data['level']) {
+			if ($level < $data['level']) {
+				$allParentIds[] = $levelData['id'];
+			} elseif ($level > $data['level']) {
 				unset($this->_levels[$level]);
 			}
 		}
+
+		$data['all_parent_ids'] = implode(',', $allParentIds);
+		$id = $db->insert('xdebug_trace', $data);
+		$this->_numInserts++;
+
+		// установим функцию как текущую на данном уровне
+		$this->_levels[ $data['level'] ] = array('id' => $id);
+		ksort($this->_levels);
 	}
 
 	protected function _saveFuncFinishData($callIndex, $timeEnd, $memoryEnd)

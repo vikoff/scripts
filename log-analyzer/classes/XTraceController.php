@@ -69,6 +69,13 @@ class XTraceController extends Controller
 		Layout::get()->renderJson(array('success' => 1, 'data' => $calls));
 	}
 
+	public function display_load_func_tree()
+	{
+		$funcId = getVar($_GET['id'], 0, 'int');
+		$calls = Xdebug_TraceStat::load()->getFuncTree($funcId);
+		Layout::get()->renderJson(array('success' => 1, 'data' => $calls));
+	}
+
 	public function action_parse_new()
 	{
 		if (empty($_FILES['file']['tmp_name'])) {
@@ -132,6 +139,11 @@ class XTraceController extends Controller
 
 		$parser = new Xdebug_TraceParser($options);
 		$parser->parse($file);
+	}
+
+	public function cli_integrity_check()
+	{
+		Xdebug_TraceParser::integrityCheck();
 	}
 
 }

@@ -82,6 +82,7 @@ CREATE TABLE `xdebug_trace` (
 	`num_args`         SMALLINT,
 	`args`             TEXT,
 	`parent_func_id`   INT,
+	`all_parent_ids`   VARCHAR(64),
 	`num_nested_calls` INT,
 	`comments`         TEXT,
 	`created_at`       TIMESTAMP DEFAULT NOW(),

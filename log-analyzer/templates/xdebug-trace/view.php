@@ -48,8 +48,6 @@ function generateLevelColors()
 	.item-inner{
 		background: #FAFAFA;
 		border: solid 1px #DDD;
-		/*display: inline-block;*/
-		/*border-radius: 6px;*/
 		padding-bottom: 2px;
 	}
 	.func-name{
@@ -66,9 +64,6 @@ function generateLevelColors()
 	}
 	.func-name a.func-details:hover{
 		color: #004d96;
-	}
-	.func-place{
-		padding: 0 10px;
 	}
 	.func-info{
 		padding: 0 10px;
@@ -92,9 +87,36 @@ function generateLevelColors()
 	.nested-title .no{
 		color: #A22626;
 	}
-	.nested-calls{
+	.nested-calls-outer{
 		padding: 0 20px;
+		position: relative;
 	}
+	.nested-calls-outer > .left-bar{
+		display: block;
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 20px;
+		text-decoration: none;
+	}
+	.nested-calls-outer > .left-bar:hover{
+		background: rgba(5, 37, 255, 0.15);
+	}
+	.nested-calls-outer > .left-bar .hint{
+		display: none;
+		position: fixed;
+		top: 0;
+		margin-left: -1px;
+		z-index: 1;
+		background: #FAFADC;
+		border: solid 1px black;
+		padding: 3px 10px;
+		color: #000;
+		font-size: 12px;
+		font-family: monospace;
+	}
+	.nested-calls{}
 
 	.max-calls > .func-name{
 		font-weight: bold;
@@ -115,6 +137,14 @@ function generateLevelColors()
 		background: #FFF;
 		border: solid 1px #EEE;
 	}
+	form.search{
+		margin-top: -1px;
+	}
+	form.search .search-str{
+		position: relative;
+		top: 2px;
+		width: 250px;
+	}
 
 <?php $num = generateLevelColors(); ?>
 
@@ -123,6 +153,12 @@ function generateLevelColors()
 <h1>View Xdebug Trace</h1>
 
 <ol class="breadcrumb">
+	<li class="pull-right">
+		<form class="search form-inline">
+			<input type="text" class="search-str">
+			<button class="btn btn-default btn-xs" type="button">Search</button>
+		</form>
+	</li>
 	<li><a href="<?= href('/'); ?>">Home</a></li>
 	<li><a href="<?= href('x-trace'); ?>">Xdebug Traces</a></li>
 	<li class="active">Trace [<?= $this->sessData['application']; ?>]</li>
@@ -159,6 +195,7 @@ function generateLevelColors()
 
 <div class="outer-box">
 	<div id="xdebug-trace-box"></div>
+	<div id="bottom-space" style="height: 1000px;"></div>
 </div>
 
 <div class="modal fade" id="func-details-modal" tabindex="-1" role="dialog">
@@ -178,68 +215,127 @@ function generateLevelColors()
 
 <script type="text/javascript">
 
-function drawLevel(box, levelData)
+var CallTree = {
+	init: function(firstLevelCalls)
+	{
+		// fill bottom space
+		$('#bottom-space').height($(window).height());
+
+		// draw first level
+		this.drawLevel('#xdebug-trace-box', firstLevelCalls);
+
+		// open tree to last function
+		var hash = location.hash.split('#')[1] || '';
+		var match = /lastview-(\d+)/.exec(hash);
+		if (match) {
+			this.loadFuncTree(match[1]);
+		}
+	},
+	loadFuncTree: function(funcId)
+	{
+		var self = this;
+		$.get(href('x-trace/load-func-tree'), {id: funcId}, function(response){
+			if (response.success) {
+				var box;
+				for (var i = 0; i < response.data.length; i++) {
+					box = $('#call-' + response.data[i].id);
+					box.find('.show-nested-btn:first').text('hide nested calls');
+					self.drawLevel(box.find('.nested-calls:first'), response.data[i].calls);
+				}
+				if (box) {
+					setTimeout(function(){ $('html,body').animate({scrollTop: box.offset().top - 10}); }, 500);
+				}
+			} else {
+				alert(response.error || response);
+			}
+		});
+	},
+	drawLevel: function(box, levelData)
+	{
+		if (!levelData)
+			return;
+
+		box = $(box);
+		var width1 = box.width();
+		box.hide();
+
+		for (var i = 0; i < levelData.length; i++)
+			this.drawFunc(box, levelData[i]);
+
+		box.show();
+		var width2 = box.width();
+		var height2 = box.height();
+
+		box.css({overflow: 'hidden', width: width1 || width2, height: 0});
+		box.animate({width: width2, height: height2}, function(){
+			box.css({overflow: 'visible', width: 'auto', 'height': 'auto'});
+		});
+	},
+	drawFunc: function(box, callData)
+	{
+		var id = callData['id'];
+		var file = callData['call_file'].replace(baseFilesPath, '');
+		var level = callData['level'];
+		var nestedCalls = parseInt(callData['num_nested_calls']) || 0;
+		var levelClass = (level - 1) % numLevelColors + 1;
+		var classes = [];
+		if (callData['max_mem']) classes.push('max-mem');
+		if (callData['max_time']) classes.push('max-time');
+		if (callData['max_calls']) classes.push('max-calls');
+
+		var funcName = callData['func_name'] + '(' + callData['args_str'] + ')';
+		var funcUrl = href('x-trace/func-details/' + id);
+
+		var html = $(''
+			+ '<div class="call-item" id="call-' + id + '" data-id="' + id + '">'
+			+     '<div class="item-inner level-' + levelClass + ' '+ classes.join(' ') +'">'
+			+         '<div class="func-name"><a href="' + funcUrl + '" class="func-details">' + funcName + '</a></div>'
+			+         '<div class="func-info">'
+			+             '<span class="level" title="level ' + level + '">->' + level + '</span> '
+			+             '<span class="file" onclick="selectText(this);">' + file + ':' + callData['call_line'] + '</span> '
+			+             '<span class="sep">|</span> '
+			+             '<span class="mem">mem: ' + callData['mem_diff_str'] + '</span> '
+			+             '<span class="sep">|</span> '
+			+             '<span class="time">time: ' + callData['time_diff'] + '</span> '
+			+         '</div>'
+			+ (nestedCalls
+			? ''
+			+         '<div class="nested-title">'
+			+             '<a href="#" class="show-nested-btn">show nested calls</a> '
+			+             '<span class="nested-num">(' + nestedCalls + ')</span> '
+			+         '</div>'
+			+         '<div class="nested-calls-outer">'
+			+             '<a href="#call-' + id + '" class="left-bar"><span class="hint">' + funcName + '</span></a> '
+			+             '<div class="nested-calls"></div>'
+			+         '</div>'
+			:     ''
+			)
+			+     '</div>'
+			+ '</div>');
+
+		html.find('a.left-bar').hover(function(){
+			var $this = $(this);
+			var heighDiff = $this.offset().top - $(window).scrollTop();
+			if (heighDiff < 50) {
+				var hint = $this.children('.hint').show();
+			}
+		}, function() { $(this).children('.hint').hide(); });
+
+		box.append(html);
+	}
+
+};
+
+
+function selectText(elm)
 {
-	if (!levelData)
-		return;
-
-	box = $(box);
-
-	for (var i = 0; i < levelData.length; i++)
-		drawFunc(box, levelData[i]);
-}
-
-function drawFunc(box, callData)
-{
-	var file = callData['call_file'].replace(baseFilesPath, '');
-	var level = callData['level'];
-	var nestedCalls = parseInt(callData['num_nested_calls']) || 0;
-	var levelClass = (level - 1) % numLevelColors + 1;
-	var classes = [];
-	if (callData['max_mem']) classes.push('max-mem');
-	if (callData['max_time']) classes.push('max-time');
-	if (callData['max_calls']) classes.push('max-calls');
-
-	var funcName = callData['func_name'] + '(' + callData['args_str'] + ')';
-	var funcUrl = href('x-trace/func-details/'+callData['id']);
-
-	var html = ''
-		+ '<div class="call-item" data-id="' + callData['id'] + '">'
-		+     '<div class="item-inner level-' + levelClass + ' '+ classes.join(' ') +'">'
-		+         '<div class="func-name"><a href="' + funcUrl + '" class="func-details">' + funcName + '</a></div>'
-		+         '<div class="func-info">'
-		+             '<span class="level" title="level ' + level + '">->' + level + '</span> '
-		+             '<span class="file" onclick="selectText(this);">' + file + ':' + callData['call_line'] + '</span> '
-		+             '<span class="sep">|</span> '
-		+             '<span class="mem">mem: ' + callData['mem_diff_str'] + '</span> '
-		+             '<span class="sep">|</span> '
-		+             '<span class="time">time: ' + callData['time_diff'] + '</span> '
-		+         '</div>'
-//		+         '<div class="func-place">' + file + ':' + callData['call_line'] + '</div>'
-//		+         '<div class="func-info">level: ' + level + ', nested calls: ' + nestedCalls + '</div>'
-		+ (nestedCalls
-		    ?
-		          '<div class="nested-title">'
-		+             '<a href="#" class="show-nested-btn">show nested calls</a> '
-		+             '<span class="nested-num">(' + nestedCalls + ')</span> '
-		+         '</div>'
-		+         '<div class="nested-calls"></div>'
-		    :     ''
-//		+         '<div class="nested-title"><span class="no">no nested calls</span></div>'
-		)
-		+     '</div>'
-		+ '</div>';
-
-	box.append(html);
-}
-
-function selectText(elm) {
+	var range;
 	if (document.selection) {
-		var range = document.body.createTextRange();
+		range = document.body.createTextRange();
 		range.moveToElementText(elm);
 		range.select();
 	} else if (window.getSelection) {
-		var range = document.createRange();
+		range = document.createRange();
 		range.selectNode(elm);
 		window.getSelection().addRange(range);
 	}
@@ -252,41 +348,62 @@ var numLevelColors = <?= $num; ?>;
 
 $(function(){
 
-	drawLevel('#xdebug-trace-box', firstLevelCalls);
+	CallTree.init(firstLevelCalls);
+
+	var body = $('body');
 
 	// show/hide nested functions
-	$('body').on('click', '.show-nested-btn', function(e){
+	body.on('click', '.show-nested-btn', function(e){
 		e.preventDefault();
 		var $this = $(this);
 		var box = $(this).closest('.call-item');
+		var nestedBox = box.find('.nested-calls:first');
+		var id = box.data('id');
 
-		if ($this.data('showed')) {
+		if (nestedBox.children().length) {
+			var parentId = box.parent().closest('.call-item').data('id');
+			alert(id + ' - ' + parentId);
+			location.hash = parentId ? '#lastview-' + parentId : '';
 			$this.text('show nested calls');
-			$this.data('showed', false);
-			box.find('.nested-calls').empty();
+			nestedBox.children().hide();
+			var width1 = nestedBox.width();
+			nestedBox.children().show();
+			nestedBox.css('overflow', 'hidden').animate({width: width1, height: 0}, function(){
+				nestedBox.empty().css({overflow: 'visible', width: 'auto', height: 'auto'});
+			});
 			return;
 		}
 
-		$this.data('showed', true);
+
+		location.hash = '#lastview-' + id;
 		$this.text('hide nested calls');
-		var id = box.data('id');
+
 		$.get('?r=x-trace/get-children', {sess: sessIndex, id: id}, function(response){
 			if (response.success) {
-				drawLevel(box.find('.nested-calls'), response.data);
+				CallTree.drawLevel(nestedBox, response.data);
 			} else {
 				alert(response.error || response);
 			}
-//			var_dump(response, 'd=3');
 		});
 	});
 
-	$('body').on('click', 'a.func-details', function(e){
+	body.on('click', 'a.func-details', function(e){
 		e.preventDefault();
 		$.get(this.href, function(response){
 			$('#func-details-modal').modal()
 				.find('.modal-body').html(response);
 		})
 	});
+
+	body.on('click', '.left-bar', function(e){
+		e.preventDefault();
+		var trgTop = $($(this).attr('href')).offset().top;
+		var heighDiff = trgTop - $(window).scrollTop();
+		if (heighDiff < 0) {
+			$("html, body").animate({ scrollTop: trgTop });
+		}
+	})
+
 });
 
 </script>

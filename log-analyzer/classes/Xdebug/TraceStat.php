@@ -52,26 +52,49 @@ class Xdebug_TraceStat
 
 	public function getFuncChildren($sessId, $funcId)
 	{
-		$db = db::get();
 		$sessData = $this->getSessData($sessId);
-		$calls = $db->fetchAll("
-			SELECT * FROM xdebug_trace WHERE sess_id=? AND parent_func_id=? ORDER BY call_index
-		", array($sessId, $funcId));
-
-		$calls = $this->_prepareCalls($calls, $sessData);
+		$calls = $this->_loadFuncChildren($funcId, $sessData);
 		return $calls;
 	}
 
-	public function getFuncDetails($callId)
+	public function getFuncDetails($funcId)
 	{
 		$db = db::get();
-		$funcData = $db->fetchRow("SELECT * FROM xdebug_trace WHERE id=?", $callId);
+		$funcData = $db->fetchRow("SELECT * FROM xdebug_trace WHERE id=?", $funcId);
 		if (!$funcData)
 			throw new Exception('function not found');
 		$sessData = $this->getSessData($funcData['sess_id']);
 		$preparedFuncData = $this->_prepareFuncData($funcData, $sessData);
 
 		return $funcData;
+	}
+
+	public function getFuncTree($funcId)
+	{
+		$db = db::get();
+		$funcData = $db->fetchRow("SELECT * FROM xdebug_trace WHERE id=?", $funcId);
+		if (!$funcData)
+			throw new Exception('function not found');
+		$sessData = $this->getSessData($funcData['sess_id']);
+
+		$parentIds = $funcData['all_parent_ids'] ? explode(',', $funcData['all_parent_ids']) : array();
+		$parentIds[] = $funcId;
+		$data = array();
+		foreach ($parentIds as $parentId) {
+			$data[] = array('id' => $parentId, 'calls' => $this->_loadFuncChildren($parentId, $sessData));
+		}
+		return $data;
+	}
+
+	protected function _loadFuncChildren($funcId, $sessData)
+	{
+		$db = db::get();
+		$calls = $db->fetchAll("
+			SELECT * FROM xdebug_trace WHERE sess_id=? AND parent_func_id=? ORDER BY call_index
+		", array($sessData['id'], $funcId));
+
+		$calls = $this->_prepareCalls($calls, $sessData);
+		return $calls;
 	}
 
 	protected function _prepareSessData($row)
@@ -96,9 +119,9 @@ class Xdebug_TraceStat
 		} unset($call);
 
 		foreach ($calls as & $call) {
-			if ($call['num_nested_calls'] == $maxNestedCalls) $call['max_calls'] = true;
-			if ($call['mem_diff'] == $maxMemory) $call['max_mem'] = true;
-			if ($call['time_diff'] == $maxTime) $call['max_time'] = true;
+			if ($maxNestedCalls && $call['num_nested_calls'] == $maxNestedCalls) $call['max_calls'] = true;
+			if ($maxMemory && $call['mem_diff'] == $maxMemory) $call['max_mem'] = true;
+			if ($maxTime && $call['time_diff'] == $maxTime) $call['max_time'] = true;
 		} unset($call);
 
 		return $calls;
