@@ -51,7 +51,7 @@ function generateLevelColors()
 		padding-bottom: 2px;
 	}
 	.func-name{
-		background: rgba(0,0,0,0.1);
+		/*background: rgba(0,0,0,0.1);*/
 		padding: 1px 10px;
 		font-family: monospace;
 		font-size: 12px;
