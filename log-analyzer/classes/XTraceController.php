@@ -12,6 +12,14 @@ class XTraceController extends Controller
 			->render();
 	}
 
+	public function display_help()
+	{
+		$vars = array();
+		Layout::get()
+			->setContentPhpFile('xdebug-trace/help.php', $vars)
+			->render();
+	}
+
 	public function display_view($sessId = null)
 	{
 		$sessId = (int)$sessId;
@@ -98,7 +106,7 @@ class XTraceController extends Controller
 			if (isset($_POST[$key]))
 				$options[$key] = $_POST[$key];
 
-		$command = 'php '.FS_ROOT.'index.php x-trace/parse '
+		$command = 'php '.FS_ROOT.'/public/index.php x-trace/parse '
 			.escapeshellarg($dstFile).' '.escapeshellarg(json_encode($options));
 
 		if (!empty($_POST['generate_command'])) {

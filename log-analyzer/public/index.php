@@ -12,7 +12,7 @@ if (CLI_MODE) {
 	define('WWW_ROOT', 'http://'.$_SERVER['SERVER_NAME'].(strlen($_url) > 1 ? $_url : '').'/');
 	define('WWW_URI', 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
 }
-define('FS_ROOT', dirname(__FILE__).'/');
+define('FS_ROOT', dirname(dirname(__FILE__)).'/');
 
 // отправка Content-type заголовка
 header('Content-Type: text/html; charset=utf-8');

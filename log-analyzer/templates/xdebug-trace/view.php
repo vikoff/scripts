@@ -222,7 +222,7 @@ var CallTree = {
 		$('#bottom-space').height($(window).height());
 
 		// draw first level
-		this.drawLevel('#xdebug-trace-box', firstLevelCalls);
+		this.drawLevel('#xdebug-trace-box', firstLevelCalls, {fromInit: true});
 
 		// open tree to last function
 		var hash = location.hash.split('#')[1] || '';
@@ -250,11 +250,12 @@ var CallTree = {
 			}
 		});
 	},
-	drawLevel: function(box, levelData)
+	drawLevel: function(box, levelData, options)
 	{
 		if (!levelData)
 			return;
 
+		options = options || {};
 		box = $(box);
 		var width1 = box.width();
 		box.hide();
@@ -263,13 +264,17 @@ var CallTree = {
 			this.drawFunc(box, levelData[i]);
 
 		box.show();
-		var width2 = box.width();
-		var height2 = box.height();
 
-		box.css({overflow: 'hidden', width: width1 || width2, height: 0});
-		box.animate({width: width2, height: height2}, function(){
-			box.css({overflow: 'visible', width: 'auto', 'height': 'auto'});
-		});
+		// open each level with animation, except init level
+		if (!options.fromInit) {
+			var width2 = box.width();
+			var height2 = box.height();
+
+			box.css({overflow: 'hidden', width: width1 || width2, height: 0});
+			box.animate({width: width2, height: height2}, function(){
+				box.css({overflow: 'visible', width: 'auto', 'height': 'auto'});
+			});
+		}
 	},
 	drawFunc: function(box, callData)
 	{
@@ -362,7 +367,6 @@ $(function(){
 
 		if (nestedBox.children().length) {
 			var parentId = box.parent().closest('.call-item').data('id');
-			alert(id + ' - ' + parentId);
 			location.hash = parentId ? '#lastview-' + parentId : '';
 			$this.text('show nested calls');
 			nestedBox.children().hide();
