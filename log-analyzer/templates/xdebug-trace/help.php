@@ -42,3 +42,21 @@ xdebug.trace_output_name=trace.%t.%R
 
 In debian based systems xdebug.ini can be found here:
 <code> /etc/php5/conf.d/xdebug.ini </code>
+
+<h2>Runtime debug</h2>
+
+<pre>
+ini_set('xdebug.auto_trace', 1);
+ini_set('xdebug.show_mem_delta', 1);
+ini_set('xdebug.collect_return', 1);
+ini_set('xdebug.collect_includes', 1);
+ini_set('xdebug.collect_params', 3);
+ini_set('xdebug.trace_format', 1); // 0 - human readable format, 1 - machine readable format, 2 - html format
+ini_set('xdebug.collect_assignments', 0);
+xdebug_start_trace('/tmp/xdebug/project_'.time().'_'.substr(str_replace('/', '_', $_SERVER['REQUEST_URI']), 0, 64));
+// xdebug_start_trace('/tmp/xdebug/project_'.time().'_'.substr(str_replace('/', '_', $_SERVER['REQUEST_URI']), 0, 64), XDEBUG_TRACE_COMPUTERIZED);
+
+// ... code here
+
+xdebug_stop_trace();
+</pre>
