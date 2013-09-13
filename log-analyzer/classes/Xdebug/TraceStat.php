@@ -32,6 +32,15 @@ class Xdebug_TraceStat
 		$sessData = $this->getSessData($sessId);
 		$calls = $db->fetchAll("SELECT * FROM xdebug_trace WHERE sess_id=? AND level=1 ORDER BY call_index", $sessId);
 
+		// if no calls of first level fetch min exists level
+		// it can be of profiling starts not on start of the script
+		if (!$calls) {
+			$minLevel = $db->fetchOne("SELECT MIN(level) FROM xdebug_trace WHERE sess_id=?", $sessId);
+			if ($minLevel) {
+				$calls = $db->fetchAll("SELECT * FROM xdebug_trace WHERE sess_id=? AND level=? ORDER BY call_index", array($sessId, $minLevel));
+			}
+		}
+
 		return array(
 			'calls' => $this->_prepareCalls($calls, $sessData),
 			'sessData' => $sessData,
