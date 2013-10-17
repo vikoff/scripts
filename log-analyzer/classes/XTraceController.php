@@ -59,9 +59,12 @@ class XTraceController extends Controller
 	public function display_func_details($funcId = null)
 	{
 		$funcId = (int)$funcId;
-		$funcData = Xdebug_TraceStat::load()->getFuncDetails($funcId);
+		$vars = Xdebug_TraceStat::load()->getFuncDetails($funcId);
 
-		echo '<pre>'; print_r($funcData); echo '</pre>';
+//		echo '<pre>'; var_dump($vars); die; // DEBUG
+		Layout::get()
+			->setContentPhpFile('xdebug-trace/func-details.php', $vars)
+			->render();
 	}
 
 	public function display_get_children()

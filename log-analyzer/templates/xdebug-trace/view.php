@@ -145,6 +145,9 @@ function generateLevelColors()
 		top: 2px;
 		width: 250px;
 	}
+	.modal-dialog{
+		width: 1000px;
+	}
 
 <?php $num = generateLevelColors(); ?>
 
@@ -394,7 +397,7 @@ $(function(){
 	body.on('click', 'a.func-details', function(e){
 		e.preventDefault();
 		$.get(this.href, function(response){
-			$('#func-details-modal').modal()
+			$('#func-details-modal').modal({width: 1000})
 				.find('.modal-body').html(response);
 		})
 	});

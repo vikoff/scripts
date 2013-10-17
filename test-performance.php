@@ -3,15 +3,38 @@
 $startTime = microtime(1);
 $startMem = memory_get_usage();
 
-for ($i = 0; $i < 1000000; $i++) {
 
-$str = 'hello';
+$blacklist = array();
+$domain = 'www.ololo.accounts.google.com';
 
-$pos = substr($str, 0, 1); // time: 1.216 sec, memory diff: 1.16 kB
-// $pos = $str[0]; // time: 0.503 sec, memory diff: 1.15 kB
+function func1(){
+	$blacklist = array();
+	$domain = 'www.ololo.accounts.google.com';
+	$parts = explode('.', $domain);
+	for ($i = count($parts) - 2; $i >=0; $i--) {
+		$snippet = implode('.', $parts);
+		array_shift($parts);
+		isset($blacklist[$snippet]);
+		// echo $snippet;
+		// echo "<br>";
+	}
+}
 
+function func2(){
+	$domain = 'www.ololo.accounts.google.com';
+	$parts = explode('.', $domain);
+	$count = count($parts);
+	for ($i = 0; $i <= $count - 2; $i++) {
+		$snippet = implode('.', array_slice($parts, $i));
+		isset($blacklist[$snippet]);
+		// echo $snippet;
+		// echo "<br>";
+	}
+}
 
-
+for ($_i = 0; $_i < 100000; $_i++) {
+	// func1();
+	func2();
 }
 
 $endTime = microtime(1);
@@ -20,5 +43,5 @@ $endMem = memory_get_usage();
 if (PHP_SAPI != 'cli')
 	echo '<pre>';
 
-printf('time: %.3f sec, memory diff: %.2f kB', $endTime - $startTime, ($endMem - $startMem) / 1000);
+printf("time: %.3f sec, memory diff: %.2f kB\n", $endTime - $startTime, ($endMem - $startMem) / 1000);
 ?>

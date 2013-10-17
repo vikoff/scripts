@@ -13,8 +13,11 @@ class DataFill
 
 	public $rowsInGroupInsert = 20;
 	public $insertsInTransaction = 30;
+	
+	public $curRow = array();
 
 	protected $_numInserts = 0;
+
 
 	public function __construct(PDO $pdo, $table, $columns)
 	{
@@ -68,12 +71,12 @@ class DataFill
 
 	protected function _generateRow()
 	{
-		$row = array();
+		$this->curRow = array();
 		foreach ($this->columns as $name => $val) {
-			$row[ $name ] = is_callable($val) ? $val($this) : $val;
+			$this->curRow[ $name ] = is_callable($val) ? $val($this) : $val;
 		}
 
-		return $row;
+		return $this->curRow;
 	}
 
 	protected function _insert($rows)
@@ -101,8 +104,8 @@ class DataFill
 		$this->_numInserts++;
 
 		if ($this->_numInserts % $this->insertsInTransaction == 0) {
-			// $this->pdo->exec('COMMIT');
-			// $this->pdo->exec('BEGIN');
+			$this->pdo->exec('COMMIT');
+			$this->pdo->exec('BEGIN');
 		}
 
 		echo ".";
@@ -127,6 +130,34 @@ class DataFill
 	}
 }
 
+function fillClicks($numRows = 20)
+{
+	global $pdo;
+	$table = 'clicks';
+
+	$dataFill = new DataFill($pdo, $table, array(
+		'link_id' => function($self) {
+			$ids = array('250802', '250814', '250829', '250836', '250837', '250838', '250839', '250840', '250841', '250843', '250844', '250845', '250846', '250847', '250848', '250849', '250852', '250860', '250866', '250867', '250868', '250869', '250870', '250871', '250872', '250873', '250874', '250876', '250877', '250879', '250880', '250881', '250882', '250883', '250884', '250885', '250886', '250887', '250888', '250892', '250893');
+
+			return $ids[ array_rand($ids) ];
+		},
+		'browser' => 'generator2',
+		'created_at' => function($self) {
+			return $self->randomDateFromInterval('2013-09-10 17:12:43', '2013-10-08 00:00:00');
+		},
+		'create_date' => function($self) {
+			$parts = explode(' ', $self->curRow['created_at']);
+			return $parts[0];
+		},
+		'user_ip' => '127.0.0.1',
+	));
+
+	$dataFill->rowsInGroupInsert = 50;
+	$dataFill->insertsInTransaction = 100;
+	if (in_array(readline("Insert $numRows rows into $table table? [Y/n] "), array('y', 'Y', '', true)))
+		$dataFill->generate($numRows);
+}
+
 function fillLinksShareStat($numRows = 20)
 {
 	global $pdo;
@@ -147,7 +178,7 @@ function fillLinksShareStat($numRows = 20)
 		},
 		'created_at' => function($self) {
 			return $self->randomDateFromInterval('2013-07-10 17:12:43', '2013-07-11 00:00:00');
-		}
+		},
 	));
 
 	if (in_array(readline("Insert $numRows rows into $table table? [Y/n] "), array('y', 'Y', '', true)))
@@ -175,5 +206,5 @@ function fillUserSessions($numRows = 20)
 		$dataFill->generate($numRows);
 }
 
-fillUserSessions(50000);
+// fillClicks(500000);
 

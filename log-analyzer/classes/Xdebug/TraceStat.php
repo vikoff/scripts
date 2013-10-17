@@ -75,7 +75,21 @@ class Xdebug_TraceStat
 		$sessData = $this->getSessData($funcData['sess_id']);
 		$preparedFuncData = $this->_prepareFuncData($funcData, $sessData);
 
-		return $funcData;
+		$parentFuncs = $funcData['all_parent_ids']
+			? $db->fetchAll("SELECT * FROM xdebug_trace WHERE id IN (".$funcData['all_parent_ids'].')')
+			: array();
+
+		foreach ($parentFuncs as & $func) {
+			$func = $this->_prepareFuncData($func, $sessData);
+		} unset($func);
+
+		$output = array(
+			'funcData' => $funcData,
+			'preparedFuncData' => $preparedFuncData,
+			'parents' => $parentFuncs,
+		);
+
+		return $output;
 	}
 
 	public function getFuncTree($funcId)

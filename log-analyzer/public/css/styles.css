@@ -7,3 +7,14 @@ input[type="checkbox"].form-control{
 	height: auto;
 	margin-top: 12px;
 }
+
+.calltrace .item{
+	font-family: monospace;
+	font-size: 12px;
+	color: #333;
+}
+.calltrace .item .row2{
+	margin-left: 20px;
+	font-size: 10px;
+	color: #777;
+}
