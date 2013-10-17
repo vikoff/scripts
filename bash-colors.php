@@ -43,13 +43,16 @@ class Colors {
             $colored_string .= "\033[" . $this->_bgColors[$bg] . "m";
         }
 
-        // Add string and end coloring
-        $colored_string .=  $string . "\033[0m";
+        $tpl = $colored_string ."%s\033[0m";
 
-        return $colored_string;
+        $output = sprintf($tpl, $string)
+            .' '.sprintf(str_replace("\033", '\033', $tpl), ' text ');
+
+        return $output;
     }
 
     public function printAll() {
+
 
         foreach ($this->_fgColors as $color => $code) {
             echo $this->getColoredString("test fg $color ($code)", $color).PHP_EOL.PHP_EOL;
