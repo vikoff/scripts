@@ -1,7 +1,8 @@
 <?php
 
-$startTime = microtime(1);
-$startMem = memory_get_usage();
+require __DIR__.'/_init.php';
+$perfMeter = new PerformanceMeter();
+$perfMeter->start();
 #####################################################
 
 $arr = range(1, 50000);
@@ -29,17 +30,12 @@ function func2($arr, $search)
 
 $iterations = 1000;
 for ($_i = 0; $_i < $iterations; $_i++) {
-	func1($arr, $search);
-	// func2($arr, $search);
+	// func1($arr, $search);
+	func2($arr, $search);
 }
 
 
+PerformanceMeter::end();
+
 #####################################################
-$endTime = microtime(1);
-$endMem = memory_get_peak_usage();
-
-if (PHP_SAPI != 'cli')
-	echo '<pre>';
-
-printf("iterations: %d, time: %.3f sec, memory diff: %.2f kB\n", $iterations, $endTime - $startTime, ($endMem - $startMem) / 1000);
-?>
+$perfMeter->end();
