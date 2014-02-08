@@ -1,6 +1,9 @@
 a:active,a:focus{
 	outline: none;
 }
+.green{
+	color: green;
+}
 input[type="radio"].form-control,
 input[type="checkbox"].form-control{
 	width: auto;

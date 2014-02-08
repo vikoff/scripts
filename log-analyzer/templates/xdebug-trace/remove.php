@@ -2,6 +2,10 @@
 <h1>Remove Xdebug Trace</h1>
 
 <ol class="breadcrumb">
+	<li class="pull-right">
+		<a href="<?= href('x-trace/parse-new'); ?>" class="btn btn-default btn-xs">Parse new trace</a>
+		<a href="<?= href('x-trace/help'); ?>" class="btn btn-default btn-xs">Help</a>
+	</li>
 	<li><a href="<?= href('/'); ?>">Home</a></li>
 	<li><a href="<?= href('x-trace'); ?>">Xdebug Traces</a></li>
 	<li class="active">Remove Trace [<?= $this->sessData['application']; ?>]</li>

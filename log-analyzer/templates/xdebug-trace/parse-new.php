@@ -2,6 +2,9 @@
 <h1>Parse New Xdebug Trace</h1>
 
 <ol class="breadcrumb">
+	<li class="pull-right">
+		<a href="<?= href('x-trace/help'); ?>" class="btn btn-default btn-xs">Help</a>
+	</li>
 	<li><a href="<?= href('/'); ?>">Home</a></li>
 	<li><a href="<?= href('x-trace'); ?>">Xdebug Traces</a></li>
 	<li class="active">Parse New Trace</li>

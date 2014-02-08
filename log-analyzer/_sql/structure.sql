@@ -41,22 +41,31 @@ CREATE TABLE `sql_log` (
 
 /*
  * xdebug_trace_sessions
- * таблица зависит от:
+ * таблица зависит от: xdebug_projects
  * от таблицы зависят: xdebug_trace
  */
 DROP TABLE IF EXISTS `xdebug_trace_sessions`;
 CREATE TABLE `xdebug_trace_sessions` (
-	`id`            INT UNSIGNED AUTO_INCREMENT,
-	`db_table`      TEXT,
-	`application`   TEXT,
-	`request_url`   TEXT,
-	`app_base_path` TEXT,
-	`total_memory`  INT,
-	`total_time`    FLOAT,
-	`total_calls`   INT,
-	`comments`      TEXT,
-	`created_at`    TIMESTAMP DEFAULT NOW(),
-	PRIMARY KEY (`id`)
+	`id`              INT UNSIGNED AUTO_INCREMENT,
+	`db_table`        TEXT,
+	`project_id`      INT,
+	`application`     TEXT,
+	`request_url`     TEXT,
+	`app_base_path`   TEXT,
+	`total_memory`    INT,
+	`total_time`      FLOAT,
+	`total_calls`     INT,
+	`comments`        TEXT,
+	`process_percent` TINYINT,
+	`created_at`      TIMESTAMP DEFAULT NOW(),
+	`processed_at`    TIMESTAMP NULL,
+	PRIMARY KEY (`id`),
+	KEY `fk_xdebug_trace_sessions_1` (`project_id`),
+	CONSTRAINT `fk_xdebug_trace_sessions_1`
+	FOREIGN KEY (`project_id`)
+	REFERENCES `xdebug_projects` (`id`)
+		ON DELETE CASCADE
+		ON UPDATE NO ACTION
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
@@ -82,17 +91,32 @@ CREATE TABLE `xdebug_trace` (
 	`num_args`         SMALLINT,
 	`args`             TEXT,
 	`parent_func_id`   INT,
-	`all_parent_ids`   VARCHAR(64),
+	`all_parent_ids`   TEXT,
 	`num_nested_calls` INT,
 	`comments`         TEXT,
 	`created_at`       TIMESTAMP DEFAULT NOW(),
 	PRIMARY KEY (`id`),
+	KEY (`sess_id`, `call_index`),
 	KEY `fk_xdebug_trace_1` (`sess_id`),
 	CONSTRAINT `fk_xdebug_trace_1`
 		FOREIGN KEY (`sess_id`)
 		REFERENCES `xdebug_trace_sessions` (`id`)
 		ON DELETE CASCADE
 		ON UPDATE NO ACTION
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*
+ * ____
+ * таблица зависит от:
+ * от таблицы зависят: xdebug_trace_sessions
+ */
+DROP TABLE IF EXISTS `xdebug_projects`;
+CREATE TABLE `xdebug_projects` (
+	`id`            INT UNSIGNED AUTO_INCREMENT,
+	`name`          VARCHAR(255),
+	`base_path`     VARCHAR(255),
+	`created_at`    TIMESTAMP DEFAULT NOW(),
+	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*

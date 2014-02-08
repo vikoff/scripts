@@ -10,6 +10,7 @@ class Xdebug_TraceParser
 	protected $_sessId;
 	protected $_sessData = array();
 	protected $_lineNumber = 0;
+	protected $_totalLines = 0;
 	protected $_numInserts = 0;
 	protected $_prevRowData = array();
 
@@ -44,15 +45,23 @@ class Xdebug_TraceParser
 		$startTime = microtime(1);
 		$rs = fopen($file, 'r');
 
+		$this->_totalLines = trim(`cat $file | wc -l`);
+
 		while (!feof($rs)) {
 			$this->_lineNumber++;
 			$line = trim(fgets($rs));
 			$this->_processLine($line);
+
+			if ($this->_lineNumber % 500 == 0) {
+				$db->update('xdebug_trace_sessions',
+					array('process_percent' => round($this->_lineNumber / $this->_totalLines * 100)),
+					'id=?', $this->_sessId);
+			}
 		}
 
 		$db->commit();
 		$this->_saveUnfinishedRows();
-		$this->updateSessionData($this->_sessId);
+		$this->_onParseFinish($this->_sessId);
 
 		if (!empty($this->_options['remove_after'])) {
 			$unlinked = unlink($file);
@@ -64,15 +73,17 @@ class Xdebug_TraceParser
 			."$this->_numInserts row inserted in $duration sec ($this->_lineNumber rows parsed)\n\n";
 	}
 
-	public function updateSessionData($sessId)
+	protected function _onParseFinish($sessId)
 	{
 		$db = db::get();
+
 		list($maxMem, $maxTime, $numCalls) = array_values($db->fetchRow(
 			"SELECT MAX(memory_end), MAX(time_end), COUNT(1) FROM xdebug_trace WHERE sess_id=?", $sessId));
 		$db->update('xdebug_trace_sessions', array(
 			'total_memory' => $maxMem,
 			'total_time' => $maxTime,
 			'total_calls' => $numCalls,
+			'processed_at' => $db->raw('NOW()'),
 		), 'id=?', $sessId);
 	}
 
@@ -80,7 +91,7 @@ class Xdebug_TraceParser
 	{
 		$iteration = 1;
 		$db = db::get();
-		$sql = "SELECT id, parent_func_id FROM xdebug_trace WHERE all_parent_ids IS NULL LIMIT 1000";
+		$sql = "SELECT id, parent_func_id FROM xdebug_trace WHERE all_parent_ids IS NULL ORDER BY id DESC LIMIT 1000";
 
 		while ($ids = $db->fetchPairs($sql)) {
 			foreach ($ids as $funcId => $parentId) {
@@ -102,7 +113,6 @@ class Xdebug_TraceParser
 					$parentId = $parents ? (int)$parents['parent3'] : 0;
 				}
 
-				echo count($parentsDesc).'|';
 				$parentsDesc = array_reverse($parentsDesc);
 				$db->update('xdebug_trace', array(
 					'all_parent_ids' => $parentsDesc ? implode(',', $parentsDesc) : ''
@@ -119,9 +129,7 @@ class Xdebug_TraceParser
 	protected function _createSession()
 	{
 		$keys = array('application', 'request_url', 'app_base_path', 'comments');
-		$data = array(
-			'db_table' => 'xdebug_trace',
-		);
+		$data = array();
 		foreach ($keys as $key)
 			if (!empty($this->_options[$key]))
 				$data[$key] = $this->_options[$key];
@@ -200,7 +208,7 @@ class Xdebug_TraceParser
 
 		$db = db::get();
 
-		if ($this->_numInserts % 100 == 0) {
+		if ($this->_numInserts % 1000 == 0) {
 			$db->commit();
 			$db->beginTransaction();
 		}

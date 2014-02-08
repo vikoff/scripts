@@ -12,6 +12,7 @@ class IndexController extends Controller
 
 	public function display_sql()
 	{
+		return;
 		$statClass = new SqlLogStat();
 //		$stat = array();
 		$stat = $statClass->getStat();

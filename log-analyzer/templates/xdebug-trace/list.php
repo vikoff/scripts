@@ -29,6 +29,7 @@
 		<th>Time</th>
 		<th>Calls</th>
 		<th>Comment</th>
+		<th>Status</th>
 		<th>Created</th>
 		<th>Options</th>
 	</tr>
@@ -46,6 +47,7 @@
 			<td><?= $sess['total_time_str']; ?></td>
 			<td><?= $sess['total_calls']; ?></td>
 			<td><?= $sess['comments']; ?></td>
+			<td><?= $sess['process_percent'] == '100' ? '<span class="green">ready</span>' : $sess['process_percent'].'%'; ?></td>
 			<td><?= $sess['created_at']; ?></td>
 			<td>
 				<div class="btn-group">

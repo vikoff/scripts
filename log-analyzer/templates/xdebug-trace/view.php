@@ -157,10 +157,13 @@ function generateLevelColors()
 
 <ol class="breadcrumb">
 	<li class="pull-right">
-		<form class="search form-inline">
+		<form class="search form-inline" style="display: inline;">
 			<input type="text" class="search-str">
 			<button class="btn btn-default btn-xs" type="button">Search</button>
 		</form>
+		&nbsp;
+		<a href="<?= href('x-trace/parse-new'); ?>" class="btn btn-default btn-xs">Parse new trace</a>
+		<a href="<?= href('x-trace/help'); ?>" class="btn btn-default btn-xs">Help</a>
 	</li>
 	<li><a href="<?= href('/'); ?>">Home</a></li>
 	<li><a href="<?= href('x-trace'); ?>">Xdebug Traces</a></li>
@@ -242,6 +245,10 @@ var CallTree = {
 				var box;
 				for (var i = 0; i < response.data.length; i++) {
 					box = $('#call-' + response.data[i].id);
+					if (!box.length) {
+						alert('element #call-' + response.data[i].id + ' not found');
+						return;
+					}
 					box.find('.show-nested-btn:first').text('hide nested calls');
 					self.drawLevel(box.find('.nested-calls:first'), response.data[i].calls);
 				}
