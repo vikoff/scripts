@@ -2,7 +2,8 @@
 
 header('Content-type: text/plain; charset=utf-8');
 
-$pdo = new PDO('mysql:dbname=urlshort;host=127.0.0.1', 'root', '');
+// $pdo = new PDO('mysql:dbname=urlshort;host=127.0.0.1', 'root', '');
+$pdo = new PDO('pgsql:host=localhost;port=5432;dbname=urlshort_stat;user=yuriy;password=0000');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 class DataFill
@@ -206,5 +207,39 @@ function fillUserSessions($numRows = 20)
 		$dataFill->generate($numRows);
 }
 
-// fillClicks(500000);
+function fillPgVisits($numRows = 20)
+{
+	global $pdo;
+	$table = 'visits_server';
+	
+	$dataFill = new DataFill($pdo, $table, array(
+		'link_id' => function($self) {
+			return rand(250000, 500000);
+		},
+		'user_id' => function($self) {
+			return rand(1, 10000);
+		},
+		'user_ip' => '127.0.0.1',
+
+		'user_agent' => function($self) {
+			$agents = array(
+				'Mozilla/5.0 (compatible; TweetmemeBot/3.0; +http://tweetmeme.com/)',
+				'Opera/9.80 (J2ME/MIDP; Opera Mini/4.2.23449/34.1088; U; ar) Presto/2.8.119 Version/11.10',
+				'AddThis.com robot tech.support@clearspring.com');
+			return $agents[ array_rand($agents) ];
+		},
+		'created_at' => function($self) {
+			return $self->randomDateFromInterval('2014-01-01', '2014-01-31');
+		},
+		'create_date' => function($self) {
+			$parts = explode(' ', $self->curRow['created_at']);
+			return $parts[0];
+		},
+	));
+
+	if (in_array(readline("Insert $numRows rows into $table table? [Y/n] "), array('y', 'Y', '', true)))
+		$dataFill->generate($numRows);
+}
+
+fillPgVisits(50000000);
 
