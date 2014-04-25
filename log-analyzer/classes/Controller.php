@@ -83,7 +83,7 @@ abstract class Controller
 	public function getCliMethodName($method){
 	
 		// преобразует строку вида 'any-Method-name' в 'any_method_name'
-		$method = 'cli_'.strtolower(str_replace('-', '_', $method));
+		$method = 'cli_'.($method ? strtolower(str_replace('-', '_', $method)) : 'index');
 		return $method;
 	}
 	

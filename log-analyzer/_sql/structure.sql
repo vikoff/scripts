@@ -29,6 +29,7 @@ CREATE TABLE `access_log` (
 DROP TABLE IF EXISTS `sql_log`;
 CREATE TABLE `sql_log` (
 	`id`            INT UNSIGNED AUTO_INCREMENT,
+	`sess_id`		INT UNSIGNED,
 	`conn_id`       TINYINT,
 	`command`       VARCHAR(10),
 	`date`          TIMESTAMP NULL COMMENT 'sql exec datetime',
@@ -36,8 +37,26 @@ CREATE TABLE `sql_log` (
 	`sql_reduced`   TEXT,
 	`sql_type`      VARCHAR(10) COMMENT 'insert, delete, update, etc',
 	`created_at`    TIMESTAMP DEFAULT NOW(),
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`id`),
+	INDEX `fk_sess_id` (`sess_id`),
+	CONSTRAINT `fk_sql_log_sess_id` FOREIGN KEY (`sess_id`) REFERENCES `sql_log_sessions` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*
+ * sql_log_sessions
+ * таблица зависит от: xdebug_projects
+ * от таблицы зависят: xdebug_trace
+ */
+CREATE TABLE `sql_log_sessions` (
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`total_queries` INT UNSIGNED NOT NULL DEFAULT 0,
+	`date_first` DATETIME,
+	`date_last` DATETIME,
+	`comments` text COLLATE utf8_bin,
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`processed_at` timestamp NULL DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
  * xdebug_trace_sessions
