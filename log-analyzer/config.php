@@ -31,6 +31,7 @@ $config = array(
 		'database' => 'log_analyzer',
 		'encoding' => 'utf8',
 		'fileLog' => FALSE,
+		'profiling' => FALSE,
 	),
 
 	// отображать или нет детальные данные об исключениях

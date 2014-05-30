@@ -10,20 +10,6 @@ class IndexController extends Controller
 			->render();
 	}
 
-	public function display_sql()
-	{
-		return;
-		$statClass = new SqlLogStat();
-//		$stat = array();
-		$stat = $statClass->getStat();
-
-//		echo '<pre>'; var_dump($stat); die; // DEBUG
-
-		Layout::get()
-			->setContentPhpFile('sql.php', $stat)
-			->render();
-	}
-
 	public function cli_index()
 	{
 		$appCall = "php index.php";

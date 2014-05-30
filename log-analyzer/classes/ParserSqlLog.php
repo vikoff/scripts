@@ -125,8 +125,9 @@ class ParserSqlLog
 			}
 
 		} else {
-			if ($this->_prevQuery)
+			if ($this->_prevQuery) {
 				$this->_prevQuery['sql'] .= ' '.trim($line);
+			}
 		}
 	}
 

@@ -1,49 +1,52 @@
-<?php
-$queryTypesData = array();
-foreach ($this->queryTypes as $type => $cnt)
-	$queryTypesData[] = array($type, (int)$cnt);
 
-//echo '<pre>'; var_dump($this->queryTypes); die; // DEBUG
-?>
+<h2>SQL-Log Sessions</h2>
 
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<?php if ($this->sessions) { ?>
 
-<div id="query-types" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-<div id="selects-stat" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+	<form action="" method="post">
+		<?= FORMCODE; ?>
+		<input type="hidden" name="action" value="sql/sess-multiact" />
 
-<script type="text/javascript">
+		<table class="table table-bordered">
+			<tr>
+				<th></th>
+				<th>Id</th>
+				<th>Date First</th>
+				<th>Date Last</th>
+				<th>Total Queries</th>
+				<th>Comment</th>
+				<th>Created At</th>
+				<th>Processed At</th>
+				<th>Action</th>
+			</tr>
+			<?php foreach ($this->sessions as $sess) { ?>
+				<?php $viewUrl = href('sql/view/'.$sess['id']); ?>
+				<tr>
+					<td><input type="checkbox" name="sess[]" value="<?= $sess['id']; ?>" /></td>
+					<td><a href="<?= $viewUrl; ?>"><?= $sess['id']; ?></a></td>
+					<td><?= $sess['date_first']; ?></td>
+					<td><?= $sess['date_last']; ?></td>
+					<td><?= $sess['total_queries']; ?></td>
+					<td><?= $sess['comments']; ?></td>
+					<td><?= $sess['created_at']; ?></td>
+					<td><?= $sess['processed_at']; ?></td>
+					<td><a href="<?= $viewUrl; ?>">View</a></td>
+				</tr>
+			<?php } ?>
+		</table>
 
-	$(function () {
+		<label>
+		With selected:
+		<select name="act">
+			<option value=""></option>
+			<option value="delete">Delete</option>
+		</select>
+		</label>
+		&nbsp;
+		<input type="submit" value="Submit"/>
+	</form>
+<?php } else { ?>
 
-		$('#query-types').highcharts({
-			title: {text: 'Типы SQL запросов'},
-			plotOptions: {
-				pie: {
-					allowPointSelect: true,
-					cursor: 'pointer'
-				}
-			},
-			series: [{
-				type: 'pie',
-				name: 'Запросов',
-				data: <?= json_encode($queryTypesData); ?>
-			}]
-		});
+	<p>No saved sessions</p>
 
-		$('#selects-stat').highcharts({
-			plotOptions: {series: { animation: false }},
-			title: { text: 'Количество SELECT запросов в минуту' },
-			xAxis: { categories: <?= json_encode($this->selectsStat['dates']); ?>, offset: 20 },
-			yAxis: { title: { text: 'Количество SELECT запросов' }, min: 0 },
-			tooltip: {formatter: function() {
-				return this.x + '<br />запросов: ' + this.y;
-			}},
-			series: [{name: 'Количество SELECT запросов', data: <?= json_encode($this->selectsStat['values']); ?>}]
-		});
-
-	});
-
-
-
-</script>
+<?php } ?>

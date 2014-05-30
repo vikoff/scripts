@@ -34,6 +34,8 @@
 </head>
 <body>
 	<div class="container">
+		<?= Messenger::get()->getAll(); ?>
+
 		<?= $this->_getHtmlContent(); ?>
 	</div>
 </body>
