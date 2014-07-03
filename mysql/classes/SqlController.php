@@ -31,6 +31,7 @@ class SqlController extends Controller {
 		$curConn = getVar($_GET['conn']);
 		$database = getVar($_GET['db']);
 		$mode = getVar($_GET['mode'], 'grid'); // grid|explain|graph
+		$limit = getVar($_GET['limit'], 100, 'int');
 
 		try {
 			$db = db::get($curConn);
@@ -41,7 +42,7 @@ class SqlController extends Controller {
 		if ($database)
 			$db->selectDb($database);
 
-		$result = $query ? $this->execSql($db, $query, $mode == 'explain') : array();
+		$result = $query ? $this->execSql($db, $query, $mode == 'explain', $limit) : array();
 
 		$vars = array(
 			'query' => $query,
@@ -52,6 +53,7 @@ class SqlController extends Controller {
 			'curConn' => $curConn,
 			'conns' => array_map(function(DbAdapter $c){ return $c->getConnHost(); }, db::getAllConnections()),
 			'mode' => $mode,
+			'limit' => $limit,
 		);
 
 		Layout::get()
@@ -164,7 +166,7 @@ class SqlController extends Controller {
 	////////////////////
 	
 	// EXEC SQL (FORM SQL CONSOLE)
-	public function execSql(DbAdapter $db, $inputSql, $execExplain = FALSE)
+	public function execSql(DbAdapter $db, $inputSql, $execExplain = FALSE, $limit = 100)
 	{
 		$inputSql = trim($inputSql);
 
@@ -176,11 +178,11 @@ class SqlController extends Controller {
 		if (!$clearSql)
 			return array();
 
-		$result = $this->_execOneSql($db, $clearSql);
+		$result = $this->_execOneSql($db, $clearSql, $limit);
 		if ($result['success'])
 			$this->_saveSqlHistory($inputSql, $result['numrows'], $result['time']);
 		$resultExplain = $execExplain && empty($result['error']) && strtoupper(substr($clearSql, 0, 6)) == 'SELECT'
-			? $this->_execOneSql($db, 'EXPLAIN '.$clearSql)
+			? $this->_execOneSql($db, 'EXPLAIN '.$clearSql, $limit)
 			: null;
 
 		$results = array();
@@ -191,7 +193,7 @@ class SqlController extends Controller {
 		return $results;
 	}
 
-	private function _execOneSql(DbAdapter $db, $sql)
+	private function _execOneSql(DbAdapter $db, $sql, $limit = 100)
 	{
 		// $sql = str_replace(array('\r', '\n'), array("\r", "\n"), $sql);
 		try {
@@ -199,7 +201,7 @@ class SqlController extends Controller {
 			$rs = $db->query($sql);
 			$numRows = $rs->rowCount();
 			$result = array();
-			for ($i = 0, $len = min($numRows, 100); $i < $len; $i++)
+			for ($i = 0, $len = min($numRows, $limit); $i < $len; $i++)
 				$result[] = $rs->fetch(PDO::FETCH_ASSOC);
 			return array_merge($db->getLastQueryInfo(), array('result' => $result, 'numrows' => $numRows, 'success' => 1));
 		} catch (Exception $e) {

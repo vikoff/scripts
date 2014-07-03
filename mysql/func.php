@@ -9,7 +9,7 @@ function getVar(&$varname, $defaultVal = '', $type = ''){
 	if(!isset($varname))
 		return $defaultVal;
 	
-	if(strlen($type))
+	if($type)
 		settype($varname, $type);
 	
 	return $varname;

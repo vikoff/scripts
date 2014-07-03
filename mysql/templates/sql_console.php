@@ -65,6 +65,9 @@ table.grid tr:nth-child(2n) td{
 	font-size: 11px;
 	font-weight: normal;
 }
+input[type="radio"], input[type="checkbox"]{
+	vertical-align: sub;
+}
 </style>
 <?php
 function prepareCellValue($val) {
@@ -119,9 +122,14 @@ function prepareCellValue($val) {
 				</select>
 			</label>
 
-			<label title="Максимальная отображаемая длина строк. 0 - без ограничений.">
-				Max длина строк
-				<input type="text" id="strlen" onchange="rebuildFormAction();" value="<?= !empty($_GET['strlen']) ? $_GET['strlen'] : 0; ?>" size="4">
+			<label>
+				Лимит строк
+				<input type="text" id="limit" onchange="rebuildFormAction();" value="<?= $this->limit; ?>" size="4">
+			</label>
+
+			<label title="Максимальная отображаемая длина текста. 0 - без ограничений.">
+				Maкс длина текста
+				<input type="text" id="strlen" onchange="rebuildFormAction();" value="<?= getVar($_GET['strlen'], 0); ?>" size="4">
 			</label>
 
 			<div class="mode" style="width: 200px;">
@@ -133,7 +141,7 @@ function prepareCellValue($val) {
 					<input type="radio" name="mode" value="explain" onchange="rebuildFormAction();" <?= $this->mode == 'explain' ? 'checked' : ''; ?> />
 					показать EXPLAIN
 				</label>
-				<label title="Для графика нужен результат с двумя колонками. Первая - X, вторая - Y.">
+				<label title="Для графика нужен результат с одной или двумя колонками. Первая - лейбл X (не обязательно), вторая - значение Y.">
 					<input type="radio" name="mode" value="graph" onchange="rebuildFormAction();" <?= $this->mode == 'graph' ? 'checked' : ''; ?> />
 					построить график
 				</label>
@@ -250,58 +258,104 @@ function rebuildFormAction()
 	if (strlen)
 		action += '&strlen=' + strlen;
 
+	var limit = $('#limit').val();
+	if (limit != 100)
+		action += '&limit=' + limit;
+
 	$('#sql-form').attr('action', action);
 }
 
 </script>
 
-<?php
-if ($this->mode == 'graph') {
-	if (!empty($this->data[0]['result'])) {
-		if (count($this->data[0]['result'][0]) == 2) {
-		?>
+<?php if ($this->mode == 'graph') { ?>
+	<?php if (!empty($this->data[0]['result'])) { ?>
+		<?php if (count($this->data[0]['result'][0]) > 1) { ?>
 <div id="chart"></div>
+<div style="text-align: center; font-size: 11px;">
+	<label><input type="checkbox" onchange="Chart.setLineStep(this);" /> use line step</label>
+	<label><input type="checkbox" onchange="Chart.setMarkers(this);" checked /> show markers</label>
+	<label><input type="checkbox" onchange="Chart.setMin(this);" checked /> start from 0</label>
+</div>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/data.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/exporting.js"></script>
 <script type="text/javascript">
 
-	function drawChart(data)
-	{
-		if (!data)
-			return;
+	var Chart = {
+		draw: function(data)
+		{
+			if (!data)
+				return;
 
-		var keys = [];
-		for (i in data[0])
-			keys.push(i);
+			var keys = [];
+			for (i in data[0])
+				keys.push(i);
 
-		var series = [];
-		for (var i = 0; i < data.length; i++) {
-			series.push({x: parseInt(data[i][keys[0]]), y: parseInt(data[i][keys[1]])});
+			var categoryKey = keys.shift();
+			var categories = [];
+			var allSeries = [];
+			var i, j, series;
+			for (j = 0; j < keys.length; j++) {
+				series = [];
+				for (i = 0; i < data.length; i++) {
+					series.push(parseInt(data[i][keys[j]]));
+					if (j == 0)
+						categories.push(data[i][categoryKey]);
+				}
+				allSeries.push({data: series, name: keys[j]})
+			}
+			$('#chart').highcharts({
+				plotOptions: { series: { step: null, marker: { enabled: 1 }, stickyTracking: false } },
+				xAxis: { categories: categories, title: { text: categoryKey }, offset: 0 },
+				yAxis: { title: { text: 'values' }, min: 0 },
+//				tooltip: {formatter: function() {
+//					return categoryKey + '=<b>' + this.x + '</b>, value=<b>' + this.y + '</b>';
+//				}},
+				tooltip: { shared: true, crosshairs: [true, {color: '#D25F4B'}] },
+				series: allSeries
+			});
+		},
+
+		setLineStep: function(elm)
+		{
+			var stepVal = elm.checked ? 'left' : null;
+			this._updateSeries({step: stepVal})
+		},
+
+		setMarkers: function(elm)
+		{
+			var enabled = elm.checked ? 1 : 0;
+			this._updateSeries({marker: {enabled: enabled}});
+		},
+
+		setMin: function(elm)
+		{
+			$('#chart').highcharts().yAxis[0].update({min: elm.checked ? 0 : undefined});
+		},
+
+		_updateSeries: function(options)
+		{
+			var chart = $('#chart').highcharts();
+			for (var i = 0; i < chart.series.length; i++) {
+				chart.series[i].update(options);
+			}
 		}
-		series.sort(function(a, b){ return a.x - b.x; });
-		$('#chart').highcharts({
-//			plotOptions: { series: { marker: { enabled: false } } },
-			xAxis: { title: { text: keys[0] }, offset: 0 },
-			yAxis: { title: { text: keys[1] }, min: 0 },
-			legend: false,
-			tooltip: {formatter: function() {
-				return keys[0] + '=' + this.x + ', ' + keys[1] + '=' + this.y;
-			}},
-			series: [{data: series}]
-		});
-	}
+	};
 
-	drawChart(<?= json_encode($this->data[0]['result']); ?>);
+	$(function(){
+		Chart.draw(<?= json_encode($this->data[0]['result']); ?>);
+	});
 </script>
-			<?php
-		} else {
-			echo '<p>Для построения графика результат должен содержать две колонки: первая - ось X, вторая - ось Y.</p>';
-		}
-	} else {
-		echo '<p>Нет данных для построения графика</p>';
-	}
-} ?>
+		<?php } else { ?>
+			<p>Для графика нужен результат с двумя или более колонками. Первая - лейбл X (не обязательно),
+				каждая остальная колонка - отдельный график.</p>
+		<?php } ?>
+
+	<?php } else { ?>
+		<p>Нет данных для построения графика</p>
+	<?php } ?>
+
+<?php } ?>
 
 <? if(isset($this->data) && is_array($this->data)): ?>
 	<? foreach($this->data as $index => $result): ?>
