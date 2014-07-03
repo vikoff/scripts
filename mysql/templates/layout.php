@@ -6,8 +6,8 @@
 	<base href="<?= $this->_getHtmlBaseHref(); ?>" />
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://scripts.vik-off.net/debug.js"></script>
+	<script type="text/javascript" src="<?= WWW_ROOT; ?>js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="<?= WWW_ROOT; ?>js/debug.js"></script>
 	<script type="text/javascript">
 	
 		function href(href){
@@ -15,8 +15,6 @@
 		}
 		
 		$(function(){
-			
-			VikDebug.init();
 			
 			// отлов ajax-ошибок
 			$.ajaxSetup({

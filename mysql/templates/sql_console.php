@@ -82,7 +82,21 @@ function prepareCellValue($val) {
 	return $val;
 }
 ?>
-<h3 style="text-align: center;">SQL-консоль <a class="small" href="<?= href(''); ?>">выбрать другую БД</a></h3>
+<h3 style="text-align: center;">
+	SQL-консоль
+
+	<span class="small">
+		<span>| Сервер БД:</span>
+		<?php if (count($this->conns) == 1) { ?>
+			<input type="hidden" name="conn" value="<?= key($this->conns); ?>"/>
+			<?= current($this->conns); ?>
+		<?php } else { ?>
+			<?= Html::select(array('name' => 'conn', 'onchange' => 'changeConn()'), $this->conns, $this->curConn); ?>
+		<?php } ?>
+
+		| <a href="<?= href(''); ?>">назад</a>
+	</span>
+</h3>
 
 <form id="sql-form" action="<?= $_SERVER['REQUEST_URI']; ?>" method="post">
 	<table style="width: 100%; text-align: center;">
@@ -97,7 +111,7 @@ function prepareCellValue($val) {
 		<td class="sql-params">
 
 			<label>
-				База данных</br />
+				База данных<br />
 				<select id="change-db" onchange="rebuildFormAction();">
 					<? foreach ($this->dbs as $db) { ?>
 						<option value="<?= $db; ?>" <?= $db == $this->curDb ? 'selected="selected"' : ''; ?>><?= $db; ?></option>
@@ -110,11 +124,20 @@ function prepareCellValue($val) {
 				<input type="text" id="strlen" onchange="rebuildFormAction();" value="<?= !empty($_GET['strlen']) ? $_GET['strlen'] : 0; ?>" size="4">
 			</label>
 
-			<label>
-				<input id="explain" type="checkbox" onchange="rebuildFormAction();" <?= !empty($_GET['explain']) ? 'checked' : ''; ?>>
-				показать EXPLAIN
-			</label>
-
+			<div class="mode" style="width: 200px;">
+				<label>
+					<input type="radio" name="mode" value="grid" onchange="rebuildFormAction();" <?= $this->mode == 'grid' ? 'checked' : ''; ?> />
+					показать&nbsp;результаты
+				</label>
+				<label>
+					<input type="radio" name="mode" value="explain" onchange="rebuildFormAction();" <?= $this->mode == 'explain' ? 'checked' : ''; ?> />
+					показать EXPLAIN
+				</label>
+				<label title="Для графика нужен результат с двумя колонками. Первая - X, вторая - Y.">
+					<input type="radio" name="mode" value="graph" onchange="rebuildFormAction();" <?= $this->mode == 'graph' ? 'checked' : ''; ?> />
+					построить график
+				</label>
+			</div>
 			<input style="padding: 15px;" type="submit" class="button" value="Выполнить запрос" />
 
 			<div class="options">
@@ -202,24 +225,83 @@ $(function(){
 
 });
 
-function rebuildFormAction() {
+function changeConn()
+{
+	var conn = $('[name="conn"]').val();
+	var dbSelect = $('#change-db');
+	dbSelect.empty().hide();
+	$.get('?r=get-databases&conn=' + conn, function(response){
+		for (var i = 0; i < response.length; i++) {
+			dbSelect.append('<option value="' + response[i] + '">' + response[i] + '</option>');
+		}
+		dbSelect.show();
+	});
+}
 
+function rebuildFormAction()
+{
+	var conn = $('[name="conn"]').val();
 	var db = $('#change-db').val();
+	var mode = $('[name="mode"]:checked').val() || 'grid';
 
-	var action = '?r=sql-console&db=' + db;
+	var action = '?r=sql-console&conn=' + conn + '&db=' + db + '&mode=' + mode;
 
 	var strlen = parseInt($('#strlen').val(), 10);
 	if (strlen)
 		action += '&strlen=' + strlen;
 
-	var explain = $('#explain').is(':checked');
-	if (explain)
-		action += '&explain=1';
-
 	$('#sql-form').attr('action', action);
 }
 
 </script>
+
+<?php
+if ($this->mode == 'graph') {
+	if (!empty($this->data[0]['result'])) {
+		if (count($this->data[0]['result'][0]) == 2) {
+		?>
+<div id="chart"></div>
+<script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/data.js"></script>
+<script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/exporting.js"></script>
+<script type="text/javascript">
+
+	function drawChart(data)
+	{
+		if (!data)
+			return;
+
+		var keys = [];
+		for (i in data[0])
+			keys.push(i);
+
+		var series = [];
+		for (var i = 0; i < data.length; i++) {
+			series.push({x: parseInt(data[i][keys[0]]), y: parseInt(data[i][keys[1]])});
+		}
+		series.sort(function(a, b){ return a.x - b.x; });
+		$('#chart').highcharts({
+//			plotOptions: { series: { marker: { enabled: false } } },
+			xAxis: { title: { text: keys[0] }, offset: 0 },
+			yAxis: { title: { text: keys[1] }, min: 0 },
+			legend: false,
+			tooltip: {formatter: function() {
+				return keys[0] + '=' + this.x + ', ' + keys[1] + '=' + this.y;
+			}},
+			series: [{data: series}]
+		});
+	}
+
+	drawChart(<?= json_encode($this->data[0]['result']); ?>);
+</script>
+			<?php
+		} else {
+			echo '<p>Для построения графика результат должен содержать две колонки: первая - ось X, вторая - ось Y.</p>';
+		}
+	} else {
+		echo '<p>Нет данных для построения графика</p>';
+	}
+} ?>
 
 <? if(isset($this->data) && is_array($this->data)): ?>
 	<? foreach($this->data as $index => $result): ?>

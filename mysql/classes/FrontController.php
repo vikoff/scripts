@@ -144,7 +144,7 @@ class FrontController extends Controller{
 	
 	/** проверка необходимости выполнения отображения */
 	private function _checkDisplay(){
-		
+
 		return $this->getDefaultController()->display($this->requestMethod, $this->requestParams);
 	}
 	

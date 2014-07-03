@@ -219,7 +219,8 @@ class Layout{
 	
 	/** get php page statistics html */
 	protected function _getPhpPageStatistics(){
-		
+
+		return;
 		$scriptExecutionTime = round(microtime(1) - $GLOBALS['__vikOffTimerStart__'], 4);
 		
 		$output = ''

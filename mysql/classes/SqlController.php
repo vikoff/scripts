@@ -7,23 +7,41 @@ class SqlController extends Controller {
 	/////////////////////
 	
 	public function display_index(){
-		
+
+		$curConn = getVar($_GET['conn'], 'default');
+		try { $db = db::get($curConn); }
+		catch (Exception $e) {
+			$db = db::get();
+		}
+
+		$vars = array(
+			'curConn' => $curConn,
+			'db' => $db,
+		);
 		Layout::get()
-			->setContentPhpFile('index.php')
+			->setContentPhpFile('index.php', $vars)
 			->render();
 	}
 
 	public function display_sql_console(){
 
-		$db = db::get();
 		$query = getVar($_POST['query']);
 		$title = getVar($_POST['title']);
 		$explain = !empty($_GET['explain']);
+		$curConn = getVar($_GET['conn']);
 		$database = getVar($_GET['db']);
-		if (!$database)
-			$database = $db->getDatabase();
+		$mode = getVar($_GET['mode'], 'grid'); // grid|explain|graph
 
-		$result = $query ? $this->execSql($database, $query, $explain) : array();
+		try {
+			$db = db::get($curConn);
+		} catch (Exception $e) {
+			$db = db::get();
+		}
+
+		if ($database)
+			$db->selectDb($database);
+
+		$result = $query ? $this->execSql($db, $query, $mode == 'explain') : array();
 
 		$vars = array(
 			'query' => $query,
@@ -31,12 +49,28 @@ class SqlController extends Controller {
 			'title' => $title,
 			'curDb' => $database,
 			'dbs' => $db->showDatabases(),
+			'curConn' => $curConn,
+			'conns' => array_map(function(DbAdapter $c){ return $c->getConnHost(); }, db::getAllConnections()),
+			'mode' => $mode,
 		);
 
 		Layout::get()
 			->prependTitle($title)
 			->setContentPhpFile('sql_console.php', $vars)
 			->render();
+	}
+
+	public function display_get_databases()
+	{
+		$curConn = getVar($_GET['conn']);
+		try {
+			$db = db::get($curConn);
+		} catch (Exception $e) {
+			$db = db::get();
+		}
+
+		header('Content-type: application/json; charset=utf-8');
+		echo json_encode($db->showDatabases());
 	}
 
 	public function display_history(){
@@ -130,7 +164,7 @@ class SqlController extends Controller {
 	////////////////////
 	
 	// EXEC SQL (FORM SQL CONSOLE)
-	public function execSql($database, $inputSql, $execExplain = FALSE)
+	public function execSql(DbAdapter $db, $inputSql, $execExplain = FALSE)
 	{
 		$inputSql = trim($inputSql);
 
@@ -142,11 +176,11 @@ class SqlController extends Controller {
 		if (!$clearSql)
 			return array();
 
-		$result = $this->_execOneSql($database, $clearSql);
+		$result = $this->_execOneSql($db, $clearSql);
 		if ($result['success'])
 			$this->_saveSqlHistory($inputSql, $result['numrows'], $result['time']);
 		$resultExplain = $execExplain && empty($result['error']) && strtoupper(substr($clearSql, 0, 6)) == 'SELECT'
-			? $this->_execOneSql($database, 'EXPLAIN '.$clearSql)
+			? $this->_execOneSql($db, 'EXPLAIN '.$clearSql)
 			: null;
 
 		$results = array();
@@ -157,18 +191,16 @@ class SqlController extends Controller {
 		return $results;
 	}
 
-	private function _execOneSql($database, $sql)
+	private function _execOneSql(DbAdapter $db, $sql)
 	{
-		$db = db::get();
-		$db->selectDb($database);
-
 		// $sql = str_replace(array('\r', '\n'), array("\r", "\n"), $sql);
 		try {
+			/** @var PDOStatement $rs */
 			$rs = $db->query($sql);
-			$numRows = is_resource($rs) ? mysql_num_rows($rs) : 0;
+			$numRows = $rs->rowCount();
 			$result = array();
 			for ($i = 0, $len = min($numRows, 100); $i < $len; $i++)
-				$result[] = mysql_fetch_assoc($rs);
+				$result[] = $rs->fetch(PDO::FETCH_ASSOC);
 			return array_merge($db->getLastQueryInfo(), array('result' => $result, 'numrows' => $numRows, 'success' => 1));
 		} catch (Exception $e) {
 			return array('error' => $e->getMessage(), 'success' => 0);

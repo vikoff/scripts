@@ -19,8 +19,20 @@ define('FS_ROOT', dirname(__FILE__).'/');
 // отправка Content-type заголовка
 header('Content-Type: text/html; charset=utf-8');
 
-// подключение файлов CMF
-require_once(FS_ROOT.'setup.php');
+function __autoload($className)
+{
+	$className = str_replace('_', '/', $className);
+	$path = FS_ROOT.'classes/'.$className.'.php';
+	if (file_exists($path))
+		require $path;
+}
+
+require_once('config.php');
+require_once('config.local.php');
+require_once('func.php');
+
+// код для отсеивания дублирующихся форм
+define('FORMCODE', getFormCodeInput());
 
 // выполнение приложения
 if (CLI_MODE)

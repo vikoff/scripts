@@ -22,11 +22,11 @@ define('CFG_SITE_NAME', 'DB viewer');
 
 // конфигурация подключения к БД
 db::create(array(
-	'adapter' => 'mysql',
+	'adapter' => 'pdoMysql',
 	'host' => 'localhost',
 	'user' => 'root',
 	'pass' => '',
-	'database' => 'teachsite',
+	'database' => '',
 	'encoding' => 'utf8',
 	'fileLog' => FALSE,
 ));

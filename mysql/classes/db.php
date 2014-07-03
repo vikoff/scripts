@@ -64,12 +64,12 @@ class db {
 		
 		return $db;
 	}
-	
+
 	/**
 	 * ПОЛУЧИТЬ ЭКЗЕМПЛЯР КЛАССА db
-	 * 
 	 * @param null|string $connIdentifier - идентификатор соединения с БД.
-	 * 		Если не указан, возвращается дефолтное соединение.
+	 *        Если не указан, возвращается дефолтное соединение.
+	 * @throws Exception
 	 * @return DbAdapter
 	 */
 	public static function get($connIdentifier = 'default') {
@@ -80,8 +80,7 @@ class db {
 			: null;
 		
 		if($db === null) {
-			trigger_error('Соединение с БД с '.($connIdentifier == 'default' ? 'дефолтным идентификатором' : 'идентификатором "'.$connIdentifier.'"').' не создано', E_USER_ERROR);
-            exit;
+			throw new Exception("Connection with id=$connIdentifier not found.");
         }
 		
 		if(!$db->isConnected())

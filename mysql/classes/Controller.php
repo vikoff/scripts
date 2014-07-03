@@ -23,10 +23,9 @@ class Controller {
 	public function display($methodIdentifier, $params){
 				
 		$method = $this->getDisplayMethodName($methodIdentifier);
-			
 		if(!method_exists($this, $method))
 			return FALSE;
-		
+
 		$this->$method($params);
 		return TRUE;
 	}
