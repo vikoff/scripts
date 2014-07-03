@@ -287,9 +287,12 @@ function rebuildFormAction()
 			if (!data)
 				return;
 
+			// не отображать колонки, имя которых начинается со знака '-'
 			var keys = [];
-			for (i in data[0])
-				keys.push(i);
+			for (i in data[0]) {
+				if (i.substr(0, 1) != '-')
+					keys.push(i);
+			}
 
 			var categoryKey = keys.shift();
 			var categories = [];
@@ -298,7 +301,7 @@ function rebuildFormAction()
 			for (j = 0; j < keys.length; j++) {
 				series = [];
 				for (i = 0; i < data.length; i++) {
-					series.push(parseInt(data[i][keys[j]]));
+					series.push(parseFloat(data[i][keys[j]]));
 					if (j == 0)
 						categories.push(data[i][categoryKey]);
 				}
@@ -347,8 +350,11 @@ function rebuildFormAction()
 	});
 </script>
 		<?php } else { ?>
-			<p>Для графика нужен результат с двумя или более колонками. Первая - лейбл X (не обязательно),
-				каждая остальная колонка - отдельный график.</p>
+			<p>
+				Для графика нужен результат с двумя или более колонками. Первая - лейбл X (не обязательно),
+				каждая остальная колонка - отдельный график. Если имя колонки начинается со знака '-',
+				то по этой колонке график строиться не будет.
+			</p>
 		<?php } ?>
 
 	<?php } else { ?>
