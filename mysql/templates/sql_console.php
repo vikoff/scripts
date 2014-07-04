@@ -97,6 +97,7 @@ function prepareCellValue($val) {
 			<?= Html::select(array('name' => 'conn', 'onchange' => 'changeConn()'), $this->conns, $this->curConn); ?>
 		<?php } ?>
 
+		| <a href="<?= $_SERVER['REQUEST_URI']; ?>" target="_blank">новая вкладка</a>
 		| <a href="<?= href(''); ?>">назад</a>
 	</span>
 </h3>
