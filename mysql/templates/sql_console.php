@@ -276,6 +276,7 @@ function rebuildFormAction()
 	<label><input type="checkbox" onchange="Chart.setLineStep(this);" /> use line step</label>
 	<label><input type="checkbox" onchange="Chart.setMarkers(this);" checked /> show markers</label>
 	<label><input type="checkbox" onchange="Chart.setMin(this);" checked /> start from 0</label>
+	<label><input type="checkbox" onchange="Chart.setCrosshair(this);" /> crosshair</label>
 </div>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/data.js"></script>
@@ -283,6 +284,7 @@ function rebuildFormAction()
 <script type="text/javascript">
 
 	var Chart = {
+		lastOpts: null,
 		draw: function(data)
 		{
 			if (!data)
@@ -308,16 +310,17 @@ function rebuildFormAction()
 				}
 				allSeries.push({data: series, name: keys[j]})
 			}
-			$('#chart').highcharts({
+			this.lastOpts = {
 				plotOptions: { series: { step: null, marker: { enabled: 1 }, stickyTracking: false } },
 				xAxis: { categories: categories, title: { text: categoryKey }, offset: 0 },
 				yAxis: { title: { text: 'values' }, min: 0 },
 //				tooltip: {formatter: function() {
 //					return categoryKey + '=<b>' + this.x + '</b>, value=<b>' + this.y + '</b>';
 //				}},
-				tooltip: { shared: true, crosshairs: [true, {color: '#D25F4B'}] },
+				tooltip: { shared: true, crosshairs: [true, false] },
 				series: allSeries
-			});
+			};
+			$('#chart').highcharts(this.lastOpts);
 		},
 
 		setLineStep: function(elm)
@@ -337,12 +340,23 @@ function rebuildFormAction()
 			$('#chart').highcharts().yAxis[0].update({min: elm.checked ? 0 : undefined});
 		},
 
+		setCrosshair: function(elm)
+		{
+			var val = elm.checked ? {color: '#D25F4B'} : false;
+			this.lastOpts.tooltip.crosshairs = [true, val];
+			this.redraw();
+		},
+
 		_updateSeries: function(options)
 		{
 			var chart = $('#chart').highcharts();
 			for (var i = 0; i < chart.series.length; i++) {
 				chart.series[i].update(options);
 			}
+		},
+		redraw: function()
+		{
+			$('#chart').highcharts(this.lastOpts);
 		}
 	};
 
