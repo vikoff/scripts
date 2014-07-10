@@ -1,4 +1,21 @@
-<style>
+<?php
+function prepareCellValue($val) {
+
+	if ($val === NULL) $val = '<NULL>';
+	elseif ($val === TRUE) $val = '<TRUE>';
+	elseif ($val === FALSE) $val = '<FALSE>';
+
+	$val = htmlspecialchars($val);
+
+	if (!empty($_GET['strlen']) && mb_strlen($val, 'utf-8') > (int)$_GET['strlen']) {
+		$val = substr($val, 0, (int)$_GET['strlen']).'...';
+	}
+
+	return $val;
+}
+?>
+
+<style type="text/css">
 table.grid { 
 	text-align: center;
 }
@@ -34,7 +51,8 @@ table.grid tr:nth-child(2n) td{
 	background-color: #DFE4F7;
 }
 #sql-input {
-	width: 98%;
+	/*width: 98%;*/
+	width: 500px;
 	height: 250px;
 	font-size: 14px;
 	font-family: monospace;
@@ -68,23 +86,20 @@ table.grid tr:nth-child(2n) td{
 input[type="radio"], input[type="checkbox"]{
 	vertical-align: sub;
 }
-</style>
-<?php
-function prepareCellValue($val) {
-
-	if ($val === NULL) $val = '<NULL>';
-	elseif ($val === TRUE) $val = '<TRUE>';
-	elseif ($val === FALSE) $val = '<FALSE>';
-	
-	$val = htmlspecialchars($val);
-
-	if (!empty($_GET['strlen']) && mb_strlen($val, 'utf-8') > (int)$_GET['strlen']) {
-		$val = substr($val, 0, (int)$_GET['strlen']).'...';
-	}
-
-	return $val;
+.CodeMirror {
+	border: 1px solid black;
+	font-size: 13px;
 }
-?>
+</style>
+
+<link rel="stylesheet" href="<?= WWW_ROOT; ?>css/codemirror.css"/>
+<link rel="stylesheet" href="<?= WWW_ROOT; ?>css/codemirror/neo.css"/>
+<script type="text/javascript" src="<?= WWW_ROOT; ?>js/codemirror-compressed.js"></script>
+<script type="text/javascript">
+
+	var extraFormData = {};
+
+</script>
 <h3 style="text-align: center;">
 	SQL-консоль
 
@@ -156,127 +171,29 @@ function prepareCellValue($val) {
 		</td>
 	</tr>
 	</table>
+
 </form>
-
-<script type="text/javascript">
-
-var IS_POST = <?= !empty($_POST) ? 'true' : 'false'; ?>;
-
-function addToFavorites() {
-	var val = $.trim($('#sql-input').val());
-	if (!val) {
-		return false;
-	}
-	$.post(href('add-sql-to-favorites'), {val: val}, function(response) {
-
-	});
-}
-function showHistory() {
-
-}
-function insertAtCaret(element, text) {
-    if (document.selection) {
-        element.focus();
-        var sel = document.selection.createRange();
-        sel.text = text;
-        element.focus();
-    } else if (element.selectionStart || element.selectionStart === 0) {
-        var startPos = element.selectionStart;
-        var endPos = element.selectionEnd;
-        var scrollTop = element.scrollTop;
-        element.value = element.value.substring(0, startPos) + text + element.value.substring(endPos, element.value.length);
-        element.focus();
-        element.selectionStart = startPos + text.length;
-        element.selectionEnd = startPos + text.length;
-        element.scrollTop = scrollTop;
-    } else {
-        element.value += text;
-        element.focus();
-    }
-}
-$(function(){
-
-	$('.set-title-btn').click(function(e){
-		e.preventDefault();
-		$(this).hide().next().show();
-	})
-	$('#sql-input')
-		.focus()
-		.keydown(function(e){
-			if(e.keyCode == 116){ // F5
-				if (IS_POST) {
-					return true;
-				}
-				if($(this).val().length && confirm('Выполнить запрос?')){
-					$(this.form).submit();
-				}else{
-					location.href = location.href;
-				}
-				return false;
-			} else if (e.keyCode == 9) { // tab, shift + tab
-				if (e.ctrlKey)
-					return;
-				e.preventDefault();
-				if (e.shiftKey) {
-
-				} else {
-					insertAtCaret(this, "\t");
-				}
-			}
-		});
-
-	$(window)
-		.keydown(function(e){
-			if (e.keyCode == 13 && e.ctrlKey) { // ctrl + enter
-				$('#sql-form').submit();
-			}
-		});
-
-});
-
-function changeConn()
-{
-	var conn = $('[name="conn"]').val();
-	var dbSelect = $('#change-db');
-	dbSelect.empty().hide();
-	$.get('?r=get-databases&conn=' + conn, function(response){
-		for (var i = 0; i < response.length; i++) {
-			dbSelect.append('<option value="' + response[i] + '">' + response[i] + '</option>');
-		}
-		dbSelect.show();
-	});
-}
-
-function rebuildFormAction()
-{
-	var conn = $('[name="conn"]').val();
-	var db = $('#change-db').val();
-	var mode = $('[name="mode"]:checked').val() || 'grid';
-
-	var action = '?r=sql-console&conn=' + conn + '&db=' + db + '&mode=' + mode;
-
-	var strlen = parseInt($('#strlen').val(), 10);
-	if (strlen)
-		action += '&strlen=' + strlen;
-
-	var limit = $('#limit').val();
-	if (limit != 100)
-		action += '&limit=' + limit;
-
-	$('#sql-form').attr('action', action);
-}
-
-</script>
 
 <?php if ($this->mode == 'graph') { ?>
 	<?php if (!empty($this->data[0]['result'])) { ?>
 		<?php if (count($this->data[0]['result'][0]) > 1) { ?>
 <div id="chart"></div>
 <div style="text-align: center; font-size: 11px;">
-	<label><input type="checkbox" onchange="Chart.setLineStep(this);" /> use line step</label>
-	<label><input type="checkbox" onchange="Chart.setMarkers(this);" checked /> show markers</label>
-	<label><input type="checkbox" onchange="Chart.setMin(this);" checked /> start from 0</label>
-	<label><input type="checkbox" onchange="Chart.setCrosshair(this);" /> crosshair</label>
+	<?php
+	$checboxes = array(
+		'c-step'   => array('label' => 'use line step', 'default' => 0),
+		'c-marker' => array('label' => 'show markers', 'default' => 1),
+		'c-f0'     => array('label' => 'start from 0', 'default' => 1),
+		'c-cross'  => array('label' => 'crosshair', 'default' => 0),
+	);
+	foreach ($checboxes as $name => $data) {
+		if (isset($_GET[$name])) {
+			echo '<script type="text/javascript">extraFormData["'.$name.'"] = '.(int)$_GET[$name].';</script>';
+		}
+		$checked = (isset($_GET[$name]) ? (int)$_GET[$name] : $data['default']) ? 'checked="checked"' : '';
+		echo '<label><input type="checkbox" name="'.$name.'" value="1" '.$checked.' /> '.$data['label'].'</label> ';
+	}
+	?>
 </div>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/data.js"></script>
@@ -285,6 +202,14 @@ function rebuildFormAction()
 
 	var Chart = {
 		lastOpts: null,
+		init: function()
+		{
+			$('[name="c-step"]').change(function(){ Chart.setLineStep(this); return false; });
+			$('[name="c-marker"]').change(function(){ Chart.setMarkers(this); return false; });
+			$('[name="c-f0"]').change(function(){ Chart.setMin(this); return false; });
+			$('[name="c-cross"]').change(function(){ Chart.setCrosshair(this); return false; });
+			return this;
+		},
 		draw: function(data)
 		{
 			if (!data)
@@ -310,14 +235,18 @@ function rebuildFormAction()
 				}
 				allSeries.push({data: series, name: keys[j]})
 			}
+
+			var step = $('[name="c-step"]').is(':checked') ? 'left' : null;
+			var marker = $('[name="c-marker"]').is(':checked') ? 1 : 0;
+			var min = $('[name="c-f0"]').is(':checked') ? 0 : undefined;
+			var crosshair = $('[name="c-cross"]').is(':checked') ? {color: '#D25F4B'} : false;
+
 			this.lastOpts = {
-				plotOptions: { series: { step: null, marker: { enabled: 1 }, stickyTracking: false } },
+				chart: {animation: false},
+				plotOptions: { series: { allowPointSelect: true, step: step, marker: { enabled: marker }, stickyTracking: false } },
 				xAxis: { categories: categories, title: { text: categoryKey }, offset: 0 },
-				yAxis: { title: { text: 'values' }, min: 0 },
-//				tooltip: {formatter: function() {
-//					return categoryKey + '=<b>' + this.x + '</b>, value=<b>' + this.y + '</b>';
-//				}},
-				tooltip: { shared: true, crosshairs: [true, false] },
+				yAxis: { title: { text: 'values' }, min: min },
+				tooltip: { shared: true, crosshairs: [true, crosshair] },
 				series: allSeries
 			};
 			$('#chart').highcharts(this.lastOpts);
@@ -326,23 +255,27 @@ function rebuildFormAction()
 		setLineStep: function(elm)
 		{
 			var stepVal = elm.checked ? 'left' : null;
+			this._updateFormData(elm);
 			this._updateSeries({step: stepVal})
 		},
 
 		setMarkers: function(elm)
 		{
 			var enabled = elm.checked ? 1 : 0;
+			this._updateFormData(elm);
 			this._updateSeries({marker: {enabled: enabled}});
 		},
 
 		setMin: function(elm)
 		{
+			this._updateFormData(elm);
 			$('#chart').highcharts().yAxis[0].update({min: elm.checked ? 0 : undefined});
 		},
 
 		setCrosshair: function(elm)
 		{
 			var val = elm.checked ? {color: '#D25F4B'} : false;
+			this._updateFormData(elm);
 			this.lastOpts.tooltip.crosshairs = [true, val];
 			this.redraw();
 		},
@@ -357,11 +290,16 @@ function rebuildFormAction()
 		redraw: function()
 		{
 			$('#chart').highcharts(this.lastOpts);
+		},
+		_updateFormData: function(elm)
+		{
+			extraFormData[ elm.name ] = elm.checked ? 1 : 0;
+			rebuildFormAction();
 		}
 	};
 
 	$(function(){
-		Chart.draw(<?= json_encode($this->data[0]['result']); ?>);
+		Chart.init().draw(<?= json_encode($this->data[0]['result']); ?>);
 	});
 </script>
 		<?php } else { ?>
@@ -427,3 +365,120 @@ function rebuildFormAction()
 
 	<? endforeach; ?>
 <? endif; ?>
+
+
+<script type="text/javascript">
+
+	var IS_POST = <?= !empty($_POST) ? 'true' : 'false'; ?>;
+
+	function addToFavorites() {
+		var val = $.trim($('#sql-input').val());
+		if (!val) {
+			return false;
+		}
+		$.post(href('add-sql-to-favorites'), {val: val}, function(response) {
+
+		});
+	}
+	function showHistory() {
+
+	}
+	function insertAtCaret(element, text) {
+		if (document.selection) {
+			element.focus();
+			var sel = document.selection.createRange();
+			sel.text = text;
+			element.focus();
+		} else if (element.selectionStart || element.selectionStart === 0) {
+			var startPos = element.selectionStart;
+			var endPos = element.selectionEnd;
+			var scrollTop = element.scrollTop;
+			element.value = element.value.substring(0, startPos) + text + element.value.substring(endPos, element.value.length);
+			element.focus();
+			element.selectionStart = startPos + text.length;
+			element.selectionEnd = startPos + text.length;
+			element.scrollTop = scrollTop;
+		} else {
+			element.value += text;
+			element.focus();
+		}
+	}
+
+	function changeConn()
+	{
+		var conn = $('[name="conn"]').val();
+		var dbSelect = $('#change-db');
+		dbSelect.empty().hide();
+		$.get('?r=get-databases&conn=' + conn, function(response){
+			for (var i = 0; i < response.length; i++) {
+				dbSelect.append('<option value="' + response[i] + '">' + response[i] + '</option>');
+			}
+			dbSelect.show();
+		});
+	}
+
+	function rebuildFormAction()
+	{
+		var conn = $('[name="conn"]').val();
+		var db = $('#change-db').val();
+		var mode = $('[name="mode"]:checked').val() || 'grid';
+
+		var action = '?r=sql-console&conn=' + conn + '&db=' + db + '&mode=' + mode;
+
+		var strlen = parseInt($('#strlen').val(), 10);
+		if (strlen)
+			action += '&strlen=' + strlen;
+
+		var limit = $('#limit').val();
+		if (limit != 100)
+			action += '&limit=' + limit;
+
+		for (var i in extraFormData) {
+			if (extraFormData.hasOwnProperty(i)) {
+				action += '&' + i + '=' + encodeURIComponent(extraFormData[i]);
+			}
+		}
+
+		$('#sql-form').attr('action', action);
+	}
+
+	$(function(){
+
+		$('.set-title-btn').click(function(e){
+			e.preventDefault();
+			$(this).hide().next().show();
+		});
+
+		CodeMirror.fromTextArea(document.getElementById('sql-input'), {
+			mode: 'text/x-mysql',
+			lineNumbers: 1,
+			autofocus: 1,
+			dragDrop: 0,
+			theme: 'neo'
+		});
+		$('#sql-input')
+			.focus()
+			.keydown(function(e){
+				if(e.keyCode == 116){ // F5
+					if (IS_POST) {
+						return true;
+					}
+					if($(this).val().length && confirm('Выполнить запрос?')){
+						$(this.form).submit();
+					}else{
+						location.href = location.href;
+					}
+					return false;
+				}
+			});
+
+		$(window)
+			.keydown(function(e){
+				if (e.keyCode == 13 && e.ctrlKey) { // ctrl + enter
+					$('#sql-form').submit();
+				}
+			});
+
+	});
+
+</script>
