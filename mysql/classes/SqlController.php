@@ -43,6 +43,9 @@ class SqlController extends Controller {
 			$db->selectDb($database);
 
 		$result = $query ? $this->execSql($db, $query, $mode == 'explain', $limit) : array();
+		$conns = array();
+		foreach (db::getAllConnections() as $label => $conn)
+			$conns[$label] = $label." - ".$conn->getConnHost();
 
 		$vars = array(
 			'query' => $query,
@@ -51,7 +54,7 @@ class SqlController extends Controller {
 			'curDb' => $database,
 			'dbs' => $db->showDatabases(),
 			'curConn' => $curConn,
-			'conns' => array_map(function(DbAdapter $c){ return $c->getConnHost(); }, db::getAllConnections()),
+			'conns' => $conns,
 			'mode' => $mode,
 			'limit' => $limit,
 		);
