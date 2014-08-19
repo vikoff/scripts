@@ -13,6 +13,8 @@
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="http://scripts.vik-off.net/debug.js"></script>
+	<script type="text/javascript" src="js/highcharts.js"></script>
 	<script type="text/javascript">
 	
 		function href(href){
