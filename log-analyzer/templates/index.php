@@ -6,5 +6,7 @@
 	<ul style="display: inline-block; text-align: left;">
 		<li><a href="<?= href('sql'); ?>">Sql logs</a></li>
 		<li><a href="<?= href('x-trace'); ?>">Xdebug trace</a></li>
+		<li><a href="<?= href('hihit'); ?>">Hit informer</a></li>
 	</ul>
 </div>
+
