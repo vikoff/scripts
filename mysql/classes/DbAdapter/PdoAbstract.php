@@ -22,7 +22,9 @@ abstract class DbAdapter_PdoAbstract extends DbAdapter {
 		$this->_saveConnectTime(microtime(1) - $start);
 	}
 
-	public function setEncoding($encoding){}
+	public function setEncoding($encoding){
+		$this->_encoding = $encoding;
+	}
 
 	public function getLastId(){
 	

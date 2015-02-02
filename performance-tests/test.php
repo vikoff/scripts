@@ -6,7 +6,7 @@ $perfMeter = new PerformanceMeter();
 
 function func1()
 {
-	$data = getrusage();
+	$data = sys_getloadavg();
 }
 
 function func2()
@@ -20,7 +20,7 @@ $iterations = 100000;
 $perfMeter->start();
 
 for ($i = 0; $i < $iterations; $i++) {
-	// func1();
-	func2();
+	func1();
+	// func2();
 }
 $perfMeter->end($iterations);

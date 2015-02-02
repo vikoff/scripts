@@ -43,6 +43,7 @@ class SqlController extends Controller {
 			$db->selectDb($database);
 
 		$result = $query ? $this->execSql($db, $query, $mode == 'explain', $limit) : array();
+
 		$conns = array();
 		foreach (db::getAllConnections() as $label => $conn)
 			$conns[$label] = $label." - ".$conn->getConnHost();

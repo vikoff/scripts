@@ -12,6 +12,8 @@ class DbAdapter_PdoMysql extends DbAdapter_PdoAbstract {
 		$dsn = "mysql:host={$this->connHost}";
 		if ($this->connDatabase)
 			$dsn .= ";dbname={$this->connDatabase}";
+		if ($this->_encoding)
+			$dsn .= ";charset={$this->_encoding}";
 
 		return new PDO($dsn, $this->connUser, $this->connPass, $options);
 	}
