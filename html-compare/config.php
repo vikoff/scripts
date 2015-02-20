@@ -17,7 +17,7 @@ mb_internal_encoding("utf8");
 $config = array(
 
 	// название сайта
-	'site_name' => 'uz monitor',
+	'site_name' => 'Html Compare',
 
 	// отсеивать дублируемые формы
 	'check_form_duplication' => 0,

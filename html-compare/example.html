@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>PHP: DOMDocument::__construct - Manual </title>
+
+	<link rel="shortcut icon" href="http://www.php.net/favicon.ico">
+	<link rel="search" type="application/opensearchdescription+xml" href="http://php.net/phpnetimprovedsearch.src" title="Add PHP.net search">
+	<link rel="alternate" type="application/atom+xml" href="http://www.php.net/releases/feed.php" title="PHP Release feed">
+	<link rel="alternate" type="application/atom+xml" href="http://www.php.net/feed.atom" title="PHP: Hypertext Preprocessor">
+
+	<link rel="canonical" href="http://php.net//manual/ru/domdocument.construct.php">
+	<link rel="shorturl" href="http://php.net//manual/ru/domdocument.construct.php">
+
+	<link rel="contents" href="http://www.php.net/manual/ru/index.php">
+	<link rel="index" href="http://www.php.net/manual/ru/class.domdocument.php">
+	<link rel="prev" href="http://www.php.net/manual/ru/class.domdocument.php">
+	<link rel="next" href="http://www.php.net/manual/ru/domdocument.createattribute.php">
+
+	<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,400italic,600italic|Source+Code+Pro&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="http://www.php.net/cached.php?t=1394245217&amp;f=styles/theme-base.css" media="screen">
+	<link rel="stylesheet" type="text/css" href="http://www.php.net/cached.php?t=1394246409&amp;f=styles/theme-medium.css" media="screen">
+
+	<!--[if lte IE 7]>
+	<link rel="stylesheet" type="text/css" href="http://www.php.net/styles/workarounds.ie7.css" media="screen" />
+	<![endif]-->
+
+	<!--[if lte IE 9]>
+	<link rel="stylesheet" type="text/css" href="http://www.php.net/styles/workarounds.ie9.css" media="screen" />
+	<![endif]-->
+
+	<!--[if IE]>
+	<script type="text/javascript" src="http://www.php.net/js/ext/html5.js"></script>
+	<![endif]-->
+
+	<base href="http://www.php.net/manual/ru/domdocument.construct.php">
+
+</head>
+<body class="docs ">
+
+<nav id="head-nav" class="navbar navbar-fixed-top">
+	<div class="navbar-inner clearfix">
+		<a href="/" class="brand"><img src="/images/logo.php" width="48" height="24" alt="php"></a>
+		<div id="mainmenu-toggle-overlay"></div>
+		<input type="checkbox" id="mainmenu-toggle" />
+		<ul class="nav">
+			<li class=""><a href="/downloads">Downloads</a></li>
+			<li class="active"><a href="/docs.php">Documentation</a></li>
+			<li class=""><a href="/get-involved" >Get Involved</a></li>
+			<li class=""><a href="/support">Help</a></li>
+		</ul>
+		<form class="navbar-search" id="topsearch" action="/search.php">
+			<input type="hidden" name="show" value="quickref">
+			<input type="search" name="pattern" class="search-query" placeholder="Search" accesskey="s">
+		</form>
+	</div>
+	<div id="flash-message"></div>
+</nav>
+<nav id="trick"><div><dl>
+	<dt><a href='/manual/en/getting-started.php'>Getting Started</a></dt>
+	<dd><a href='/manual/en/introduction.php'>Introduction</a></dd>
+	<dd><a href='/manual/en/tutorial.php'>A simple tutorial</a></dd>
+	<dt><a href='/manual/en/langref.php'>Language Reference</a></dt>
+	<dd><a href='/manual/en/language.basic-syntax.php'>Basic syntax</a></dd>
+	<dd><a href='/manual/en/language.types.php'>Types</a></dd>
+	<dd><a href='/manual/en/language.variables.php'>Variables</a></dd>
+	<dd><a href='/manual/en/language.constants.php'>Constants</a></dd>
+	<dd><a href='/manual/en/language.expressions.php'>Expressions</a></dd>
+	<dd><a href='/manual/en/language.operators.php'>Operators</a></dd>
+	<dd><a href='/manual/en/language.control-structures.php'>Control Structures</a></dd>
+	<dd><a href='/manual/en/language.functions.php'>Functions</a></dd>
+	<dd><a href='/manual/en/language.oop5.php'>Classes and Objects</a></dd>
+	<dd><a href='/manual/en/language.namespaces.php'>Namespaces</a></dd>
+	<dd><a href='/manual/en/language.exceptions.php'>Exceptions</a></dd>
+	<dd><a href='/manual/en/language.generators.php'>Generators</a></dd>
+	<dd><a href='/manual/en/language.references.php'>References Explained</a></dd>
+	<dd><a href='/manual/en/reserved.variables.php'>Predefined Variables</a></dd>
+	<dd><a href='/manual/en/reserved.exceptions.php'>Predefined Exceptions</a></dd>
+	<dd><a href='/manual/en/reserved.interfaces.php'>Predefined Interfaces and Classes</a></dd>
+	<dd><a href='/manual/en/context.php'>Context options and parameters</a></dd>
+	<dd><a href='/manual/en/wrappers.php'>Supported Protocols and Wrappers</a></dd>
+</dl>
+	<dl>
+		<dt><a href='/manual/en/security.php'>Security</a></dt>
+		<dd><a href='/manual/en/security.intro.php'>Introduction</a></dd>
+		<dd><a href='/manual/en/security.general.php'>General considerations</a></dd>
+		<dd><a href='/manual/en/security.cgi-bin.php'>Installed as CGI binary</a></dd>
+		<dd><a href='/manual/en/security.apache.php'>Installed as an Apache module</a></dd>
+		<dd><a href='/manual/en/security.filesystem.php'>Filesystem Security</a></dd>
+		<dd><a href='/manual/en/security.database.php'>Database Security</a></dd>
+		<dd><a href='/manual/en/security.errors.php'>Error Reporting</a></dd>
+		<dd><a href='/manual/en/security.globals.php'>Using Register Globals</a></dd>
+		<dd><a href='/manual/en/security.variables.php'>User Submitted Data</a></dd>
+		<dd><a href='/manual/en/security.magicquotes.php'>Magic Quotes</a></dd>
+		<dd><a href='/manual/en/security.hiding.php'>Hiding PHP</a></dd>
+		<dd><a href='/manual/en/security.current.php'>Keeping Current</a></dd>
+		<dt><a href='/manual/en/features.php'>Features</a></dt>
+		<dd><a href='/manual/en/features.http-auth.php'>HTTP authentication with PHP</a></dd>
+		<dd><a href='/manual/en/features.cookies.php'>Cookies</a></dd>
+		<dd><a href='/manual/en/features.sessions.php'>Sessions</a></dd>
+		<dd><a href='/manual/en/features.xforms.php'>Dealing with XForms</a></dd>
+		<dd><a href='/manual/en/features.file-upload.php'>Handling file uploads</a></dd>
+		<dd><a href='/manual/en/features.remote-files.php'>Using remote files</a></dd>
+		<dd><a href='/manual/en/features.connection-handling.php'>Connection handling</a></dd>
+		<dd><a href='/manual/en/features.persistent-connections.php'>Persistent Database Connections</a></dd>
+		<dd><a href='/manual/en/features.safe-mode.php'>Safe Mode</a></dd>
+		<dd><a href='/manual/en/features.commandline.php'>Command line usage</a></dd>
+		<dd><a href='/manual/en/features.gc.php'>Garbage Collection</a></dd>
+		<dd><a href='/manual/en/features.dtrace.php'>DTrace Dynamic Tracing</a></dd>
+	</dl>
+	<dl>
+		<dt><a href='/manual/en/funcref.php'>Function Reference</a></dt>
+		<dd><a href='/manual/en/refs.basic.php.php'>Affecting PHP's Behaviour</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.audio.php'>Audio Formats Manipulation</a></dd>
+		<dd><a href='/manual/en/refs.remote.auth.php'>Authentication Services</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.cmdline.php'>Command Line Specific Extensions</a></dd>
+		<dd><a href='/manual/en/refs.compression.php'>Compression and Archive Extensions</a></dd>
+		<dd><a href='/manual/en/refs.creditcard.php'>Credit Card Processing</a></dd>
+		<dd><a href='/manual/en/refs.crypto.php'>Cryptography Extensions</a></dd>
+		<dd><a href='/manual/en/refs.database.php'>Database Extensions</a></dd>
+		<dd><a href='/manual/en/refs.calendar.php'>Date and Time Related Extensions</a></dd>
+		<dd><a href='/manual/en/refs.fileprocess.file.php'>File System Related Extensions</a></dd>
+		<dd><a href='/manual/en/refs.international.php'>Human Language and Character Encoding Support</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.image.php'>Image Processing and Generation</a></dd>
+		<dd><a href='/manual/en/refs.remote.mail.php'>Mail Related Extensions</a></dd>
+		<dd><a href='/manual/en/refs.math.php'>Mathematical Extensions</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.nontext.php'>Non-Text MIME Output</a></dd>
+		<dd><a href='/manual/en/refs.fileprocess.process.php'>Process Control Extensions</a></dd>
+		<dd><a href='/manual/en/refs.basic.other.php'>Other Basic Extensions</a></dd>
+		<dd><a href='/manual/en/refs.remote.other.php'>Other Services</a></dd>
+		<dd><a href='/manual/en/refs.search.php'>Search Engine Extensions</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.server.php'>Server Specific Extensions</a></dd>
+		<dd><a href='/manual/en/refs.basic.session.php'>Session Extensions</a></dd>
+		<dd><a href='/manual/en/refs.basic.text.php'>Text Processing</a></dd>
+		<dd><a href='/manual/en/refs.basic.vartype.php'>Variable and Type Related Extensions</a></dd>
+		<dd><a href='/manual/en/refs.webservice.php'>Web Services</a></dd>
+		<dd><a href='/manual/en/refs.utilspec.windows.php'>Windows Only Extensions</a></dd>
+		<dd><a href='/manual/en/refs.xml.php'>XML Manipulation</a></dd>
+	</dl>
+	<dl>
+		<dt>Keyboard Shortcuts</dt><dt>?</dt>
+		<dd>This help</dd>
+		<dt>j</dt>
+		<dd>Next menu item</dd>
+		<dt>k</dt>
+		<dd>Previous menu item</dd>
+		<dt>g p</dt>
+		<dd>Previous man page</dd>
+		<dt>g n</dt>
+		<dd>Next man page</dd>
+		<dt>G</dt>
+		<dd>Scroll to bottom</dd>
+		<dt>g g</dt>
+		<dd>Scroll to top</dd>
+		<dt>g h</dt>
+		<dd>Goto homepage</dd>
+		<dt>g s</dt>
+		<dd>Goto search<br>(current page)</dd>
+		<dt>/</dt>
+		<dd>Focus search box</dd>
+	</dl></div></nav>
+<div id="goto">
+	<div class="search">
+		<div class="text"></div>
+		<div class="results"><ul></ul></div>
+	</div>
+</div>
+
+<div id="breadcrumbs" class="clearfix">
+	<div class="prev">
+		<a href="class.domdocument.php">
+			&laquo; DOMDocument        </a>
+	</div>
+	<div class="next">
+		<a href="domdocument.createattribute.php">
+			DOMDocument::createAttribute &raquo;
+		</a>
+	</div>
+	<ul class="breadcrumbs-container">
+		<li><a href='index.php'>Руководство по PHP</a></li>      <li><a href='funcref.php'>Справочник функций</a></li>      <li><a href='refs.xml.php'>Обработка XML</a></li>      <li><a href='book.dom.php'>DOM</a></li>      <li><a href='class.domdocument.php'>DOMDocument</a></li>    </ul>
+</div>
+
+
+
+
+<div id="layout">
+
+<aside class='layout-menu'>
+
+	<ul class='parent-menu-list'>
+		<li>
+			<a href="class.domdocument.php">DOMDocument</a>
+
+			<ul class='child-menu-list'>
+
+				<li class="current">
+					<a href="domdocument.construct.php" title="_&#8203;_&#8203;construct">_&#8203;_&#8203;construct</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createattribute.php" title="createAttribute">createAttribute</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createattributens.php" title="createAttributeNS">createAttributeNS</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createcdatasection.php" title="createCDATASection">createCDATASection</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createcomment.php" title="createComment">createComment</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createdocumentfragment.php" title="createDocumentFragment">createDocumentFragment</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createelement.php" title="createElement">createElement</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createelementns.php" title="createElementNS">createElementNS</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createentityreference.php" title="createEntityReference">createEntityReference</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createprocessinginstruction.php" title="createProcessingInstruction">createProcessingInstruction</a>
+				</li>
+				<li class="">
+					<a href="domdocument.createtextnode.php" title="createTextNode">createTextNode</a>
+				</li>
+				<li class="">
+					<a href="domdocument.getelementbyid.php" title="getElementById">getElementById</a>
+				</li>
+				<li class="">
+					<a href="domdocument.getelementsbytagname.php" title="getElementsByTagName">getElementsByTagName</a>
+				</li>
+				<li class="">
+					<a href="domdocument.getelementsbytagnamens.php" title="getElementsByTagNameNS">getElementsByTagNameNS</a>
+				</li>
+				<li class="">
+					<a href="domdocument.importnode.php" title="importNode">importNode</a>
+				</li>
+				<li class="">
+					<a href="domdocument.load.php" title="load">load</a>
+				</li>
+				<li class="">
+					<a href="domdocument.loadhtml.php" title="loadHTML">loadHTML</a>
+				</li>
+				<li class="">
+					<a href="domdocument.loadhtmlfile.php" title="loadHTMLFile">loadHTMLFile</a>
+				</li>
+				<li class="">
+					<a href="domdocument.loadxml.php" title="loadXML">loadXML</a>
+				</li>
+				<li class="">
+					<a href="domdocument.normalizedocument.php" title="normalizeDocument">normalizeDocument</a>
+				</li>
+				<li class="">
+					<a href="domdocument.registernodeclass.php" title="registerNodeClass">registerNodeClass</a>
+				</li>
+				<li class="">
+					<a href="domdocument.relaxngvalidate.php" title="relaxNGValidate">relaxNGValidate</a>
+				</li>
+				<li class="">
+					<a href="domdocument.relaxngvalidatesource.php" title="relaxNGValidateSource">relaxNGValidateSource</a>
+				</li>
+				<li class="">
+					<a href="domdocument.save.php" title="save">save</a>
+				</li>
+				<li class="">
+					<a href="domdocument.savehtml.php" title="saveHTML">saveHTML</a>
+				</li>
+				<li class="">
+					<a href="domdocument.savehtmlfile.php" title="saveHTMLFile">saveHTMLFile</a>
+				</li>
+				<li class="">
+					<a href="domdocument.savexml.php" title="saveXML">saveXML</a>
+				</li>
+				<li class="">
+					<a href="domdocument.schemavalidate.php" title="schemaValidate">schemaValidate</a>
+				</li>
+				<li class="">
+					<a href="domdocument.schemavalidatesource.php" title="schemaValidateSource">schemaValidateSource</a>
+				</li>
+				<li class="">
+					<a href="domdocument.validate.php" title="validate">validate</a>
+				</li>
+				<li class="">
+					<a href="domdocument.xinclude.php" title="xinclude">xinclude</a>
+				</li>
+
+			</ul>
+
+		</li>
+	</ul>
+</aside>
+
+<section id="layout-content">
+<div class="page-tools">
+	<div class="change-language">
+		<form action="/manual/change.php" method="get" id="changelang" name="changelang">
+			<fieldset>
+				<label for="changelang-langs">Change language:</label>
+				<select onchange="document.changelang.submit()" name="page" id="changelang-langs">
+					<option value='en/domdocument.construct.php'>English</option>
+					<option value='pt_BR/domdocument.construct.php'>Brazilian Portuguese</option>
+					<option value='zh/domdocument.construct.php'>Chinese (Simplified)</option>
+					<option value='fr/domdocument.construct.php'>French</option>
+					<option value='de/domdocument.construct.php'>German</option>
+					<option value='it/domdocument.construct.php'>Italian</option>
+					<option value='ja/domdocument.construct.php'>Japanese</option>
+					<option value='ro/domdocument.construct.php'>Romanian</option>
+					<option value='ru/domdocument.construct.php' selected="selected">Russian</option>
+					<option value='es/domdocument.construct.php'>Spanish</option>
+					<option value='tr/domdocument.construct.php'>Turkish</option>
+					<option value="help-translate.php">Other</option>
+				</select>
+			</fieldset>
+		</form>
+	</div>
+	<div class="edit-bug">
+		<a href="https://edit.php.net/?project=PHP&amp;perm=ru/domdocument.construct.php">Edit</a>
+		<a href="https://bugs.php.net/report.php?bug_type=Documentation+problem&amp;manpage=domdocument.construct">Report a Bug</a>
+	</div>
+</div><div id="domdocument.construct" class="refentry">
+	<div class="refnamediv">
+		<h1 class="refname">DOMDocument::__construct</h1>
+		<p class="verinfo">(PHP 5)</p><p class="refpurpose"><span class="refname">DOMDocument::__construct</span> &mdash; <span class="dc-title">
+   Создание нового DOMDocument объекта
+  </span></p>
+
+	</div>
+	<div class="refsect1 description" id="refsect1-domdocument.construct-description">
+		<h3 class="title">Описание</h3>
+		<div class="methodsynopsis dc-description">
+			<span class="modifier">public</span> <span class="methodname"><strong>DOMDocument::__construct</strong></span>
+			([ <span class="methodparam"><span class="type">string</span> <code class="parameter">$version</code></span>
+			[, <span class="methodparam"><span class="type">string</span> <code class="parameter">$encoding</code></span>
+			]] )</div>
+
+		<p class="para rdfs-comment">
+			Создание нового <a href="class.domdocument.php" class="classname">DOMDocument</a> объекта.
+		</p>
+	</div>
+
+	<div class="refsect1 parameters" id="refsect1-domdocument.construct-parameters">
+		<h3 class="title">Список параметров</h3>
+		<p class="para">
+		<dl>
+
+
+			<dt>
+				<code class="parameter">version</code></dt>
+
+			<dd>
+
+				<p class="para">
+					Номер версии документа как часть XML объявления.
+				</p>
+			</dd>
+
+
+
+			<dt>
+				<code class="parameter">encoding</code></dt>
+
+			<dd>
+
+				<p class="para">
+					Кодировка документа как часть XML объявления.
+				</p>
+			</dd>
+
+
+		</dl>
+
+		</p>
+	</div>
+
+	<div class="refsect1 examples" id="refsect1-domdocument.construct-examples">
+		<h3 class="title">Примеры</h3>
+		<p class="para">
+		<div class="example" id="example-5385">
+			<p><strong>Пример #1 Создание объекта DOMDocument</strong></p>
+			<div class="example-contents">
+				<div class="phpcode"><code><span style="color: #000000">
+<span style="color: #0000BB">&lt;?php<br /><br />$dom&nbsp;</span><span style="color: #007700">=&nbsp;new&nbsp;</span><span style="color: #0000BB">DOMDocument</span><span style="color: #007700">(</span><span style="color: #DD0000">'1.0'</span><span style="color: #007700">,&nbsp;</span><span style="color: #DD0000">'iso-8859-1'</span><span style="color: #007700">);<br /><br />echo&nbsp;</span><span style="color: #0000BB">$dom</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">saveXML</span><span style="color: #007700">();&nbsp;</span><span style="color: #FF8000">/*&nbsp;&lt;?xml&nbsp;version="1.0"&nbsp;encoding="iso-8859-1"?&gt;&nbsp;*/<br /><br /></span><span style="color: #0000BB">?&gt;</span>
+</span>
+				</code></div>
+			</div>
+
+		</div>
+		</p>
+	</div>
+
+	<div class="refsect1 seealso" id="refsect1-domdocument.construct-seealso">
+		<h3 class="title">Смотрите также</h3>
+		<p class="para">
+		<ul class="simplelist">
+			<li class="member"><span class="methodname"><a href="domimplementation.createdocument.php" class="methodname" rel="rdfs-seeAlso">DOMImplementation::createDocument()</a> - Создает объект класса DOMDocument заданного типа с элементом document</span></li>
+		</ul>
+		</p>
+	</div>
+
+</div>
+<section id="usernotes">
+	<div class="head">
+		<span class="action"><a href="/manual/add-note.php?sect=domdocument.construct&amp;redirect=http://www.php.net/manual/ru/domdocument.construct.php"><img src='/images/notes-add@2x.png' alt='add a note' width='12' height='12' /> <small>add a note</small></a></span>
+		<h3 class="title">User Contributed Notes <span class="count">7 notes</span></h3>
+	</div><div id="allnotes">
+	<div class="note" id="98209">  <div class="votes">
+		<div id="Vu98209">
+			<a href="/manual/vote-note.php?id=98209&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd98209">
+			<a href="/manual/vote-note.php?id=98209&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V98209" title="100% like this...">
+			5
+		</div>
+	</div>
+		<a href="#98209" class="name">
+			<strong class="user"><em>_ michael</em></strong></a><a class="genanchor" href="#98209"> &para;</a><div class="date" title="2010-06-01 07:23"><strong>3 years ago</strong></div>
+		<div class="text" id="Hcom98209">
+			<div class="phpcode"><code><span class="html">
+The constuctor arguments are useful if you want to build a new document using createElement, appendChild etc.<br />
+<br />
+By contrast, these arguments are overriden as soon as you load a document from source by calling load() or loadXML().<br />
+<br />
+* If the source contains an XML declaration specifying an encoding, that encoding is used.<br />
+* If the XML declaration does not specify an encoding, or if the source does not contain a declaration at all, UTF-8 is assumed.<br />
+<br />
+This behaviour applies no matter what you declared when you called new DOMDocument().</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="79623">  <div class="votes">
+		<div id="Vu79623">
+			<a href="/manual/vote-note.php?id=79623&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd79623">
+			<a href="/manual/vote-note.php?id=79623&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V79623" title="100% like this...">
+			2
+		</div>
+	</div>
+		<a href="#79623" class="name">
+			<strong class="user"><em>bholbrook at servillian dot com</em></strong></a><a class="genanchor" href="#79623"> &para;</a><div class="date" title="2007-12-05 02:25"><strong>6 years ago</strong></div>
+		<div class="text" id="Hcom79623">
+			<div class="phpcode"><code><span class="html">
+Make sure that php_domxml.dll on windows is removed before using the domdocument class as they cannot coexist.</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="84476">  <div class="votes">
+		<div id="Vu84476">
+			<a href="/manual/vote-note.php?id=84476&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd84476">
+			<a href="/manual/vote-note.php?id=84476&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V84476" title="100% like this...">
+			1
+		</div>
+	</div>
+		<a href="#84476" class="name">
+			<strong class="user"><em>christian dot reinecke at web dot de</em></strong></a><a class="genanchor" href="#84476"> &para;</a><div class="date" title="2008-07-15 07:09"><strong>5 years ago</strong></div>
+		<div class="text" id="Hcom84476">
+			<div class="phpcode"><code><span class="html">
+If you get the error message "domdocument::domdocument() expects parameter 2 to be long, string given"&nbsp; for a code sample like this:<br />
+<br />
+$dom = new DOMDocument('1.0', 'UTF-8');<br />
+$dom-&gt;xmlStandalone = false;<br />
+echo $dom-&gt;saveXML();<br />
+<br />
+which is obviously correct if you compare the constructor signature:<br />
+<br />
+__construct&nbsp; ([ string $version&nbsp; [, string $encoding&nbsp; ]] )<br />
+<br />
+make sure you're not overwritting this dom library by another (f.e. extension=php_domxml.dll in php.ini). XAMPP f.e. delivers its standard version with php_domxml.dll which ends up in this error message</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="78027">  <div class="votes">
+		<div id="Vu78027">
+			<a href="/manual/vote-note.php?id=78027&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd78027">
+			<a href="/manual/vote-note.php?id=78027&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V78027" title="100% like this...">
+			1
+		</div>
+	</div>
+		<a href="#78027" class="name">
+			<strong class="user"><em>jarl kringelding skim punt com</em></strong></a><a class="genanchor" href="#78027"> &para;</a><div class="date" title="2007-09-24 02:22"><strong>6 years ago</strong></div>
+		<div class="text" id="Hcom78027">
+			<div class="phpcode"><code><span class="html">
+Be aware using the encoding parameter in the constructor.<br />
+It does not mean that all data is automatically encoded for you in the supplied encoding. You need to do that yourself once you choose an encoding other than the default UTF-8. See the note on DOM Functions on how to properly work with other encodings...<br />
+<br />
+The constructor example clearly shows that version and encoding only end up in the XML header.</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="86267">  <div class="votes">
+		<div id="Vu86267">
+			<a href="/manual/vote-note.php?id=86267&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd86267">
+			<a href="/manual/vote-note.php?id=86267&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V86267" title="no votes...">
+			0
+		</div>
+	</div>
+		<a href="#86267" class="name">
+			<strong class="user"><em>blackhailang at gmail dot com</em></strong></a><a class="genanchor" href="#86267"> &para;</a><div class="date" title="2008-10-09 07:54"><strong>5 years ago</strong></div>
+		<div class="text" id="Hcom86267">
+			<div class="phpcode"><code><span class="html">
+domdocument::domdocument() expects at least<br />
+At the least, I found that It due to ZEND optimizer, uninstall it,working well, but the speeds will be slowlly :-(.<br />
+<br />
+Comment :<br />
+item 1 : 2008-10-03 17:10:58, gkrong said: <br />
+"Warning: domdocument::domdocument() expects at least 1<br />
+&nbsp;parameter"<br />
+If you use PHP 5 in windows, you don't need to declare<br />
+php_domxml.dll in your php.ini file. <br />
+so u can give comment in the line php_domxml.dll in your<br />
+php.ini file. <br />
+you only need to comment it out, but do not delete the<br />
+php_domxml.dll file in the ext directory.</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="86225">  <div class="votes">
+		<div id="Vu86225">
+			<a href="/manual/vote-note.php?id=86225&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd86225">
+			<a href="/manual/vote-note.php?id=86225&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V86225" title="50% like this...">
+			0
+		</div>
+	</div>
+		<a href="#86225" class="name">
+			<strong class="user"><em>steve at mrclay dot org</em></strong></a><a class="genanchor" href="#86225"> &para;</a><div class="date" title="2008-10-08 09:45"><strong>5 years ago</strong></div>
+		<div class="text" id="Hcom86225">
+			<div class="phpcode"><code><span class="html">
+To expand on bholbrook's comment, if you receive this: "Warning: domdocument::domdocument() expects at least 1 parameter", it is due to the old domxml extension, which you need to disable.<br />
+<br />
+domxml overwrites DOMDocument::_construct with an alias to domxml_open_mem, so this code:<br />
+<span class="default">&lt;?php<br />
+$doc </span><span class="keyword">= new </span><span class="default">DOMDocument</span><span class="keyword">();<br />
+</span><span class="default">?&gt;<br />
+</span>...essentially does this:<br />
+<span class="default">&lt;?php<br />
+$dom </span><span class="keyword">= </span><span class="default">domxml_open_mem</span><span class="keyword">();<br />
+</span><span class="default">?&gt;<br />
+</span>...which is why PHP complains about expecting at least 1 parameter (it expects a string of XML).</span>
+			</code></div>
+		</div>
+	</div>
+	<div class="note" id="81106">  <div class="votes">
+		<div id="Vu81106">
+			<a href="/manual/vote-note.php?id=81106&amp;page=domdocument.construct&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+		</div>
+		<div id="Vd81106">
+			<a href="/manual/vote-note.php?id=81106&amp;page=domdocument.construct&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+		</div>
+		<div class="tally" id="V81106" title="0% like this...">
+			-1
+		</div>
+	</div>
+		<a href="#81106" class="name">
+			<strong class="user"><em>dave at revlob dot com</em></strong></a><a class="genanchor" href="#81106"> &para;</a><div class="date" title="2008-02-14 02:07"><strong>6 years ago</strong></div>
+		<div class="text" id="Hcom81106">
+			<div class="phpcode"><code><span class="html">
+@Jarl<br />
+<br />
+Not sure if this is what you meant when you said "The constructor example clearly shows that version and encoding only end up in the XML header", but you can also affect other parameters in the generated XML header, by accessing the DOMDocument's properties, for example:<br />
+<br />
+<span class="default">&lt;?php<br />
+<br />
+$dom </span><span class="keyword">= new </span><span class="default">DOMDocument</span><span class="keyword">(</span><span class="string">'1.0'</span><span class="keyword">, </span><span class="string">'UTF-8'</span><span class="keyword">);<br />
+</span><span class="default">$dom</span><span class="keyword">-&gt;</span><span class="default">xmlStandalone </span><span class="keyword">= </span><span class="default">false</span><span class="keyword">;<br />
+echo </span><span class="default">$dom</span><span class="keyword">-&gt;</span><span class="default">saveXML</span><span class="keyword">();<br />
+<br />
+</span><span class="comment">// &lt;?xml version="1.0" encoding="UTF-8" standalone="no"</span><span class="default">?&gt;</span>
+</span>
+			</code></div>
+		</div>
+	</div></div>
+
+	<div class="foot"><a href="/manual/add-note.php?sect=domdocument.construct&amp;redirect=http://www.php.net/manual/ru/domdocument.construct.php"><img src='/images/notes-add@2x.png' alt='add a note' width='12' height='12' /> <small>add a note</small></a></div>
+</section>    </section><!-- layout-content -->
+
+</div><!-- layout -->
+
+<footer>
+	<div class="container footer-content">
+		<div class="row-fluid">
+			<ul class="footmenu">
+				<li><a href="/copyright.php">Copyright &copy; 2001-2014 The PHP Group</a></li>
+				<li><a href="/my.php">My PHP.net</a></li>
+				<li><a href="/contact.php">Contact</a></li>
+				<li><a href="/sites.php">Other PHP.net sites</a></li>
+				<li><a href="/mirrors.php">Mirror sites</a></li>
+				<li><a href="/privacy.php">Privacy policy</a></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+
+
+<!-- External and third party libraries. -->
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1387527612&amp;f=/js/ext/modernizr.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1385000409&amp;f=/js/ext/hogan-2.0.0.min.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1389722415&amp;f=/js/ext/typeahead.min.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1388312428&amp;f=/js/ext/mousetrap.min.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1388140826&amp;f=/js/search.js"></script>
+<script type="text/javascript" src="http://www.php.net/cached.php?t=1389324093&amp;f=/js/common.js"></script>
+
+<a id="toTop" href="javascript:;"><span id="toTopHover"></span><img width="40" height="40" alt="To Top" src="/images/to-top@2x.png"></a>
+
+</body>
+</html>
+

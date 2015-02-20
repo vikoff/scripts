@@ -164,73 +164,35 @@ class FrontController extends Controller{
        ////// DISPLAY //////
        /////////////////////
        
-	public function display_index(){
+	public function display_index()
+	{
+		header('content-type: text/plain;charset=utf-8');
+		$html = file_get_contents('example.html');
+		$doc = new DOMDocument();
+		$doc->loadHTML($html);
+		$doc->normalizeDocument();
+
+		echo "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+		echo $doc->saveHTML();
+		die;
+
 		Layout::get()
 			->setContentPhpFile('index.php')
 			->render();
 	}
-	
-	public function display_docs($params = array()){
-		
-		$page = getVar($params[0], 'index');
-		
-		if(!preg_match('/^[\w\-]+$/', $page))
-			$this->display_404();
-		
-		$page = FS_ROOT.'templates/docs/'.$page.'.php';
-		
-		if(!file_exists($page))
-			$this->display_404();
-		
-		$variables = array(
-			'page' => $page,
-		);
-		
-		Layout::get()
-			->setTitle('Документация к vik-off simple')
-			->setContentPhpFile('docs.php', $variables)
-			->render();
+
+	public function display_parse1()
+	{
+//		header('content-type: text/plain;charset=utf-8');
+		$html = file_get_contents('example.html');
+
+		require('classes/phpQuery.php');
+		$doc = phpQuery::newDocumentHTML($html);
+		echo '<pre>'; var_dump($doc->htmlOuter()); die; // DEBUG
 	}
-	
-	public function display_test_db(){
-			
-			$dbs = db::get()->showDatabases();
-			$tables = db::get()->showTables();
-			
-			$content = ''
-				.'<h1>Базы данных</h1><pre>'.print_r($dbs, 1).'</pre>'
-				.'<h1>Таблицы текущей БД</h1><pre>'.print_r($tables, 1).'</pre>';
-				
-			Layout::get()
-				->setTitle('Тест базы данных')
-				->setContent($content)
-				->render();
-	}
-	
-	public function display_tabs(){
-		
-		$layout = Layout::get();
-		
-		$variables = array(
-			'tab_1' => $layout->getContentPhpFile('tabs/tab1.php', array('param' => 'ololo')),
-			'tab_2' => $layout->getContentHtmlFile('tabs/tab2.html'),
-		);
-		
-		Layout::get()
-			->setTitle('Тест')
-			->setContentPhpFile('test.php', $variables)
-			->render();
-	}
-	
-	public function display_ajax(){
-				
-			Layout::get()
-				->setContentPhpFile('ajax.php')
-				->render();
-	}
-	
+
 	public function display_404($method = ''){
-		
+
 		if(AJAX_MODE){
 			echo 'Страница не найдена ('.$method.')';
 		}else{
