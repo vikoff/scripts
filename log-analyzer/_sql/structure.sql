@@ -22,6 +22,23 @@ CREATE TABLE `access_log` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
+ * sql_log_sessions
+ * таблица зависит от: xdebug_projects
+ * от таблицы зависят: xdebug_trace
+ */
+DROP TABLE IF EXISTS `sql_log_sessions`;
+CREATE TABLE `sql_log_sessions` (
+	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	`total_queries` INT UNSIGNED NOT NULL DEFAULT 0,
+	`date_first` DATETIME,
+	`date_last` DATETIME,
+	`comments` text COLLATE utf8_bin,
+	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`processed_at` timestamp NULL DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+/*
  * sql_log
  * таблица зависит от:
  * от таблицы зависят:
@@ -38,25 +55,24 @@ CREATE TABLE `sql_log` (
 	`sql_type`      VARCHAR(10) COMMENT 'insert, delete, update, etc',
 	`created_at`    TIMESTAMP DEFAULT NOW(),
 	PRIMARY KEY (`id`),
+    INDEX(`date`),
 	INDEX `fk_sess_id` (`sess_id`),
 	CONSTRAINT `fk_sql_log_sess_id` FOREIGN KEY (`sess_id`) REFERENCES `sql_log_sessions` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
- * sql_log_sessions
- * таблица зависит от: xdebug_projects
- * от таблицы зависят: xdebug_trace
+ * xdebug_projects
+ * таблица зависит от:
+ * от таблицы зависят: xdebug_trace_sessions
  */
-CREATE TABLE `sql_log_sessions` (
-	`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-	`total_queries` INT UNSIGNED NOT NULL DEFAULT 0,
-	`date_first` DATETIME,
-	`date_last` DATETIME,
-	`comments` text COLLATE utf8_bin,
-	`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`processed_at` timestamp NULL DEFAULT NULL,
+DROP TABLE IF EXISTS `xdebug_projects`;
+CREATE TABLE `xdebug_projects` (
+	`id`            INT UNSIGNED AUTO_INCREMENT,
+	`name`          VARCHAR(255),
+	`base_path`     VARCHAR(255),
+	`created_at`    TIMESTAMP DEFAULT NOW(),
 	PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
  * xdebug_trace_sessions
@@ -67,7 +83,7 @@ DROP TABLE IF EXISTS `xdebug_trace_sessions`;
 CREATE TABLE `xdebug_trace_sessions` (
 	`id`              INT UNSIGNED AUTO_INCREMENT,
 	`db_table`        TEXT,
-	`project_id`      INT,
+	`project_id`      INT UNSIGNED,
 	`application`     TEXT,
 	`request_url`     TEXT,
 	`app_base_path`   TEXT,
@@ -122,20 +138,6 @@ CREATE TABLE `xdebug_trace` (
 		REFERENCES `xdebug_trace_sessions` (`id`)
 		ON DELETE CASCADE
 		ON UPDATE NO ACTION
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-/*
- * ____
- * таблица зависит от:
- * от таблицы зависят: xdebug_trace_sessions
- */
-DROP TABLE IF EXISTS `xdebug_projects`;
-CREATE TABLE `xdebug_projects` (
-	`id`            INT UNSIGNED AUTO_INCREMENT,
-	`name`          VARCHAR(255),
-	`base_path`     VARCHAR(255),
-	`created_at`    TIMESTAMP DEFAULT NOW(),
-	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*
