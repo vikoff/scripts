@@ -20,7 +20,8 @@ $iterations = 100000;
 $perfMeter->start();
 
 for ($i = 0; $i < $iterations; $i++) {
-	func1();
+	// func1();
 	// func2();
+	$date = date('Y-m-d H:i:s');
 }
 $perfMeter->end($iterations);
