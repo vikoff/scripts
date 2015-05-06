@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PHP: DOMDocument::loadHTML - Manual </title>
+
+ <link rel="shortcut icon" href="http://php.net/favicon.ico">
+ <link rel="search" type="application/opensearchdescription+xml" href="http://php.net/phpnetimprovedsearch.src" title="Add PHP.net search">
+ <link rel="alternate" type="application/atom+xml" href="http://php.net/releases/feed.php" title="PHP Release feed">
+ <link rel="alternate" type="application/atom+xml" href="http://php.net/feed.atom" title="PHP: Hypertext Preprocessor">
+
+ <link rel="canonical" href="http://php.net/manual/en/domdocument.loadhtml.php">
+ <link rel="shorturl" href="http://php.net/manual/en/domdocument.loadhtml.php">
+ <link rel="alternate" href="http://php.net/manual/en/domdocument.loadhtml.php" hreflang="x-default">
+
+ <link rel="contents" href="http://php.net/manual/en/index.php">
+ <link rel="index" href="http://php.net/manual/en/class.domdocument.php">
+ <link rel="prev" href="http://php.net/manual/en/domdocument.load.php">
+ <link rel="next" href="http://php.net/manual/en/domdocument.loadhtmlfile.php">
+
+ <link rel="alternate" href="http://php.net/manual/en/domdocument.loadhtml.php" hreflang="en">
+ <link rel="alternate" href="http://php.net/manual/pt_BR/domdocument.loadhtml.php" hreflang="pt_BR">
+ <link rel="alternate" href="http://php.net/manual/zh/domdocument.loadhtml.php" hreflang="zh">
+ <link rel="alternate" href="http://php.net/manual/fr/domdocument.loadhtml.php" hreflang="fr">
+ <link rel="alternate" href="http://php.net/manual/de/domdocument.loadhtml.php" hreflang="de">
+ <link rel="alternate" href="http://php.net/manual/ja/domdocument.loadhtml.php" hreflang="ja">
+ <link rel="alternate" href="http://php.net/manual/kr/domdocument.loadhtml.php" hreflang="kr">
+ <link rel="alternate" href="http://php.net/manual/ro/domdocument.loadhtml.php" hreflang="ro">
+ <link rel="alternate" href="http://php.net/manual/ru/domdocument.loadhtml.php" hreflang="ru">
+ <link rel="alternate" href="http://php.net/manual/es/domdocument.loadhtml.php" hreflang="es">
+ <link rel="alternate" href="http://php.net/manual/tr/domdocument.loadhtml.php" hreflang="tr">
+
+<link rel="stylesheet" type="text/css" href="http://php.net/cached.php?t=1421837618&amp;f=/fonts/Fira/fira.css" media="screen">
+<link rel="stylesheet" type="text/css" href="http://php.net/cached.php?t=1421837618&amp;f=/fonts/Font-Awesome/css/fontello.css" media="screen">
+<link rel="stylesheet" type="text/css" href="http://php.net/cached.php?t=1429291204&amp;f=/styles/theme-base.css" media="screen">
+<link rel="stylesheet" type="text/css" href="http://php.net/cached.php?t=1429259403&amp;f=/styles/theme-medium.css" media="screen">
+
+ <!--[if lte IE 7]>
+ <link rel="stylesheet" type="text/css" href="http://php.net/styles/workarounds.ie7.css" media="screen">
+ <![endif]-->
+
+ <!--[if lte IE 8]>
+ <script type="text/javascript">
+  window.brokenIE = true;
+ </script>
+ <![endif]-->
+
+ <!--[if lte IE 9]>
+ <link rel="stylesheet" type="text/css" href="http://php.net/styles/workarounds.ie9.css" media="screen">
+ <![endif]-->
+
+ <!--[if IE]>
+ <script type="text/javascript" src="http://php.net/js/ext/html5.js"></script>
+ <![endif]-->
+
+ <base href="http://php.net/manual/en/domdocument.loadhtml.php">
+
+</head>
+<body class="docs ">
+
+<nav id="head-nav" class="navbar navbar-fixed-top">
+  <div class="navbar-inner clearfix">
+    <a href="/" class="brand"><img src="/images/logo.php" width="48" height="24" alt="php"></a>
+    <div id="mainmenu-toggle-overlay"></div>
+    <input type="checkbox" id="mainmenu-toggle">
+    <ul class="nav">
+      <li class=""><a href="/downloads">Downloads</a></li>
+      <li class="active"><a href="/docs.php">Documentation</a></li>
+      <li class=""><a href="/get-involved" >Get Involved</a></li>
+      <li class=""><a href="/support">Help</a></li>
+    </ul>
+    <form class="navbar-search" id="topsearch" action="/search.php">
+      <input type="hidden" name="show" value="quickref">
+      <input type="search" name="pattern" class="search-query" placeholder="Search" accesskey="s">
+    </form>
+  </div>
+  <div id="flash-message"></div>
+</nav>
+<nav id="trick"><div><dl>
+<dt><a href='/manual/en/getting-started.php'>Getting Started</a></dt>
+	<dd><a href='/manual/en/introduction.php'>Introduction</a></dd>
+	<dd><a href='/manual/en/tutorial.php'>A simple tutorial</a></dd>
+<dt><a href='/manual/en/langref.php'>Language Reference</a></dt>
+	<dd><a href='/manual/en/language.basic-syntax.php'>Basic syntax</a></dd>
+	<dd><a href='/manual/en/language.types.php'>Types</a></dd>
+	<dd><a href='/manual/en/language.variables.php'>Variables</a></dd>
+	<dd><a href='/manual/en/language.constants.php'>Constants</a></dd>
+	<dd><a href='/manual/en/language.expressions.php'>Expressions</a></dd>
+	<dd><a href='/manual/en/language.operators.php'>Operators</a></dd>
+	<dd><a href='/manual/en/language.control-structures.php'>Control Structures</a></dd>
+	<dd><a href='/manual/en/language.functions.php'>Functions</a></dd>
+	<dd><a href='/manual/en/language.oop5.php'>Classes and Objects</a></dd>
+	<dd><a href='/manual/en/language.namespaces.php'>Namespaces</a></dd>
+	<dd><a href='/manual/en/language.exceptions.php'>Exceptions</a></dd>
+	<dd><a href='/manual/en/language.generators.php'>Generators</a></dd>
+	<dd><a href='/manual/en/language.references.php'>References Explained</a></dd>
+	<dd><a href='/manual/en/reserved.variables.php'>Predefined Variables</a></dd>
+	<dd><a href='/manual/en/reserved.exceptions.php'>Predefined Exceptions</a></dd>
+	<dd><a href='/manual/en/reserved.interfaces.php'>Predefined Interfaces and Classes</a></dd>
+	<dd><a href='/manual/en/context.php'>Context options and parameters</a></dd>
+	<dd><a href='/manual/en/wrappers.php'>Supported Protocols and Wrappers</a></dd>
+</dl>
+<dl>
+<dt><a href='/manual/en/security.php'>Security</a></dt>
+	<dd><a href='/manual/en/security.intro.php'>Introduction</a></dd>
+	<dd><a href='/manual/en/security.general.php'>General considerations</a></dd>
+	<dd><a href='/manual/en/security.cgi-bin.php'>Installed as CGI binary</a></dd>
+	<dd><a href='/manual/en/security.apache.php'>Installed as an Apache module</a></dd>
+	<dd><a href='/manual/en/security.filesystem.php'>Filesystem Security</a></dd>
+	<dd><a href='/manual/en/security.database.php'>Database Security</a></dd>
+	<dd><a href='/manual/en/security.errors.php'>Error Reporting</a></dd>
+	<dd><a href='/manual/en/security.globals.php'>Using Register Globals</a></dd>
+	<dd><a href='/manual/en/security.variables.php'>User Submitted Data</a></dd>
+	<dd><a href='/manual/en/security.magicquotes.php'>Magic Quotes</a></dd>
+	<dd><a href='/manual/en/security.hiding.php'>Hiding PHP</a></dd>
+	<dd><a href='/manual/en/security.current.php'>Keeping Current</a></dd>
+<dt><a href='/manual/en/features.php'>Features</a></dt>
+	<dd><a href='/manual/en/features.http-auth.php'>HTTP authentication with PHP</a></dd>
+	<dd><a href='/manual/en/features.cookies.php'>Cookies</a></dd>
+	<dd><a href='/manual/en/features.sessions.php'>Sessions</a></dd>
+	<dd><a href='/manual/en/features.xforms.php'>Dealing with XForms</a></dd>
+	<dd><a href='/manual/en/features.file-upload.php'>Handling file uploads</a></dd>
+	<dd><a href='/manual/en/features.remote-files.php'>Using remote files</a></dd>
+	<dd><a href='/manual/en/features.connection-handling.php'>Connection handling</a></dd>
+	<dd><a href='/manual/en/features.persistent-connections.php'>Persistent Database Connections</a></dd>
+	<dd><a href='/manual/en/features.safe-mode.php'>Safe Mode</a></dd>
+	<dd><a href='/manual/en/features.commandline.php'>Command line usage</a></dd>
+	<dd><a href='/manual/en/features.gc.php'>Garbage Collection</a></dd>
+	<dd><a href='/manual/en/features.dtrace.php'>DTrace Dynamic Tracing</a></dd>
+</dl>
+<dl>
+<dt><a href='/manual/en/funcref.php'>Function Reference</a></dt>
+	<dd><a href='/manual/en/refs.basic.php.php'>Affecting PHP's Behaviour</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.audio.php'>Audio Formats Manipulation</a></dd>
+	<dd><a href='/manual/en/refs.remote.auth.php'>Authentication Services</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.cmdline.php'>Command Line Specific Extensions</a></dd>
+	<dd><a href='/manual/en/refs.compression.php'>Compression and Archive Extensions</a></dd>
+	<dd><a href='/manual/en/refs.creditcard.php'>Credit Card Processing</a></dd>
+	<dd><a href='/manual/en/refs.crypto.php'>Cryptography Extensions</a></dd>
+	<dd><a href='/manual/en/refs.database.php'>Database Extensions</a></dd>
+	<dd><a href='/manual/en/refs.calendar.php'>Date and Time Related Extensions</a></dd>
+	<dd><a href='/manual/en/refs.fileprocess.file.php'>File System Related Extensions</a></dd>
+	<dd><a href='/manual/en/refs.international.php'>Human Language and Character Encoding Support</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.image.php'>Image Processing and Generation</a></dd>
+	<dd><a href='/manual/en/refs.remote.mail.php'>Mail Related Extensions</a></dd>
+	<dd><a href='/manual/en/refs.math.php'>Mathematical Extensions</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.nontext.php'>Non-Text MIME Output</a></dd>
+	<dd><a href='/manual/en/refs.fileprocess.process.php'>Process Control Extensions</a></dd>
+	<dd><a href='/manual/en/refs.basic.other.php'>Other Basic Extensions</a></dd>
+	<dd><a href='/manual/en/refs.remote.other.php'>Other Services</a></dd>
+	<dd><a href='/manual/en/refs.search.php'>Search Engine Extensions</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.server.php'>Server Specific Extensions</a></dd>
+	<dd><a href='/manual/en/refs.basic.session.php'>Session Extensions</a></dd>
+	<dd><a href='/manual/en/refs.basic.text.php'>Text Processing</a></dd>
+	<dd><a href='/manual/en/refs.basic.vartype.php'>Variable and Type Related Extensions</a></dd>
+	<dd><a href='/manual/en/refs.webservice.php'>Web Services</a></dd>
+	<dd><a href='/manual/en/refs.utilspec.windows.php'>Windows Only Extensions</a></dd>
+	<dd><a href='/manual/en/refs.xml.php'>XML Manipulation</a></dd>
+</dl>
+<dl>
+<dt>Keyboard Shortcuts</dt><dt>?</dt>
+<dd>This help</dd>
+<dt>j</dt>
+<dd>Next menu item</dd>
+<dt>k</dt>
+<dd>Previous menu item</dd>
+<dt>g p</dt>
+<dd>Previous man page</dd>
+<dt>g n</dt>
+<dd>Next man page</dd>
+<dt>G</dt>
+<dd>Scroll to bottom</dd>
+<dt>g g</dt>
+<dd>Scroll to top</dd>
+<dt>g h</dt>
+<dd>Goto homepage</dd>
+<dt>g s</dt>
+<dd>Goto search<br>(current page)</dd>
+<dt>/</dt>
+<dd>Focus search box</dd>
+</dl></div></nav>
+<div id="goto">
+    <div class="search">
+         <div class="text"></div>
+         <div class="results"><ul></ul></div>
+   </div>
+</div>
+
+  <div id="breadcrumbs" class="clearfix">
+    <div id="breadcrumbs-inner">
+          <div class="next">
+        <a href="domdocument.loadhtmlfile.php">
+          DOMDocument::loadHTMLFile &raquo;
+        </a>
+      </div>
+              <div class="prev">
+        <a href="domdocument.load.php">
+          &laquo; DOMDocument::load        </a>
+      </div>
+          <ul>
+            <li><a href='index.php'>PHP Manual</a></li>      <li><a href='funcref.php'>Function Reference</a></li>      <li><a href='refs.xml.php'>XML Manipulation</a></li>      <li><a href='book.dom.php'>DOM</a></li>      <li><a href='class.domdocument.php'>DOMDocument</a></li>      </ul>
+    </div>
+  </div>
+
+
+
+
+<div id="layout" class="clearfix">
+  <section id="layout-content">
+  <div class="page-tools">
+    <div class="change-language">
+      <form action="/manual/change.php" method="get" id="changelang" name="changelang">
+        <fieldset>
+          <label for="changelang-langs">Change language:</label>
+          <select onchange="document.changelang.submit()" name="page" id="changelang-langs">
+            <option value='en/domdocument.loadhtml.php' selected="selected">English</option>
+            <option value='pt_BR/domdocument.loadhtml.php'>Brazilian Portuguese</option>
+            <option value='zh/domdocument.loadhtml.php'>Chinese (Simplified)</option>
+            <option value='fr/domdocument.loadhtml.php'>French</option>
+            <option value='de/domdocument.loadhtml.php'>German</option>
+            <option value='ja/domdocument.loadhtml.php'>Japanese</option>
+            <option value='kr/domdocument.loadhtml.php'>Korean</option>
+            <option value='ro/domdocument.loadhtml.php'>Romanian</option>
+            <option value='ru/domdocument.loadhtml.php'>Russian</option>
+            <option value='es/domdocument.loadhtml.php'>Spanish</option>
+            <option value='tr/domdocument.loadhtml.php'>Turkish</option>
+            <option value="help-translate.php">Other</option>
+          </select>
+        </fieldset>
+      </form>
+    </div>
+    <div class="edit-bug">
+      <a href="https://edit.php.net/?project=PHP&amp;perm=en/domdocument.loadhtml.php">Edit</a>
+      <a href="https://bugs.php.net/report.php?bug_type=Documentation+problem&amp;manpage=domdocument.loadhtml">Report a Bug</a>
+    </div>
+  </div><div id="domdocument.loadhtml" class="refentry">
+ <div class="refnamediv">
+  <h1 class="refname">DOMDocument::loadHTML</h1>
+  <p class="verinfo">(PHP 5)</p><p class="refpurpose"><span class="refname">DOMDocument::loadHTML</span> &mdash; <span class="dc-title">
+   Load HTML from a string
+  </span></p>
+
+ </div>
+ <div class="refsect1 description" id="refsect1-domdocument.loadhtml-description">
+  <h3 class="title">Description</h3>
+  <div class="methodsynopsis dc-description">
+   <span class="modifier">public</span> <span class="type">bool</span> <span class="methodname"><strong>DOMDocument::loadHTML</strong></span>
+    ( <span class="methodparam"><span class="type">string</span> <code class="parameter">$source</code></span>
+   [, <span class="methodparam"><span class="type">int</span> <code class="parameter">$options</code><span class="initializer"> = 0</span></span>
+  ] )</div>
+
+  <p class="para rdfs-comment">
+   The function parses the HTML contained in the string <code class="parameter">source</code>.
+   Unlike loading XML, HTML does not have to be well-formed to load. This
+   function may also be called statically to load and create a
+   <a href="class.domdocument.php" class="classname">DOMDocument</a> object. The static invocation may be
+   used when no <a href="class.domdocument.php" class="classname">DOMDocument</a> properties need to be
+   set prior to loading.
+  </p>
+ </div>
+
+ <div class="refsect1 parameters" id="refsect1-domdocument.loadhtml-parameters">
+  <h3 class="title">Parameters</h3>
+  <p class="para">
+   <dl>
+
+
+     <dt>
+<code class="parameter">source</code></dt>
+
+     <dd>
+
+      <p class="para">
+       The HTML string.
+      </p>
+     </dd>
+
+
+
+     <dt>
+<code class="parameter">options</code></dt>
+
+     <dd>
+
+      <p class="para">
+       Since PHP 5.4.0 and Libxml 2.6.0, you may also use the
+       <code class="parameter">options</code> parameter to specify <a href="libxml.constants.php" class="link">additional Libxml parameters</a>.
+      </p>
+     </dd>
+
+
+   </dl>
+
+  </p>
+ </div>
+
+ <div class="refsect1 returnvalues" id="refsect1-domdocument.loadhtml-returnvalues">
+  <h3 class="title">Return Values</h3>
+  <p class="para">
+   Returns <strong><code>TRUE</code></strong> on success or <strong><code>FALSE</code></strong> on failure. If called statically, returns a
+   <a href="class.domdocument.php" class="classname">DOMDocument</a> or <strong><code>FALSE</code></strong> on failure.
+  </p>
+ </div>
+
+ <div class="refsect1 errors" id="refsect1-domdocument.loadhtml-errors">
+  <h3 class="title">Errors/Exceptions</h3>
+  <p class="para">
+   If an empty string is passed as the <code class="parameter">source</code>,
+   a warning will be generated. This warning is not generated by libxml
+   and cannot be handled using libxml&#039;s error handling functions.
+  </p>
+  <p class="para">This method <em class="emphasis">may</em> be called statically, but will issue an <strong><code>E_STRICT</code></strong> error.</p>
+  <p class="para">While malformed HTML should load successfully, this function may generate <strong><code>E_WARNING</code></strong> errors when it encounters bad markup. <a href="function.libxml-use-internal-errors.php" class="link">libxml&#039;s error handling functions</a> may be used to handle these errors.</p>
+ </div>
+
+ <div class="refsect1 examples" id="refsect1-domdocument.loadhtml-examples">
+  <h3 class="title">Examples</h3>
+  <p class="para">
+   <div class="example" id="example-5834">
+    <p><strong>Example #1 Creating a Document</strong></p>
+    <div class="example-contents">
+<div class="phpcode"><code><span style="color: #000000">
+<span style="color: #0000BB">&lt;?php<br />$doc&nbsp;</span><span style="color: #007700">=&nbsp;new&nbsp;</span><span style="color: #0000BB">DOMDocument</span><span style="color: #007700">();<br /></span><span style="color: #0000BB">$doc</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">loadHTML</span><span style="color: #007700">(</span><span style="color: #DD0000">"&lt;html&gt;&lt;body&gt;Test&lt;br&gt;&lt;/body&gt;&lt;/html&gt;"</span><span style="color: #007700">);<br />echo&nbsp;</span><span style="color: #0000BB">$doc</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">saveHTML</span><span style="color: #007700">();<br /></span><span style="color: #0000BB">?&gt;</span>
+</span>
+</code></div>
+    </div>
+
+   </div>
+  </p>
+ </div>
+
+
+ <div class="refsect1 changelog" id="refsect1-domdocument.loadhtml-changelog">
+  <h3 class="title">Changelog</h3>
+  <p class="para">
+   <table class="doctable informaltable">
+
+     <thead>
+      <tr>
+       <th>Version</th>
+       <th>Description</th>
+      </tr>
+
+     </thead>
+
+     <tbody class="tbody">
+      <tr>
+       <td>5.4.0</td>
+       <td>
+        Added <code class="parameter">options</code> parameter.
+       </td>
+      </tr>
+
+     </tbody>
+
+   </table>
+
+  </p>
+ </div>
+
+
+ <div class="refsect1 seealso" id="refsect1-domdocument.loadhtml-seealso">
+  <h3 class="title">See Also</h3>
+  <p class="para">
+   <ul class="simplelist">
+    <li class="member"><span class="methodname"><a href="domdocument.loadhtmlfile.php" class="methodname" rel="rdfs-seeAlso">DOMDocument::loadHTMLFile()</a> - Load HTML from a file</span></li>
+    <li class="member"><span class="methodname"><a href="domdocument.savehtml.php" class="methodname" rel="rdfs-seeAlso">DOMDocument::saveHTML()</a> - Dumps the internal document into a string using HTML formatting</span></li>
+    <li class="member"><span class="methodname"><a href="domdocument.savehtmlfile.php" class="methodname" rel="rdfs-seeAlso">DOMDocument::saveHTMLFile()</a> - Dumps the internal document into a file using HTML formatting</span></li>
+   </ul>
+  </p>
+ </div>
+
+</div>
+<section id="usernotes">
+ <div class="head">
+  <span class="action"><a href="/manual/add-note.php?sect=domdocument.loadhtml&amp;redirect=http://php.net/manual/en/domdocument.loadhtml.php"><img src='/images/notes-add@2x.png' alt='add a note' width='12' height='12'> <small>add a note</small></a></span>
+  <h3 class="title">User Contributed Notes <span class="count">11 notes</span></h3>
+ </div><div id="allnotes">
+  <div class="note" id="95251">  <div class="votes">
+    <div id="Vu95251">
+    <a href="/manual/vote-note.php?id=95251&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd95251">
+    <a href="/manual/vote-note.php?id=95251&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V95251" title="87% like this...">
+    41
+    </div>
+  </div>
+  <a href="#95251" class="name">
+  <strong class="user"><em>mdmitry at gmail dot com</em></strong></a><a class="genanchor" href="#95251"> &para;</a><div class="date" title="2009-12-21 09:02"><strong>5 years ago</strong></div>
+  <div class="text" id="Hcom95251">
+<div class="phpcode"><code><span class="html">
+You can also load HTML as UTF-8 using this simple hack:<br /><br /><span class="default">&lt;?php<br /><br />$doc </span><span class="keyword">= new </span><span class="default">DOMDocument</span><span class="keyword">();<br /></span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">loadHTML</span><span class="keyword">(</span><span class="string">'&lt;?xml encoding="UTF-8"&gt;' </span><span class="keyword">. </span><span class="default">$html</span><span class="keyword">);<br /><br /></span><span class="comment">// dirty fix<br /></span><span class="keyword">foreach (</span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">childNodes </span><span class="keyword">as </span><span class="default">$item</span><span class="keyword">)<br />&nbsp; &nbsp; if (</span><span class="default">$item</span><span class="keyword">-&gt;</span><span class="default">nodeType </span><span class="keyword">== </span><span class="default">XML_PI_NODE</span><span class="keyword">)<br />&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">removeChild</span><span class="keyword">(</span><span class="default">$item</span><span class="keyword">); </span><span class="comment">// remove hack<br /></span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">encoding </span><span class="keyword">= </span><span class="string">'UTF-8'</span><span class="keyword">; </span><span class="comment">// insert proper<br /><br /></span><span class="default">?&gt;</span>
+</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="95463">  <div class="votes">
+    <div id="Vu95463">
+    <a href="/manual/vote-note.php?id=95463&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd95463">
+    <a href="/manual/vote-note.php?id=95463&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V95463" title="91% like this...">
+    29
+    </div>
+  </div>
+  <a href="#95463" class="name">
+  <strong class="user"><em>Shane Harter</em></strong></a><a class="genanchor" href="#95463"> &para;</a><div class="date" title="2010-01-04 08:42"><strong>5 years ago</strong></div>
+  <div class="text" id="Hcom95463">
+<div class="phpcode"><code><span class="html">
+DOMDocument is very good at dealing with imperfect markup, but it throws warnings all over the place when it does. <br /><br />This isn't well documented here. The solution to this is to implement a separate aparatus for dealing with just these errors. <br /><br />Set libxml_use_internal_errors(true) before calling loadHTML. This will prevent errors from bubbling up to your default error handler. And you can then get at them (if you desire) using other libxml error functions. <br /><br />You can find more info here <a href="http://www.php.net/manual/en/ref.libxml.php" rel="nofollow" target="_blank">http://www.php.net/manual/en/ref.libxml.php</a></span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="74777">  <div class="votes">
+    <div id="Vu74777">
+    <a href="/manual/vote-note.php?id=74777&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd74777">
+    <a href="/manual/vote-note.php?id=74777&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V74777" title="92% like this...">
+    22
+    </div>
+  </div>
+  <a href="#74777" class="name">
+  <strong class="user"><em>hanhvansu at yahoo dot com</em></strong></a><a class="genanchor" href="#74777"> &para;</a><div class="date" title="2007-04-26 08:50"><strong>8 years ago</strong></div>
+  <div class="text" id="Hcom74777">
+<div class="phpcode"><code><span class="html">
+When using loadHTML() to process UTF-8 pages, you may meet the problem that the output of dom functions are not like the input. For example, if you want to get "Cạnh tranh", you will receive "Cáº¡nh tranh".&nbsp; I suggest we use mb_convert_encoding before load UTF-8 page :
+<br /><span class="default">&lt;?php
+<br />&nbsp; &nbsp; $pageDom </span><span class="keyword">= new </span><span class="default">DomDocument</span><span class="keyword">();&nbsp; &nbsp;
+<br />&nbsp; &nbsp; </span><span class="default">$searchPage </span><span class="keyword">= </span><span class="default">mb_convert_encoding</span><span class="keyword">(</span><span class="default">$htmlUTF8Page</span><span class="keyword">, </span><span class="string">'HTML-ENTITIES'</span><span class="keyword">, </span><span class="string">"UTF-8"</span><span class="keyword">);
+<br />&nbsp; &nbsp; @</span><span class="default">$pageDom</span><span class="keyword">-&gt;</span><span class="default">loadHTML</span><span class="keyword">(</span><span class="default">$searchPage</span><span class="keyword">);
+<br />
+<br /></span><span class="default">?&gt;</span>
+</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="86450">  <div class="votes">
+    <div id="Vu86450">
+    <a href="/manual/vote-note.php?id=86450&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd86450">
+    <a href="/manual/vote-note.php?id=86450&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V86450" title="100% like this...">
+    3
+    </div>
+  </div>
+  <a href="#86450" class="name">
+  <strong class="user"><em>jamesedwardcooke+php at gmail dot com</em></strong></a><a class="genanchor" href="#86450"> &para;</a><div class="date" title="2008-10-19 11:37"><strong>6 years ago</strong></div>
+  <div class="text" id="Hcom86450">
+<div class="phpcode"><code><span class="html">
+Using loadHTML() automagically sets the doctype property of your DOMDocument instance(to the doctype in the html, or defaults to 4.0 Transitional). If you set the doctype with DOMImplementation it will be overridden.<br /><br />I assumed it was possible to set it and then load html with the doctype I defined(in order to decide the doctype at runtime), and ran into a huge headache trying to find out where my doctype was going. Hopefully this helps someone else.</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="52251">  <div class="votes">
+    <div id="Vu52251">
+    <a href="/manual/vote-note.php?id=52251&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd52251">
+    <a href="/manual/vote-note.php?id=52251&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V52251" title="90% like this...">
+    9
+    </div>
+  </div>
+  <a href="#52251" class="name">
+  <strong class="user"><em>bigtree at DONTSPAM dot 29a dot nl</em></strong></a><a class="genanchor" href="#52251"> &para;</a><div class="date" title="2005-04-26 02:15"><strong>10 years ago</strong></div>
+  <div class="text" id="Hcom52251">
+<div class="phpcode"><code><span class="html">
+Pay attention when loading html that has a different charset than iso-8859-1. Since this method does not actively try to figure out what the html you are trying to load is encoded in (like most browsers do), you have to specify it in the html head. If, for instance, your html is in utf-8, make sure you have a meta tag in the html's head section:<br /><br />&lt;head&gt;<br />&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"/&gt;<br />&lt;/head&gt;<br /><br />If you do not specify the charset like this, all high-ascii bytes will be html-encoded. It is not enough to set the dom document you are loading the html in to UTF-8.</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="110862">  <div class="votes">
+    <div id="Vu110862">
+    <a href="/manual/vote-note.php?id=110862&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd110862">
+    <a href="/manual/vote-note.php?id=110862&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V110862" title="83% like this...">
+    8
+    </div>
+  </div>
+  <a href="#110862" class="name">
+  <strong class="user"><em>cake at brothercake dot com</em></strong></a><a class="genanchor" href="#110862"> &para;</a><div class="date" title="2012-12-16 05:57"><strong>2 years ago</strong></div>
+  <div class="text" id="Hcom110862">
+<div class="phpcode"><code><span class="html">
+Be aware that this function doesn't actually understand HTML -- it fixes tag-soup input using the general rules of SGML, so it creates well-formed markup, but has no idea which element contexts are allowed.<br /><br />For example, with input like this where the first element isn't closed: <br /><br />&nbsp; &nbsp; &lt;span&gt;hello &lt;div&gt;world&lt;/div&gt;<br /><br />loadHTML will change it to this, which is well-formed but invalid:<br /><br />&nbsp; &nbsp; &lt;span&gt;hello &lt;div&gt;world&lt;/div&gt;&lt;/span&gt;</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="88864">  <div class="votes">
+    <div id="Vu88864">
+    <a href="/manual/vote-note.php?id=88864&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd88864">
+    <a href="/manual/vote-note.php?id=88864&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V88864" title="77% like this...">
+    5
+    </div>
+  </div>
+  <a href="#88864" class="name">
+  <strong class="user"><em>Errol</em></strong></a><a class="genanchor" href="#88864"> &para;</a><div class="date" title="2009-02-11 08:05"><strong>6 years ago</strong></div>
+  <div class="text" id="Hcom88864">
+<div class="phpcode"><code><span class="html">
+It should be noted that when any text is provided within the body tag
+<br />outside of a containing element, the DOMDocument will encapsulate that
+<br />text into a paragraph tag (&lt;p&gt;).
+<br />
+<br />For example:
+<br /><span class="default">&lt;?php
+<br />$doc </span><span class="keyword">= new </span><span class="default">DOMDocument</span><span class="keyword">();
+<br /></span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">loadHTML</span><span class="keyword">(</span><span class="string">"&lt;html&gt;&lt;body&gt;Test&lt;br&gt;&lt;div&gt;Text&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"</span><span class="keyword">);
+<br />echo </span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">saveHTML</span><span class="keyword">();
+<br /></span><span class="default">?&gt;
+<br /></span>
+<br />will yield:
+<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+<br />"<a href="http://www.w3.org/TR/REC-html40/loose.dtd" rel="nofollow" target="_blank">http://www.w3.org/TR/REC-html40/loose.dtd</a>"&gt;
+<br />&lt;html&gt;&lt;body&gt;
+<br />&lt;p&gt;Test&lt;br&gt;&lt;/p&gt;
+<br />&lt;div&gt;Text&lt;/div&gt;
+<br />&lt;/body&gt;&lt;/html&gt;
+<br />
+<br />while:
+<br /><span class="default">&lt;?php
+<br />$doc </span><span class="keyword">= new </span><span class="default">DOMDocument</span><span class="keyword">();
+<br /></span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">loadHTML</span><span class="keyword">(
+<br />&nbsp; &nbsp; </span><span class="string">"&lt;html&gt;&lt;body&gt;&lt;i&gt;Test&lt;/i&gt;&lt;br&gt;&lt;div&gt;Text&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"</span><span class="keyword">);
+<br />echo </span><span class="default">$doc</span><span class="keyword">-&gt;</span><span class="default">saveHTML</span><span class="keyword">();
+<br /></span><span class="default">?&gt;
+<br /></span>
+<br />will yield:
+<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+<br />"<a href="http://www.w3.org/TR/REC-html40/loose.dtd" rel="nofollow" target="_blank">http://www.w3.org/TR/REC-html40/loose.dtd</a>"&gt;
+<br />&lt;html&gt;&lt;body&gt;
+<br />&lt;i&gt;Test&lt;/i&gt;&lt;br&gt;&lt;div&gt;Text&lt;/div&gt;
+<br />&lt;/body&gt;&lt;/html&gt;</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="73278">  <div class="votes">
+    <div id="Vu73278">
+    <a href="/manual/vote-note.php?id=73278&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd73278">
+    <a href="/manual/vote-note.php?id=73278&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V73278" title="75% like this...">
+    2
+    </div>
+  </div>
+  <a href="#73278" class="name">
+  <strong class="user"><em>romain dot lalaut at laposte dot net</em></strong></a><a class="genanchor" href="#73278"> &para;</a><div class="date" title="2007-02-15 08:31"><strong>8 years ago</strong></div>
+  <div class="text" id="Hcom73278">
+<div class="phpcode"><code><span class="html">
+Note that the elements of such document will have no namespace even with &lt;html xmlns="<a href="http://www.w3.org/1999/xhtml" rel="nofollow" target="_blank">http://www.w3.org/1999/xhtml</a>"&gt;</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="78243">  <div class="votes">
+    <div id="Vu78243">
+    <a href="/manual/vote-note.php?id=78243&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd78243">
+    <a href="/manual/vote-note.php?id=78243&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V78243" title="60% like this...">
+    1
+    </div>
+  </div>
+  <a href="#78243" class="name">
+  <strong class="user"><em>xuanbn at yahoo dot com</em></strong></a><a class="genanchor" href="#78243"> &para;</a><div class="date" title="2007-10-04 01:38"><strong>7 years ago</strong></div>
+  <div class="text" id="Hcom78243">
+<div class="phpcode"><code><span class="html">
+If you use loadHTML() to process utf HTML string (eg in Vietnamese), you may experience result in garbage text, while some files were OK. Even your HTML already have meta charset&nbsp; like<br /><br />&nbsp; &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;<br /><br />I have discovered that, to help loadHTML() process utf file correctly, the meta tag should come first, before any utf string appear. For example, this HTML file<br /><br />&lt;html&gt;<br /> &lt;head&gt;<br />&nbsp; &nbsp; &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;<br />&nbsp; &nbsp; &lt;title&gt; Vietnamese - Tiếng Việt&lt;/title&gt;<br />&nbsp; &lt;/head&gt;<br />&lt;body&gt;&lt;/body&gt;<br />&lt;/html&gt;<br /><br />will be OK with loadHTML() when &lt;meta&gt; tag appear &lt;title&gt; tag.<br /><br />But the file below will not regcornize by loadHTML() because &lt;title&gt; tag contains utf string appear before &lt;meta&gt; tag.<br /><br />&lt;html&gt;<br /> &lt;head&gt;<br />&nbsp; &nbsp; &lt;title&gt; Vietnamese - Tiếng Việt&lt;/title&gt;<br />&nbsp; &nbsp; &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;<br />&nbsp; &lt;/head&gt;<br />&lt;body&gt;&lt;/body&gt;<br />&lt;/html&gt;</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="97256">  <div class="votes">
+    <div id="Vu97256">
+    <a href="/manual/vote-note.php?id=97256&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd97256">
+    <a href="/manual/vote-note.php?id=97256&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V97256" title="50% like this...">
+    0
+    </div>
+  </div>
+  <a href="#97256" class="name">
+  <strong class="user"><em>Alex</em></strong></a><a class="genanchor" href="#97256"> &para;</a><div class="date" title="2010-04-10 08:45"><strong>5 years ago</strong></div>
+  <div class="text" id="Hcom97256">
+<div class="phpcode"><code><span class="html">
+Beware of the "gotcha" (works as designed but not as expected): if you use loadHTML, you cannot validate the document. Validation is only for XML. Details here: <a href="http://bugs.php.net/bug.php?id=43771&amp;edit=1" rel="nofollow" target="_blank">http://bugs.php.net/bug.php?id=43771&amp;edit=1</a></span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="91513">  <div class="votes">
+    <div id="Vu91513">
+    <a href="/manual/vote-note.php?id=91513&amp;page=domdocument.loadhtml&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd91513">
+    <a href="/manual/vote-note.php?id=91513&amp;page=domdocument.loadhtml&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V91513" title="45% like this...">
+    -1
+    </div>
+  </div>
+  <a href="#91513" class="name">
+  <strong class="user"><em>piopier</em></strong></a><a class="genanchor" href="#91513"> &para;</a><div class="date" title="2009-06-14 08:29"><strong>5 years ago</strong></div>
+  <div class="text" id="Hcom91513">
+<div class="phpcode"><code><span class="html">
+Here is a function I wrote to capitalize the previous remarks about charset problems (UTF-8...) when using loadHTML and then DOM functions.<br />It adds the charset meta tag just after &lt;head&gt; to improve automatic encoding detection, converts any specific character to an html entity, thus PHP DOM functions/attributes will return correct values.<br /><br /><span class="default">&lt;?php<br />mb_detect_order</span><span class="keyword">(</span><span class="string">"ASCII,UTF-8,ISO-8859-1,windows-1252,iso-8859-15"</span><span class="keyword">);<br />function </span><span class="default">loadNprepare</span><span class="keyword">(</span><span class="default">$url</span><span class="keyword">,</span><span class="default">$encod</span><span class="keyword">=</span><span class="string">''</span><span class="keyword">) {<br />&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$content&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="keyword">= </span><span class="default">file_get_contents</span><span class="keyword">(</span><span class="default">$url</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; if (!empty(</span><span class="default">$content</span><span class="keyword">)) {<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (empty(</span><span class="default">$encod</span><span class="keyword">))<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$encod&nbsp; </span><span class="keyword">= </span><span class="default">mb_detect_encoding</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$headpos&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="keyword">= </span><span class="default">mb_strpos</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">,</span><span class="string">'&lt;head&gt;'</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (</span><span class="default">FALSE</span><span class="keyword">=== </span><span class="default">$headpos</span><span class="keyword">)<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$headpos</span><span class="keyword">= </span><span class="default">mb_strpos</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">,</span><span class="string">'&lt;HEAD&gt;'</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (</span><span class="default">FALSE</span><span class="keyword">!== </span><span class="default">$headpos</span><span class="keyword">) {<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$headpos</span><span class="keyword">+=</span><span class="default">6</span><span class="keyword">;<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$content </span><span class="keyword">= </span><span class="default">mb_substr</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">,</span><span class="default">0</span><span class="keyword">,</span><span class="default">$headpos</span><span class="keyword">) . </span><span class="string">'&lt;meta http-equiv="Content-Type" content="text/html; charset='</span><span class="keyword">.</span><span class="default">$encod</span><span class="keyword">.</span><span class="string">'"&gt;' </span><span class="keyword">.</span><span class="default">mb_substr</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">,</span><span class="default">$headpos</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$content</span><span class="keyword">=</span><span class="default">mb_convert_encoding</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">, </span><span class="string">'HTML-ENTITIES'</span><span class="keyword">, </span><span class="default">$encod</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; }<br />&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$dom </span><span class="keyword">= new </span><span class="default">DomDocument</span><span class="keyword">;<br />&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="default">$res </span><span class="keyword">= </span><span class="default">$dom</span><span class="keyword">-&gt;</span><span class="default">loadHTML</span><span class="keyword">(</span><span class="default">$content</span><span class="keyword">);<br />&nbsp; &nbsp; &nbsp; &nbsp; if (!</span><span class="default">$res</span><span class="keyword">) return </span><span class="default">FALSE</span><span class="keyword">;<br />&nbsp; &nbsp; &nbsp; &nbsp; return </span><span class="default">$dom</span><span class="keyword">;<br />}<br /></span><span class="default">?&gt;<br /></span><br />NB: it uses mb_strpos/mb_substr instead of mb_ereg_replace because that seemed more efficient with huge html pages.</span>
+</code></div>
+  </div>
+ </div></div>
+
+ <div class="foot"><a href="/manual/add-note.php?sect=domdocument.loadhtml&amp;redirect=http://php.net/manual/en/domdocument.loadhtml.php"><img src='/images/notes-add@2x.png' alt='add a note' width='12' height='12'> <small>add a note</small></a></div>
+</section>    </section><!-- layout-content -->
+        <aside class='layout-menu'>
+
+        <ul class='parent-menu-list'>
+                                    <li>
+                <a href="class.domdocument.php">DOMDocument</a>
+
+                                    <ul class='child-menu-list'>
+
+
+                        <li class="">
+                            <a href="domdocument.construct.php" title="_&#8203;_&#8203;construct">_&#8203;_&#8203;construct</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createattribute.php" title="createAttribute">createAttribute</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createattributens.php" title="createAttributeNS">createAttributeNS</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createcdatasection.php" title="createCDATASection">createCDATASection</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createcomment.php" title="createComment">createComment</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createdocumentfragment.php" title="createDocumentFragment">createDocumentFragment</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createelement.php" title="createElement">createElement</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createelementns.php" title="createElementNS">createElementNS</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createentityreference.php" title="createEntityReference">createEntityReference</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createprocessinginstruction.php" title="createProcessingInstruction">createProcessingInstruction</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.createtextnode.php" title="createTextNode">createTextNode</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.getelementbyid.php" title="getElementById">getElementById</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.getelementsbytagname.php" title="getElementsByTagName">getElementsByTagName</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.getelementsbytagnamens.php" title="getElementsByTagNameNS">getElementsByTagNameNS</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.importnode.php" title="importNode">importNode</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.load.php" title="load">load</a>
+                        </li>
+
+                        <li class="current">
+                            <a href="domdocument.loadhtml.php" title="loadHTML">loadHTML</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.loadhtmlfile.php" title="loadHTMLFile">loadHTMLFile</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.loadxml.php" title="loadXML">loadXML</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.normalizedocument.php" title="normalizeDocument">normalizeDocument</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.registernodeclass.php" title="registerNodeClass">registerNodeClass</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.relaxngvalidate.php" title="relaxNGValidate">relaxNGValidate</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.relaxngvalidatesource.php" title="relaxNGValidateSource">relaxNGValidateSource</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.save.php" title="save">save</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.savehtml.php" title="saveHTML">saveHTML</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.savehtmlfile.php" title="saveHTMLFile">saveHTMLFile</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.savexml.php" title="saveXML">saveXML</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.schemavalidate.php" title="schemaValidate">schemaValidate</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.schemavalidatesource.php" title="schemaValidateSource">schemaValidateSource</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.validate.php" title="validate">validate</a>
+                        </li>
+
+                        <li class="">
+                            <a href="domdocument.xinclude.php" title="xinclude">xinclude</a>
+                        </li>
+
+                    </ul>
+
+            </li>
+
+                    </ul>
+    </aside>
+
+
+  </div><!-- layout -->
+
+  <footer>
+    <div class="container footer-content">
+      <div class="row-fluid">
+      <ul class="footmenu">
+        <li><a href="/copyright.php">Copyright &copy; 2001-2015 The PHP Group</a></li>
+        <li><a href="/my.php">My PHP.net</a></li>
+        <li><a href="/contact.php">Contact</a></li>
+        <li><a href="/sites.php">Other PHP.net sites</a></li>
+        <li><a href="/mirrors.php">Mirror sites</a></li>
+        <li><a href="/privacy.php">Privacy policy</a></li>
+      </ul>
+      </div>
+    </div>
+  </footer>
+
+
+ <!-- External and third party libraries. -->
+ <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1421837618&amp;f=/js/ext/modernizr.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1421837618&amp;f=/js/ext/hogan-2.0.0.min.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1421837618&amp;f=/js/ext/typeahead.min.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1421837618&amp;f=/js/ext/mousetrap.min.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1421837618&amp;f=/js/search.js"></script>
+<script type="text/javascript" src="http://php.net/cached.php?t=1430413803&amp;f=/js/common.js"></script>
+
+<a id="toTop" href="javascript:;"><span id="toTopHover"></span><img width="40" height="40" alt="To Top" src="/images/to-top@2x.png"></a>
+
+</body>
+</html>
+

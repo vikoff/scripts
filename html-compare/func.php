@@ -1,77 +1,54 @@
 <?php
 
-if(!defined('FS_ROOT'))
-	die('access denided (func file)');
+function buildChildrenList(simple_html_dom_node $tag, $level = 0)
+{
+    foreach ($tag->children as $child) {
 
-/** ФУНКЦИЯ GETVAR */
-function getVar(&$varname, $defaultVal = '', $type = ''){
+        echo getTagInfo($child, $level);
 
-	if(!isset($varname))
-		return $defaultVal;
-	
-	if(strlen($type))
-		settype($varname, $type);
-	
-	return $varname;
+        if ($child->children && $level < 32) {
+            buildChildrenList($child, $level + 1);
+        }
+    }
 }
 
-function href($href){
-	$href = str_replace('?', '&', $href);
-	return 'index.php'.(!empty($href) ? '?r='.$href : '');
-}
+function getTagInfo(simple_html_dom_node $tag, $level = 0)
+{
+    if ($tag->nodetype == HDOM_TYPE_COMMENT) {
+        return '';
+    }
 
-/** RELOAD */
-function reload(){
+    if ($tag->nodetype == HDOM_TYPE_UNKNOWN) {
+        return $tag."\n";
+    }
 
-	$url = 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-	header('location: '.$url);
-	exit();
-}
+    $id = '';
+    $class = '';
+    $attrs = '';
+    foreach ($tag->attr as $k => $v) {
+        $k = strtolower($k);
 
-/** REDIRECT */
-function redirect($href){
-	
-	header('location: '.href($href));
-	exit();
-}
+        // skip data-* attrs
+        if (substr($k, 0, 5) == 'data-')
+            continue;
 
-// ПОЛУЧИТЬ HTML INPUT СОДЕРЖАЩИЙ FORMCODE
-function getFormCodeInput(){
+        if ($k == 'href' || $k == 'src')
+            $v = '...';
 
-	if(!isset($_SESSION['su']['userFormChecker']))
-		$_SESSION['su']['userFormChecker'] = array('current' => 0, 'used' => array());
-	
-	$_SESSION['su']['userFormChecker']['current']++;
-	return '<input type="hidden" name="formCode" value="'.$_SESSION['su']['userFormChecker']['current'].'" />';
-}
+//        if ($k == 'id') {
+//            $id .= "#$v";
+//        } elseif ($k == 'class') {
+//            $class .= ".$v";
+//        } else {
+        $attrs .= '[' . $k . '="' . str_replace('"', '&quot;', $v) . '"]';
+//        }
+    }
 
-// ПРОВЕРКА ВАЛИДНОСТИ ФОРМЫ
-function checkFormDuplication(){
-	
-	if(isset($_POST['allowDuplication']))
-		return TRUE;
-		
-	if(!isset($_POST['formCode'])){
-		trigger_error('formCode не передан', E_USER_ERROR);
-		return FALSE;
-	}
-	$formcode = (int)$_POST['formCode'];
-	
-	if(!Config::get('check_form_duplication'))
-		return TRUE;
-	
-	if(!$formcode)
-		return FALSE;
-		
-	if(!isset($_SESSION['userFormChecker']['used']))
-		return TRUE;
-		
-	return !isset($_SESSION['userFormChecker']['used'][$formcode]);
-}
+    $tab = '';
+    for ($i = 0; $i < $level; $i++)
+        $tab .= ($i && $i % 5 == 0) ? '- ' : '- ';
 
-// ПОМЕТИТЬ FORMCODE ИСПОЛЬЗОВАННЫМ
-function lockFormCode(&$code){
+//    $tab = str_repeat('- ', $level);
 
-	if(Config::get('check_form_duplication') && !empty($code))
-		$_SESSION['userFormChecker']['used'][$code] = 1;
+    return "$tab$tag->tag$id$class$attrs\n";
 }

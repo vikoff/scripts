@@ -1,50 +1,48 @@
 <?php
-session_start();
+require_once 'simple_html_dom.php';
+require_once 'func.php';
 
-// обозначение корня ресурса
-define('CLI_MODE', PHP_SAPI == 'cli');
-if (CLI_MODE) {
-	define('WWW_ROOT', '');
-	define('WWW_URI', '');
-} else {
-	$_url = dirname($_SERVER['SCRIPT_NAME']);
-	define('WWW_ROOT', 'http://'.$_SERVER['SERVER_NAME'].(strlen($_url) > 1 ? $_url : '').'/');
-	define('WWW_URI', 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
-}
-define('FS_ROOT', dirname(__FILE__).'/');
 
-// определение ajax-запроса
-define('AJAX_MODE', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+if (PHP_SAPI == 'cli') {
 
-// отправка Content-type заголовка
-header('Content-Type: text/html; charset=utf-8');
-
-chdir(FS_ROOT);
-
-function __autoload($name) {
-
-	$filename = FS_ROOT.'classes/'.$name.'.class.php';
-	require($filename);
+    if (count($argv) == 1) {
+        echo "pass filename or url with html\ne.g. php index.php http://google.com\n";
+    } else {
+        $file = $argv[1];
+        $obj = file_get_html($file);
+        if ($obj) {
+            buildChildrenList($obj->root);
+        } else {
+            exit(1);
+        }
+    }
+    exit;
 }
 
-require_once('func.php');
+if (!empty($_POST['data'])) {
+    /** @var simple_html_dom $obj */
+//    $obj = file_get_html('data.txt');
+    $obj = str_get_html($_POST['data']);
 
-require_once('classes/Db.class.php');
-require_once('classes/DbAdapters/PdoAbstract.php');
-require_once('classes/DbAdapters/PdoMysql.php');
+    echo '<pre>';
+    buildChildrenList($obj->root);
+    exit;
+}
 
-Config::init();
+?>
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Html Structure</title>
+</head>
+<body>
 
-// создание подключения к БД
-db::create(Config::get('db'));
+<form action="" method="post">
+    <textarea name="data" id="" cols="30" rows="10" style="width: 90%; height: 300px;"></textarea><br />
+    <input type="submit" value="Get Html Structure"/>
+</form>
 
-// код для отсеивания дублирующихся форм
-define('FORMCODE', getFormCodeInput());
+</body>
+</html>
 
-// выполнение приложения
-if (CLI_MODE)
-	FrontController::get()->run_cli();
-elseif(AJAX_MODE)
-	FrontController::get()->run_ajax();
-else
-	FrontController::get()->run();

@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+html
+- head
+- body[class="secondary guest seo-page"]
+- - div[class="other-pages-holder"]
+- - - div[class="header"]
+- - - - div[class="header-insider"]
+- - - - - a[class="logo"][href="..."]
+- - - - - div[class="user-menu user-menu2"]
+- - - - - - a[href="..."][class=""]
+- - - - - - a[href="..."][class=""]
+- - - - - - a[href="..."][class=""]
+- - - - - - a[href="..."][class=""]
+- - - - - - a[href="..."][class=""]
+- - - - - - a[href="..."][class="twitter-login js-btn-signin-tw"]
+- - - div[class="centerer"]
+- - - - div[class="centerer-insider"]
+- - - - - div[class="seo-head"]
+- - - - - - a[href="..."][class="seo-page-image-link"]
+- - - - - - - img[class="illus"][src="..."]
+- - - - - - div[class="rest-texts"]
+- - - - - - - p[class="date"]
+- - - - - - - h1
+- - - - - - - p[class="content"]
+- - - - - - - a[class="orig-link"][href="..."]
+- - - - - div[class="left-column"]
+- - - - - - div[class="earlier-articles"]
+- - - - - - - h3
+- - - - - - - ul
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - div[class="similar-articles"]
+- - - - - - - h3
+- - - - - - - - a[href="..."]
+- - - - - - - table[class="similar-list"]
+- - - - - - - - tbody
+- - - - - - - - - tr
+- - - - - - - - - - td
+- - - - - - - - - - - div[class="similar-block"]
+- - - - - - - - - - - - div[class="similar-preview"]
+- - - - - - - - - - - - - a[class="js-seo-page-image-link"][href="..."]
+- - - - - - - - - - - - - - img[src="..."][class=""]
+- - - - - - - - - - - - a[href="..."]
+- - - - - - - - - - td
+- - - - - - - - - - - div[class="similar-block"]
+- - - - - - - - - - - - div[class="similar-preview"]
+- - - - - - - - - - - - - a[class="js-seo-page-image-link"][href="..."]
+- - - - - - - - - - - - - - img[src="..."][class=""]
+- - - - - - - - - - - - a[href="..."]
+- - - - - - - - - - td
+- - - - - - - - - - - div[class="similar-block"]
+- - - - - - - - - - - - div[class="similar-preview"]
+- - - - - - - - - - - - - a[class="js-seo-page-image-link"][href="..."]
+- - - - - - - - - - - - - - img[src="..."][class=""]
+- - - - - - - - - - - - a[href="..."]
+- - - - - - div[class="rest-articles"]
+- - - - - - - h3
+- - - - - - - - a[href="..."]
+- - - - - - - ul
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - div[class="rest-articles"]
+- - - - - - - h3
+- - - - - - - ul
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - - - - li
+- - - - - - - - - a[href="..."]
+- - - - - div[class="right-column"]
+- - - - - - h3[class="twitter-h"]
+- - - - - - p[class="alert-success js-alert-message"][style="display: none;"]
+- - - - - - - span
+- - - - - - div[class="tweets-holder js-tweets-holder"]
+- - - - - - - div[class="tweet"]
+- - - - - - - - a[href="..."][target="_blank"]
+- - - - - - - - - img[src="..."][class="twitter-avatar"]
+- - - - - - - - div[class="rest-texts"]
+- - - - - - - - - p[class="datum"]
+- - - - - - - - - - span[title="3 Apr 2015, 10:29"]
+- - - - - - - - - p[class="tweet-body"]
+- - - - - - - - - - a[href="..."][target="_blank"]
+- - - - - - - - - - a[href="..."][target="_blank"]
+- - - - - - div[class="tweets-holder js-tweets-holder"]
+- - - - - - div[class="tweet-form js-tweet-form"]
+- - - - - - - form[action="#"]
+- - - - - - - - textarea[class="js-tweet-textarea"][placeholder="What do you think?"]
+- - - - - - - - input[class="js-send-tweet-btn disabled"][type="button"][value="Tweet"]
+- - - - - - - - span[class="symb-quant"]
+- - - - - - - - - span[class="current"]
+- - - - - - - - img[class="spinner js-tweet-spinner"][src="..."][alt="wait"][style="display: none;"]
+- - div[class="footer-holder"]
+- - - div[class="pager"]
+- - - div[class="footer"]
+- - - - div[class="social"]
+- - - - - a[class="tw"][target="_blank"][href="..."]
+- - - - - a[class="fb"][target="_blank"][href="..."]
+- - - - - a[target="_blank"][class="yt"][href="..."]
+- - - - - a[target="_blank"][rel="publisher"][class="gp"][href="..."]
+- - - - div[class="links"]
+- - - - - a[href="..."]
+- - - - - a[href="..."]
+- - - - - a[href="..."]
+- - - - - a[href="..."]
+- - - - - a[href="..."]
+- - - - div[class="copyright"]
