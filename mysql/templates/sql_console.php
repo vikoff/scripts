@@ -242,7 +242,7 @@ input[type="radio"], input[type="checkbox"]{
 			var crosshair = $('[name="c-cross"]').is(':checked') ? {color: '#D25F4B'} : false;
 
 			this.lastOpts = {
-				chart: {animation: false},
+				chart: {animation: false, height: 500},
 				plotOptions: { series: { allowPointSelect: true, step: step, marker: { enabled: marker }, stickyTracking: false } },
 				xAxis: { categories: categories, title: { text: categoryKey }, offset: 0 },
 				yAxis: { title: { text: 'values' }, min: min },

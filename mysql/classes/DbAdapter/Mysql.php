@@ -1,4 +1,4 @@
-<?
+<?php
 
 class DbAdapter_Mysql extends DbAdapter {
 	
