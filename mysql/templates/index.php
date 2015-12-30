@@ -8,14 +8,6 @@
 .control-panel form {
 	margin: 1em 0;
 }
-.db-list a{
-	color: #333;
-	text-decoration: none;
-	font-size: 12px;
-}
-.db-list a:hover{
-	text-decoration: underline;
-}
 </style>
 
 <?php
