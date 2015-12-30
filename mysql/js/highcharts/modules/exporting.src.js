@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v4.1.5 (2015-04-13)
+ * @license Highstock JS v4.2.1 (2015-12-21)
  * Exporting module
  *
  * (c) 2010-2014 Torstein Honsi
@@ -7,16 +7,22 @@
  * License: www.highcharts.com/license
  */
 
-// JSLint options:
-/*global Highcharts, HighchartsAdapter, document, window, Math, setTimeout */
-
-(function (Highcharts) { // encapsulate
+/* eslint indent:0 */
+(function (factory) {
+    if (typeof module === 'object' && module.exports) {
+        module.exports = factory;
+    } else {
+        factory(Highcharts);
+    }
+}(function (Highcharts) {
 
 // create shortcuts
-var Chart = Highcharts.Chart,
+var win = Highcharts.win,
+	doc = win.document,
+	Chart = Highcharts.Chart,
 	addEvent = Highcharts.addEvent,
 	removeEvent = Highcharts.removeEvent,
-	fireEvent = HighchartsAdapter.fireEvent,
+	fireEvent = Highcharts.fireEvent,
 	createElement = Highcharts.createElement,
 	discardElement = Highcharts.discardElement,
 	css = Highcharts.css,
@@ -26,8 +32,6 @@ var Chart = Highcharts.Chart,
 	splat = Highcharts.splat,
 	math = Math,
 	mathMax = math.max,
-	doc = document,
-	win = window,
 	isTouchDevice = Highcharts.isTouchDevice,
 	M = 'M',
 	L = 'L',
@@ -220,16 +224,24 @@ extend(Chart.prototype, {
 
 			// IE specific
 			.replace(/<IMG /g, '<image ')
+			.replace(/<(\/?)TITLE>/g, '<$1title>')
 			.replace(/height=([^" ]+)/g, 'height="$1"')
 			.replace(/width=([^" ]+)/g, 'width="$1"')
 			.replace(/hc-svg-href="([^"]+)">/g, 'xlink:href="$1"/>')
-			.replace(/ id=([^" >]+)/g, 'id="$1"') // #4003
+			.replace(/ id=([^" >]+)/g, ' id="$1"') // #4003
 			.replace(/class=([^" >]+)/g, 'class="$1"')
 			.replace(/ transform /g, ' ')
 			.replace(/:(path|rect)/g, '$1')
 			.replace(/style="([^"]+)"/g, function (s) {
 				return s.toLowerCase();
 			});
+	},
+
+	/**
+	 * Return innerHTML of chart. Used as hook for plugins.
+	 */
+	getChartHTML: function () {
+		return this.container.innerHTML;
 	},
 
 	/**
@@ -247,15 +259,16 @@ extend(Chart.prototype, {
 			sourceHeight,
 			cssWidth,
 			cssHeight,
-			options = merge(chart.options, additionalOptions); // copy the options and add extra options
+			html,
+			options = merge(chart.options, additionalOptions), // copy the options and add extra options
+			allowHTML = options.exporting.allowHTML;
+			
 
 		// IE compatibility hack for generating SVG content that it doesn't really understand
 		if (!doc.createElementNS) {
-			/*jslint unparam: true*//* allow unused parameter ns in function below */
 			doc.createElementNS = function (ns, tagName) {
 				return doc.createElement(tagName);
 			};
-			/*jslint unparam: false*/
 		}
 
 		// create a sandbox where a new chart will be generated
@@ -283,6 +296,7 @@ extend(Chart.prototype, {
 			animation: false,
 			renderTo: sandbox,
 			forExport: true,
+			renderer: 'SVGRenderer',
 			width: sourceWidth,
 			height: sourceHeight
 		});
@@ -331,19 +345,32 @@ extend(Chart.prototype, {
 		});
 
 		// get the SVG from the container's innerHTML
-		svg = chartCopy.container.innerHTML;
+		svg = chartCopy.getChartHTML();
 
 		// free up memory
 		options = null;
 		chartCopy.destroy();
 		discardElement(sandbox);
 
+		// Move HTML into a foreignObject
+		if (allowHTML) {
+			html = svg.match(/<\/svg>(.*?$)/);
+			if (html) {
+				html = '<foreignObject x="0" y="0" width="200" height="200">' +
+					'<body xmlns="http://www.w3.org/1999/xhtml">' +
+					html[1] +
+					'</body>' + 
+					'</foreignObject>';
+				svg = svg.replace('</svg>', html + '</svg>');
+			}
+		}
+
 		// sanitize
 		svg = this.sanitizeSVG(svg);
 
 		// IE9 beta bugs with innerHTML. Test again with final IE9.
 		svg = svg.replace(/(url\(#highcharts-[0-9]+)&quot;/g, '$1')
-			.replace(/&quot;/g, "'");
+			.replace(/&quot;/g, '\'');
 
 		return svg;
 	},
@@ -404,6 +431,7 @@ extend(Chart.prototype, {
 		}
 
 		chart.isPrinting = true;
+		chart.pointer.reset(null, 0);
 
 		fireEvent(chart, 'beforePrint');
 
@@ -511,9 +539,9 @@ extend(Chart.prototype, {
 
 
 			// Hide it on clicking or touching outside the menu (#2258, #2335, #2407)
-			addEvent(document, 'mouseup', docMouseUpHandler);
+			addEvent(doc, 'mouseup', docMouseUpHandler);
 			addEvent(chart, 'destroy', function () {
-				removeEvent(document, 'mouseup', docMouseUpHandler);
+				removeEvent(doc, 'mouseup', docMouseUpHandler);
 			});
 
 
@@ -529,7 +557,10 @@ extend(Chart.prototype, {
 							onmouseout: function () {
 								css(this, menuItemStyle);
 							},
-							onclick: function () {
+							onclick: function (e) {
+								if (e) { // IE7
+									e.stopPropagation();
+								}
 								hide();
 								if (item.onclick) {
 									item.onclick.apply(chart, arguments);
@@ -612,8 +643,9 @@ extend(Chart.prototype, {
 		delete attr.states;
 
 		if (onclick) {
-			callback = function () {
-				onclick.apply(chart, arguments);
+			callback = function (e) {
+				e.stopPropagation();
+				onclick.call(chart, e);
 			};
 
 		} else if (menuItems) {
@@ -745,4 +777,4 @@ Chart.prototype.callbacks.push(function (chart) {
 });
 
 
-}(Highcharts));
+}));

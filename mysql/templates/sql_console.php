@@ -182,7 +182,7 @@ input[type="radio"], input[type="checkbox"]{
 	<?php
 	$checboxes = array(
 		'c-step'   => array('label' => 'use line step', 'default' => 0),
-		'c-marker' => array('label' => 'show markers', 'default' => 1),
+		'c-marker' => array('label' => 'show markers', 'default' => 0),
 		'c-f0'     => array('label' => 'start from 0', 'default' => 1),
 		'c-cross'  => array('label' => 'crosshair', 'default' => 0),
 	);
@@ -195,7 +195,7 @@ input[type="radio"], input[type="checkbox"]{
 	}
 	?>
 </div>
-<script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/highstock.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/data.js"></script>
 <script type="text/javascript" src="<?= WWW_ROOT; ?>js/highcharts/modules/exporting.js"></script>
 <script type="text/javascript">
@@ -243,7 +243,8 @@ input[type="radio"], input[type="checkbox"]{
 
 			this.lastOpts = {
 				chart: {animation: false, height: 500},
-				plotOptions: { series: { allowPointSelect: true, step: step, marker: { enabled: marker }, stickyTracking: false } },
+				plotOptions: {series: { shadow: true, allowPointSelect: true, step: step, marker: { enabled: marker },
+                    stickyTracking: false } },
 				xAxis: { categories: categories, title: { text: categoryKey }, offset: 0 },
 				yAxis: { title: { text: 'values' }, min: min },
 				tooltip: { shared: true, crosshairs: [true, crosshair] },
