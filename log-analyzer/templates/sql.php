@@ -45,6 +45,13 @@
 		&nbsp;
 		<input type="submit" value="Submit"/>
 	</form>
+
+    <form action="" method="post" onsubmit="return confirm('Remove all data?')">
+        <?= FORMCODE; ?>
+        <input type="hidden" name="action" value="sql/remove-all" />
+        <input type="submit" name="remove-all" value="Remove all"/>
+    </form>
+
 <?php } else { ?>
 
 	<p>No saved sessions</p>

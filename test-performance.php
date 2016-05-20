@@ -1,36 +1,45 @@
 <?php
 
+function getCpuElapsedTime()
+{
+    if (function_exists("getrusage")) {
+        $data = getrusage();
+        $userTime = $data['ru_utime.tv_sec'] + $data['ru_utime.tv_usec'] / 1000000;
+        $systemTime = $data['ru_stime.tv_sec'] + $data['ru_stime.tv_usec'] / 1000000;
+        $totalTime = $userTime + $systemTime;
+
+        return $totalTime;
+    }
+
+    return 0;
+}
+
+$startCpu = getCpuElapsedTime();
 $startTime = microtime(1);
 $startMem = memory_get_usage();
 #####################################################
 
-$arr = range(1, 50000);
-// $search = range(4000, 6000);
-$search = array(2, 50, 1000, 9999, 4999);
-
-// iterations: 10000, time: 1.508 sec, memory diff: 1068.38 kB
-function func1($arr, $search)
-{
-	$matches = array();
-	foreach ($search as $i) {
-		$matches[$i] = in_array($i, $arr);
-	}
-}
-
-// iterations: 10000, time: 6.258 sec, memory diff: 1068.38 kB
-function func2($arr, $search)
-{
-	$matches = array();
-	$invArr = array_flip($arr);
-	foreach ($search as $i) {
-		$matches[$i] = isset($arr[$i]);
-	}
-}
-
 $iterations = 1000;
 for ($_i = 0; $_i < $iterations; $_i++) {
-	func1($arr, $search);
-	// func2($arr, $search);
+
+	// iterations: 1000, time: 0.273 sec, memory diff: 22.94 kB, cpu: 0.151 sec
+	file_get_contents('http://localhost');  
+
+
+
+
+
+
+
+	// iterations: 1000, time: 0.298 sec, memory diff: 19.06 kB, cpu: 0.166 sec
+        // $curl = curl_init('http://localhost');
+        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($curl, CURLOPT_TIMEOUT, 1);
+        // curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+
+        // curl_exec($curl);
+        // curl_close($curl);
+
 }
 
 
@@ -41,5 +50,10 @@ $endMem = memory_get_peak_usage();
 if (PHP_SAPI != 'cli')
 	echo '<pre>';
 
-printf("iterations: %d, time: %.3f sec, memory diff: %.2f kB\n", $iterations, $endTime - $startTime, ($endMem - $startMem) / 1000);
+printf("iterations: %d, time: %.3f sec, memory diff: %.2f kB, cpu: %.3f sec\n",
+	$iterations,
+	$endTime - $startTime,
+	($endMem - $startMem) / 1000,
+	getCpuElapsedTime() - $startCpu
+);
 ?>

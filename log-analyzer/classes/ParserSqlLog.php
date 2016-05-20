@@ -30,7 +30,7 @@ class ParserSqlLog
 
 	public function parse()
 	{
-		$this->_totalLines = trim(`cat $this->_file | wc -l`);
+		$this->_totalLines = trim(`cat '$this->_file' | wc -l`);
 		$this->_createSession();
 
 		echo "create parse session #$this->_sessId\n";

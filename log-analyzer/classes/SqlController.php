@@ -82,4 +82,17 @@ class SqlController extends Controller
 		}
 		reload();
 	}
+
+    public function action_remove_all()
+    {
+        if (empty($_POST['remove-all']))
+            return;
+
+        $db = db::get();
+
+        $db->truncate('sql_log');
+        $db->delete('sql_log_sessions', '1');
+
+        Messenger::get()->addSuccess("All data removed!");
+    }
 }
