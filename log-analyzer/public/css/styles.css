@@ -21,3 +21,19 @@ input[type="checkbox"].form-control{
 	font-size: 10px;
 	color: #777;
 }
+
+
+/* default table */
+.std-grid {
+	background: #FFF;
+}
+.std-grid td,
+.std-grid th {
+	border: 1px solid #ddd;
+	padding: 6px 8px;
+	vertical-align: middle;
+}
+.std-grid.compact td,
+.std-grid.compact th {
+	padding: 2px 4px;
+}
